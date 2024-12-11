@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="300dp"
+    android:height="100dp"
+    android:viewportWidth="800"
+    android:viewportHeight="200">
+    
+    <!-- Audio Muted 텍스트 -->
+    <path
+        android:fillColor="#6495ED"
+        android:pathData="M50,80 Q70,80 85,80 Q100,80 120,80 C140,80 160,120 180,80 M200,80 L220,80 M240,80 Q260,80 280,80" />
+        
+    <!-- 잠자는 표시 -->
+    <path
+        android:fillColor="#6495ED"
+        android:pathData="M600,40 C620,35 640,30 660,40 M670,35 C690,30 710,25 730,35" />
+    
+    <!-- 초록색 밑줄 -->
+    <path
+        android:fillColor="#90EE90"
+        android:pathData="M600,60 L730,60" />
+</vector> 
