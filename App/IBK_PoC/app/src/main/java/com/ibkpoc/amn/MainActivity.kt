@@ -34,20 +34,16 @@ class MainActivity : ComponentActivity() {
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
-        val micPermissionGranted = permissions[Manifest.permission.RECORD_AUDIO] == true
-        viewModel.setHasRecordPermission(micPermissionGranted)
-        
-        if (micPermissionGranted) {
+        // 모든 권한 확인 후 ViewModel 상태 업데이트
+        val allPermissionsGranted = REQUIRED_PERMISSIONS.all {
+            permissions[it] == true
+        }
+        viewModel.setHasRecordPermission(allPermissionsGranted)
+
+        if (allPermissionsGranted) {
             startApp()
         } else {
-            when {
-                shouldShowRequestPermissionRationale(Manifest.permission.RECORD_AUDIO) -> {
-                    showPermissionExplanationDialog()
-                }
-                else -> {
-                    showPermissionSettingsDialog()
-                }
-            }
+            handlePermissionDenied()
         }
     }
 
@@ -94,7 +90,8 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
+
+        // 앱 실행 시 권한 확인 및 초기화
         if (hasAllPermissions()) {
             viewModel.setHasRecordPermission(true)
             startApp()
@@ -137,6 +134,14 @@ class MainActivity : ComponentActivity() {
     private fun hasAllPermissions(): Boolean {
         return REQUIRED_PERMISSIONS.all {
             ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
+        }
+    }
+
+    private fun handlePermissionDenied() {
+        if (shouldShowRequestPermissionRationale(Manifest.permission.RECORD_AUDIO)) {
+            showPermissionExplanationDialog()
+        } else {
+            showPermissionSettingsDialog()
         }
     }
 }

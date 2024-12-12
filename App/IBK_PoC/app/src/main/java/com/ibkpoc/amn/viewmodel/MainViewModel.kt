@@ -66,6 +66,8 @@ class MainViewModel @Inject constructor(
     private var tempFile: File? = null
     private var currentBufferSize = 0
     private val MAX_BUFFER_SIZE = 1024 * 1024 * 10  // 10MB
+    private var noiseSuppressor: NoiseSuppressor? = null
+
 
     sealed class RecordingState {
         object Idle : RecordingState()
@@ -124,16 +126,18 @@ class MainViewModel @Inject constructor(
                 when (result) {
                     is NetworkResult.Success -> {
                         _recordingState.value = RecordingState.Idle
-                        uploadRecording(currentState.meetingId)
+                        _isLoading.value = false // 로딩 상태 해제
+                        // 업로드 작업은 별도로 비동기로 처리
+                        uploadRecordingAsync(currentState.meetingId)
                     }
                     is NetworkResult.Error -> {
                         _errorMessage.value = result.message
+                        _isLoading.value = false
                     }
                     is NetworkResult.Loading -> {
                         _isLoading.value = true
                     }
                 }
-                _isLoading.value = false
             }
         }
     }
@@ -151,21 +155,40 @@ class MainViewModel @Inject constructor(
                     context.getExternalFilesDir(null),
                     "temp_meeting_${System.currentTimeMillis()}.pcm"
                 )
-                
-                audioRecord = AudioRecord(
-                    MediaRecorder.AudioSource.MIC,
-                    sampleRate,
-                    channelConfig,
-                    audioFormat,
-                    bufferSize
-                )
 
-                val buffer = ByteArray(bufferSize)
+                // AudioRecord 초기화
+                audioRecord = try {
+                    AudioRecord(
+                        MediaRecorder.AudioSource.MIC,
+                        sampleRate,
+                        channelConfig,
+                        audioFormat,
+                        bufferSize
+                    )
+                } catch (e: SecurityException) {
+                    Logger.e("AudioRecord 초기화 실패 - 권한 부족", e)
+                    _errorMessage.value = "녹음을 시작할 수 없습니다: 권한 부족"
+                    return@launch
+                }
+
+                // NoiseSuppressor 초기화
+                if (NoiseSuppressor.isAvailable()) {
+                    try {
+                        noiseSuppressor = NoiseSuppressor.create(audioRecord!!.audioSessionId)
+                    } catch (e: Exception) {
+                        Logger.e("NoiseSuppressor 초기화 실패", e)
+                    }
+                }
+
                 audioRecord?.startRecording()
                 isRecording = true
-
                 _recordingState.value = RecordingState.Recording(meetingId, startTime)
+
+                // 녹음 시간 카운트 시작
                 startDurationCounter()
+
+                // 녹음 데이터 저장
+                val buffer = ByteArray(bufferSize)
 
                 FileOutputStream(tempFile, true).use { output ->
                     while (isRecording) {
@@ -233,7 +256,7 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    private fun uploadRecording(meetingId: Long) {
+    private fun uploadRecordingAsync(meetingId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
@@ -242,7 +265,7 @@ class MainViewModel @Inject constructor(
                     context.getExternalFilesDir(null),
                     "meeting_$timestamp.wav"
                 )
-                
+
                 // PCM to WAV 변환
                 tempFile?.let { pcmFile ->
                     FileOutputStream(wavFile).use { output ->
@@ -251,8 +274,8 @@ class MainViewModel @Inject constructor(
                             input.copyTo(output)
                         }
                     }
-                    
-                    // 업로드 후 임시 파일 삭제
+
+                    // 파일 업로드
                     repository.uploadMeetingRecord(meetingId, wavFile).collect { result ->
                         when (result) {
                             is NetworkResult.Success -> {
@@ -265,16 +288,13 @@ class MainViewModel @Inject constructor(
                                 Logger.e("녹음 파일 업로드 실패", null)
                                 _errorMessage.value = "녹음 파일 업로드 실패: ${result.message}"
                             }
-                            is NetworkResult.Loading -> {
-                                _isLoading.value = true
-                            }
+                            else -> { /* Do nothing */ }
                         }
                     }
                 }
             } catch (e: Exception) {
                 Logger.e("녹음 파일 업로드 중 오류", e)
                 _errorMessage.value = "녹음 파일 업로드 중 오류: ${e.message}"
-                handleRecordingError()  // 업로드 실패시에도 파일 보존 시도
             }
         }
     }
@@ -323,6 +343,13 @@ class MainViewModel @Inject constructor(
 
     fun setHasRecordPermission(hasPermission: Boolean) {
         _hasRecordPermission.value = hasPermission
+    }
+
+    fun updateRecordPermission() {
+        val hasPermission = ContextCompat.checkSelfPermission(
+            context, Manifest.permission.RECORD_AUDIO
+        ) == PackageManager.PERMISSION_GRANTED
+        setHasRecordPermission(hasPermission)
     }
 
     private fun handleUnexpectedTermination(meetingId: Long) {
@@ -387,6 +414,7 @@ class MainViewModel @Inject constructor(
                         }
                         is NetworkResult.Error -> {
                             Logger.e("복구된 녹음 파일 업로드 실패", null)
+                            _errorMessage.value = "녹음 파일 업로드 실패: ${result.message}"
                         }
                         is NetworkResult.Loading -> {
                             _isLoading.value = true
@@ -398,4 +426,9 @@ class MainViewModel @Inject constructor(
             }
         }
     }
+
+    private fun checkPermission(permission: String): Boolean {
+        return ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
+    }
+
 }
