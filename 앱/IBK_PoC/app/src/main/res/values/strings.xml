@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">IBK_PoC 자동 회의록</string>
+    <string name="mute_recording">음소거</string>
+</resources>
