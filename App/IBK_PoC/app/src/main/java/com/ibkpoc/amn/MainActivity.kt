@@ -6,6 +6,7 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.widget.Toast
@@ -26,9 +27,18 @@ class MainActivity : ComponentActivity() {
     
     companion object {
         private const val PERMISSIONS_REQUEST_CODE = 100
-        private val REQUIRED_PERMISSIONS = arrayOf(
-            Manifest.permission.RECORD_AUDIO
-        )
+        private val REQUIRED_PERMISSIONS = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            arrayOf(
+                Manifest.permission.RECORD_AUDIO,
+                Manifest.permission.FOREGROUND_SERVICE,
+                Manifest.permission.FOREGROUND_SERVICE_MICROPHONE
+            )
+        } else {
+            arrayOf(
+                Manifest.permission.RECORD_AUDIO,
+                Manifest.permission.FOREGROUND_SERVICE
+            )
+        }
     }
 
     private val permissionLauncher = registerForActivityResult(

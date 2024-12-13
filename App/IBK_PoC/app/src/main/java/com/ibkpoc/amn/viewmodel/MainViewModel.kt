@@ -254,6 +254,10 @@ class MainViewModel @Inject constructor(
             viewModelScope.launch(Dispatchers.IO) {
                 try {
                     val pcmData = synchronized(audioBuffer) {
+                        if (audioBuffer.isEmpty()) {
+                            Logger.i("빈 버퍼 감지됨 - 처리 건너뜀")
+                            return@launch
+                        }
                         audioBuffer.reduce { acc, bytes -> acc + bytes }
                     }
                     
