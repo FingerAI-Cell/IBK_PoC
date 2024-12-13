@@ -9,5 +9,5 @@ import java.io.File
 interface MeetingRepository {
     suspend fun startMeeting(): Flow<NetworkResult<MeetingSession>>
     suspend fun endMeeting(meetingId: Long): Flow<NetworkResult<Unit>>
-    suspend fun uploadMeetingRecord(meetingId: Long, audioFile: File): Flow<NetworkResult<Unit>>
+    suspend fun uploadMeetingRecordChunk(recordingData: RecordingData): Flow<NetworkResult<Unit>>
 }
