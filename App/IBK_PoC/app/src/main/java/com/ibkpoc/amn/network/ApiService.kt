@@ -26,4 +26,11 @@ interface ApiService {
         @Part("duration") duration: RequestBody,
         @Part file: MultipartBody.Part
     ): Response<CommonResponse<Unit>>
+
+    @Multipart
+    @POST("/meeting/upload/wav")
+    suspend fun uploadMeetingWavFile(
+        @Part("meetingId") meetingId: RequestBody,
+        @Part file: MultipartBody.Part
+    ): Response<CommonResponse<Unit>>
 }
