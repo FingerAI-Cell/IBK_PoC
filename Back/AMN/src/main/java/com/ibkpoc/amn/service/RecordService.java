@@ -1,6 +1,7 @@
 package com.ibkpoc.amn.service;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import jakarta.annotation.PostConstruct;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +40,25 @@ public class RecordService implements DisposableBean {
             Runtime.getRuntime().availableProcessors(),
             new ThreadFactoryBuilder().setNameFormat("recording-scheduler-%d").build()
     );
+
+    @PostConstruct
+    public void init() {
+        try {
+            Path basePath = Paths.get(baseRecordPath);
+            if (!Files.exists(basePath)) {
+                Files.createDirectories(basePath);
+                log.info("기본 녹음 디렉토리 생성됨: {}", baseRecordPath);
+            }
+            // 권한 체크
+            if (!Files.isWritable(basePath)) {
+                log.error("녹음 디렉토리에 쓰기 권한 없음: {}", baseRecordPath);
+                throw new RuntimeException("녹음 디렉토리 권한 오류");
+            }
+        } catch (IOException e) {
+            log.error("녹음 디렉토리 초기화 실패", e);
+            throw new RuntimeException("녹음 디렉토리 초기화 실패", e);
+        }
+    }
 
     @Data
     private static class RecordingInfo {

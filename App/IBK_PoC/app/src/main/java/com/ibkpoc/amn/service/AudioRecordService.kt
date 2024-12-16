@@ -21,6 +21,7 @@ import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileOutputStream
 import javax.inject.Inject
+import android.content.pm.ServiceInfo
 
 @AndroidEntryPoint
 class AudioRecordService : Service() {
@@ -36,7 +37,7 @@ class AudioRecordService : Service() {
     private val channelConfig = AudioFormat.CHANNEL_IN_MONO
     private val audioFormat = AudioFormat.ENCODING_PCM_16BIT
     private val bufferSize = AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat)
-    private val BUFFER_BLOCK_LIMIT = 10
+    private val BUFFER_BLOCK_LIMIT = 5
 
     private val NOTIFICATION_ID = 1
     private val CHANNEL_ID = "audio_record_channel"
@@ -51,7 +52,11 @@ class AudioRecordService : Service() {
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
-        startForeground(NOTIFICATION_ID, createNotification())
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startForeground(NOTIFICATION_ID, createNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE)
+        } else {
+            startForeground(NOTIFICATION_ID, createNotification())
+        }
     }
 
     private fun createNotificationChannel() {
@@ -179,10 +184,9 @@ class AudioRecordService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        serviceScope.launch {
+        serviceScope.launch(NonCancellable) {
             try {
                 isRecording = false
-                
                 audioRecord?.stop()
                 
                 val finalData: ByteArray? = synchronized(audioBuffer) {
@@ -190,13 +194,13 @@ class AudioRecordService : Service() {
                         val data = audioBuffer.reduce { acc, bytes -> acc + bytes }
                         audioBuffer.clear()
                         data
-                    } else {
-                        null
-                    }
+                    } else null
                 }
                 
                 finalData?.let { saveAndUploadBuffer(it) }
                 
+            } catch (e: Exception) {
+                Logger.e("서비스 종료 중 오류", e)
             } finally {
                 audioRecord?.release()
                 noiseSuppressor?.release()

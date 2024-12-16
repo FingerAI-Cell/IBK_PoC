@@ -35,6 +35,7 @@ import java.io.File
 import android.content.Intent
 import android.os.Build
 import com.ibkpoc.amn.service.AudioRecordService
+import java.io.FileInputStream
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
@@ -143,21 +144,17 @@ class MainViewModel @Inject constructor(
                 currentRecordFile?.let { pcmFile ->
                     try {
                         val wavFile = File(audioDir, "meeting_${currentState.meetingId}.wav")
-                        val pcmData = pcmFile.readBytes()
-                        FileOutputStream(wavFile).use { wavOutputStream ->
-                            writeWavHeader(wavOutputStream, pcmData.size.toLong())
-                            wavOutputStream.write(pcmData)
-                        }
+                        convertPcmToWav(pcmFile, wavFile)
                         Logger.i("WAV 파일 변환 완료: ${wavFile.absolutePath}")
                     } catch (e: Exception) {
                         Logger.e("WAV 파일 변환 실패", e)
                     }
                 }
                 
-                // 4. 서비스 종료 및 회의 종료 API 호출
+                // 4. 서비스 종료
                 context.stopService(Intent(context, AudioRecordService::class.java))
                 
-                // 4. 회의 종료 API 호출
+                // 5. 회의 종료 API 호출
                 repository.endMeeting(currentState.meetingId).collect { result ->
                     when (result) {
                         is NetworkResult.Success -> {
@@ -271,7 +268,6 @@ class MainViewModel @Inject constructor(
             val currentTime = System.currentTimeMillis()
             val duration = currentTime - lastChunkStartTime
             
-            // 이전 업로드 작업 취소
             uploadJob?.cancel()
             
             uploadJob = viewModelScope.launch(Dispatchers.IO) {
@@ -281,23 +277,25 @@ class MainViewModel @Inject constructor(
                             Logger.i("빈 버퍼 감지됨 - 처리 건너뜀")
                             return@launch
                         }
-                        audioBuffer.reduce { acc, bytes -> acc + bytes }
+                        val data = audioBuffer.reduce { acc, bytes -> acc + bytes }
+                        audioBuffer.clear()
+                        data
                     }
                     
-                    // 현일 저장 부분은 그대로 유지
+                    // 현재 파일 저장
                     currentRecordFile?.let { file ->
                         try {
                             FileOutputStream(file, true).use { fos ->
                                 fos.write(pcmData)
                                 fos.flush()
                             }
-                            Logger.i("로컬 파일 저장 성공: ${file.absolutePath}, size=${pcmData.size}")
+                            Logger.i("로컬 파일 저장 성공: ${file.absolutePath}")
                         } catch (e: Exception) {
                             Logger.e("로컬 파일 저장 실패", e)
                         }
                     }
                     
-                    // 업로드 로직 수정
+                    // 업로드
                     repository.uploadMeetingRecordChunk(
                         RecordingData(
                             meetingId = meetingId,
@@ -305,17 +303,14 @@ class MainViewModel @Inject constructor(
                             duration = duration,
                             audioData = pcmData
                         )
-                    ).collectLatest { result ->  // collect 대신 collectLatest 사용
+                    ).collectLatest { result ->
                         when (result) {
-                            is NetworkResult.Success<Unit> -> {
+                            is NetworkResult.Success -> {
                                 Logger.i("버퍼 청크 업로드 성공")
                                 lastChunkStartTime = currentTime
-                                synchronized(audioBuffer) {
-                                    audioBuffer.clear()
-                                }
                             }
                             is NetworkResult.Error -> {
-                                Logger.e("버퍼 청크 업로드 실패: ${result.message}", null)
+                                Logger.e("버퍼 청크 업로드 실패: ${result.message}")
                             }
                             is NetworkResult.Loading -> { /* 로딩 처리 */ }
                         }
@@ -438,5 +433,21 @@ class MainViewModel @Inject constructor(
         }
         recordingDurationJob?.cancel()
         currentRecordFile = null  // 녹음 종료시 파일 참조 제거
+    }
+
+    private fun convertPcmToWav(pcmFile: File, wavFile: File) {
+        FileInputStream(pcmFile).use { input ->
+            FileOutputStream(wavFile).use { output ->
+                // WAV 헤더 작성
+                writeWavHeader(output, pcmFile.length())
+                
+                // 청크 단위로 복사
+                val buffer = ByteArray(8192)
+                var bytesRead: Int
+                while (input.read(buffer).also { bytesRead = it } != -1) {
+                    output.write(buffer, 0, bytesRead)
+                }
+            }
+        }
     }
 }
