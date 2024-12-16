@@ -18,7 +18,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.*;
 import org.springframework.beans.factory.DisposableBean;
 
@@ -46,6 +48,7 @@ public class RecordService implements DisposableBean {
         private final LocalDateTime startTime;
         private ScheduledFuture<?> timeoutFuture;
         private boolean endSignalReceived = false;
+        private final Set<Long> processedChunks = new HashSet<>();
 
         public RecordingInfo(Long meetingId, Path filePath, LocalDateTime startTime) {
             this.meetingId = meetingId;
@@ -75,12 +78,25 @@ public class RecordService implements DisposableBean {
             }
         });
 
+        // 중복 청크 체크
+        synchronized (info.processedChunks) {
+            if (!info.processedChunks.add(chunkStartTime)) {
+                log.warn("중복 청크 감지됨: meetingId={}, chunkStartTime={}", meetingId, chunkStartTime);
+                return;  // 이미 처리된 청크는 건너뜀
+            }
+        }
+
         try {
             resetTimeout(info);
             saveChunkData(info, file, duration);
             log.info("청크 저장 완료: meetingId={}, totalBytes={}", meetingId, info.getTotalBytes());
         } catch (Exception e) {
-            log.error("청크 저장 중 오류 (계속 진행): meetingId={}, chunkStartTime={}", meetingId, chunkStartTime, e);
+            // 저장 실패 시 processedChunks에서 제거하여 재시도 가능하게 함
+            synchronized (info.processedChunks) {
+                info.processedChunks.remove(chunkStartTime);
+            }
+            log.error("청크 저장 중 오류 (계속 진행): meetingId={}, chunkStartTime={}, error={}",
+                    meetingId, chunkStartTime, e.getMessage(), e);  // 스택트레이스와 에러 메시지 추가
         }
     }
 
@@ -146,6 +162,11 @@ public class RecordService implements DisposableBean {
         RecordingInfo info = activeRecordings.get(meetingId);
         if (info != null) {
             info.setEndSignalReceived(true);
+            synchronized (info.processedChunks) {
+                log.info("처리된 총 청크 수: {}, meetingId: {}",
+                        info.processedChunks.size(), meetingId);
+                info.processedChunks.clear();  // 메모리 정리
+            }
             log.info("녹음 종료 처리 시작: meetingId={}, totalDuration={}ms",
                     meetingId,
                     java.time.Duration.between(info.getStartTime(), LocalDateTime.now()).toMillis());

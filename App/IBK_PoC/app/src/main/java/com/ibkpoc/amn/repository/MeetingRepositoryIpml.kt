@@ -16,10 +16,15 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.coroutineScope
 
 class MeetingRepositoryImpl @Inject constructor(
     private val apiService: ApiService
 ) : MeetingRepository {
+    private val uploadMutex = Mutex()
+
     override suspend fun startMeeting(): Flow<NetworkResult<MeetingSession>> = flow {
         emit(NetworkResult.Loading)
         try {
@@ -58,33 +63,35 @@ class MeetingRepositoryImpl @Inject constructor(
 
     override suspend fun uploadMeetingRecordChunk(recordingData: RecordingData): Flow<NetworkResult<Unit>> = flow {
         emit(NetworkResult.Loading)
-        try {
-            val meetingIdBody = recordingData.meetingId.toString()
-                .toRequestBody("text/plain".toMediaTypeOrNull())
-            val chunkStartTimeBody = recordingData.chunkStartTime.toString()
-                .toRequestBody("text/plain".toMediaTypeOrNull())
-            val durationBody = recordingData.duration.toString()
-                .toRequestBody("text/plain".toMediaTypeOrNull())
-            
-            val fileBody = recordingData.audioData.toRequestBody("audio/pcm".toMediaTypeOrNull())
-            val filePart = MultipartBody.Part.createFormData("file", "chunk_${recordingData.meetingId}.pcm", fileBody)
+        uploadMutex.withLock {
+            try {
+                val meetingIdBody = recordingData.meetingId.toString()
+                    .toRequestBody("text/plain".toMediaTypeOrNull())
+                val chunkStartTimeBody = recordingData.chunkStartTime.toString()
+                    .toRequestBody("text/plain".toMediaTypeOrNull())
+                val durationBody = recordingData.duration.toString()
+                    .toRequestBody("text/plain".toMediaTypeOrNull())
+                
+                val fileBody = recordingData.audioData.toRequestBody("audio/pcm".toMediaTypeOrNull())
+                val filePart = MultipartBody.Part.createFormData("file", "chunk_${recordingData.meetingId}.pcm", fileBody)
 
-            val response = apiService.uploadMeetingRecordChunk(
-                meetingId = meetingIdBody,
-                chunkStartTime = chunkStartTimeBody,
-                duration = durationBody,
-                file = filePart
-            )
-            
-            if (response.isSuccessful) {
-                emit(NetworkResult.Success(Unit))
-            } else {
-                Logger.e("청크 업로드 실패: ${response.message()}", null)
-                emit(NetworkResult.Error(response.code(), "청크 업로드 실패"))
+                val response = apiService.uploadMeetingRecordChunk(
+                    meetingId = meetingIdBody,
+                    chunkStartTime = chunkStartTimeBody,
+                    duration = durationBody,
+                    file = filePart
+                )
+                
+                if (response.isSuccessful) {
+                    emit(NetworkResult.Success(Unit))
+                } else {
+                    Logger.e("청크 업로드 실패: ${response.message()}", null)
+                    emit(NetworkResult.Error(response.code(), "청크 업로드 실패"))
+                }
+            } catch (e: Exception) {
+                Logger.e("청크 업로드 중 오류 발생", e)
+                emit(NetworkResult.Error(0, "청크 업로드 중 오류 발생: ${e.message}"))
             }
-        } catch (e: Exception) {
-            Logger.e("청크 업로드 중 오류 발생", e)
-            emit(NetworkResult.Error(0, "청크 업로드 중 오류 발생: ${e.message}"))
         }
     }
 

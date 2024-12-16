@@ -79,6 +79,8 @@ class MainViewModel @Inject constructor(
 
     private var currentRecordFile: File? = null
 
+    private var uploadJob: Job? = null
+
     sealed class RecordingState {
         object Idle : RecordingState()
         data class Recording(
@@ -122,6 +124,7 @@ class MainViewModel @Inject constructor(
     }
 
     fun endMeeting() {
+        uploadJob?.cancel()
         viewModelScope.launch {
             val currentState = _recordingState.value as? RecordingState.Recording ?: return@launch
             
@@ -130,11 +133,28 @@ class MainViewModel @Inject constructor(
                 isRecording = false
                 
                 // 2. 마지막 버퍼 처리
-                if (audioBuffer.isNotEmpty()) {
-                    saveAndUploadBuffer(currentState.meetingId)
+                synchronized(audioBuffer) {
+                    if (audioBuffer.isNotEmpty()) {
+                        saveAndUploadBuffer(currentState.meetingId)
+                    }
                 }
                 
-                // 3. 서비스 종료
+                // 3. PCM -> WAV 변환
+                currentRecordFile?.let { pcmFile ->
+                    try {
+                        val wavFile = File(audioDir, "meeting_${currentState.meetingId}.wav")
+                        val pcmData = pcmFile.readBytes()
+                        FileOutputStream(wavFile).use { wavOutputStream ->
+                            writeWavHeader(wavOutputStream, pcmData.size.toLong())
+                            wavOutputStream.write(pcmData)
+                        }
+                        Logger.i("WAV 파일 변환 완료: ${wavFile.absolutePath}")
+                    } catch (e: Exception) {
+                        Logger.e("WAV 파일 변환 실패", e)
+                    }
+                }
+                
+                // 4. 서비스 종료 및 회의 종료 API 호출
                 context.stopService(Intent(context, AudioRecordService::class.java))
                 
                 // 4. 회의 종료 API 호출
@@ -251,7 +271,10 @@ class MainViewModel @Inject constructor(
             val currentTime = System.currentTimeMillis()
             val duration = currentTime - lastChunkStartTime
             
-            viewModelScope.launch(Dispatchers.IO) {
+            // 이전 업로드 작업 취소
+            uploadJob?.cancel()
+            
+            uploadJob = viewModelScope.launch(Dispatchers.IO) {
                 try {
                     val pcmData = synchronized(audioBuffer) {
                         if (audioBuffer.isEmpty()) {
@@ -261,7 +284,7 @@ class MainViewModel @Inject constructor(
                         audioBuffer.reduce { acc, bytes -> acc + bytes }
                     }
                     
-                    // 현재 회의의 파일에 저장
+                    // 현일 저장 부분은 그대로 유지
                     currentRecordFile?.let { file ->
                         try {
                             FileOutputStream(file, true).use { fos ->
@@ -272,21 +295,24 @@ class MainViewModel @Inject constructor(
                         } catch (e: Exception) {
                             Logger.e("로컬 파일 저장 실패", e)
                         }
-                    } ?: Logger.e("currentRecordFile이 null입니다")
+                    }
                     
-                    // 기존 업로드 로직
-                    val recordingData = RecordingData(
-                        meetingId = meetingId,
-                        chunkStartTime = lastChunkStartTime,
-                        duration = duration,
-                        audioData = pcmData
-                    )
-                    
-                    repository.uploadMeetingRecordChunk(recordingData).collect { result ->
+                    // 업로드 로직 수정
+                    repository.uploadMeetingRecordChunk(
+                        RecordingData(
+                            meetingId = meetingId,
+                            chunkStartTime = lastChunkStartTime,
+                            duration = duration,
+                            audioData = pcmData
+                        )
+                    ).collectLatest { result ->  // collect 대신 collectLatest 사용
                         when (result) {
                             is NetworkResult.Success<Unit> -> {
                                 Logger.i("버퍼 청크 업로드 성공")
                                 lastChunkStartTime = currentTime
+                                synchronized(audioBuffer) {
+                                    audioBuffer.clear()
+                                }
                             }
                             is NetworkResult.Error -> {
                                 Logger.e("버퍼 청크 업로드 실패: ${result.message}", null)
@@ -294,12 +320,6 @@ class MainViewModel @Inject constructor(
                             is NetworkResult.Loading -> { /* 로딩 처리 */ }
                         }
                     }
-
-                    synchronized(audioBuffer) {
-                        audioBuffer.clear()
-                    }
-                    
-                    lastChunkStartTime = currentTime
                 } catch (e: Exception) {
                     Logger.e("버퍼 청크 업로드 중 오류", e)
                 }
@@ -315,28 +335,73 @@ class MainViewModel @Inject constructor(
         val byteRate = sampleRate * channels * bitsPerSample / 8
         val totalDataLen = audioLength + 36
         
-        val header = ByteArray(44)
-        
-        // RIFF 헤더
-        System.arraycopy("RIFF".toByteArray(), 0, header, 0, 4)
-        header.putLittleEndianInt(4, totalDataLen.toInt())
-        System.arraycopy("WAVE".toByteArray(), 0, header, 8, 4)
-        
-        // fmt 청크
-        System.arraycopy("fmt ".toByteArray(), 0, header, 12, 4)
-        header.putLittleEndianInt(16, 16) // fmt 청크 크기
-        header.putLittleEndianShort(20, 1) // PCM 오디오 포맷
-        header.putLittleEndianShort(22, channels.toShort())
-        header.putLittleEndianInt(24, sampleRate)
-        header.putLittleEndianInt(28, byteRate)
-        header.putLittleEndianShort(32, (channels * bitsPerSample / 8).toShort())
-        header.putLittleEndianShort(34, bitsPerSample.toShort())
-        
-        // 데이터 청크
-        System.arraycopy("data".toByteArray(), 0, header, 36, 4)
-        header.putLittleEndianInt(40, audioLength.toInt())
-        
-        output.write(header)
+        output.write(ByteArray(44).apply {
+            // RIFF 헤더
+            this[0] = 'R'.code.toByte()
+            this[1] = 'I'.code.toByte()
+            this[2] = 'F'.code.toByte()
+            this[3] = 'F'.code.toByte()
+
+            // 파일 크기
+            this[4] = (totalDataLen and 0xff).toByte()
+            this[5] = ((totalDataLen shr 8) and 0xff).toByte()
+            this[6] = ((totalDataLen shr 16) and 0xff).toByte()
+            this[7] = ((totalDataLen shr 24) and 0xff).toByte()
+
+            // WAVE 헤더
+            this[8] = 'W'.code.toByte()
+            this[9] = 'A'.code.toByte()
+            this[10] = 'V'.code.toByte()
+            this[11] = 'E'.code.toByte()
+
+            // fmt 청크
+            this[12] = 'f'.code.toByte()
+            this[13] = 'm'.code.toByte()
+            this[14] = 't'.code.toByte()
+            this[15] = ' '.code.toByte()
+            this[16] = 16  // fmt 청크 크기
+            this[17] = 0
+            this[18] = 0
+            this[19] = 0
+
+            // 오디오 포맷 (PCM = 1)
+            this[20] = 1
+            this[21] = 0
+
+            // 채널 수
+            this[22] = channels.toByte()
+            this[23] = 0
+
+            // 샘플레이트
+            this[24] = (sampleRate and 0xff).toByte()
+            this[25] = ((sampleRate shr 8) and 0xff).toByte()
+            this[26] = ((sampleRate shr 16) and 0xff).toByte()
+            this[27] = ((sampleRate shr 24) and 0xff).toByte()
+
+            // 바이트레이트
+            this[28] = (byteRate and 0xff).toByte()
+            this[29] = ((byteRate shr 8) and 0xff).toByte()
+            this[30] = ((byteRate shr 16) and 0xff).toByte()
+            this[31] = ((byteRate shr 24) and 0xff).toByte()
+            this[32] = (channels * bitsPerSample / 8).toByte()
+            this[33] = 0
+
+            // 비트퍼샘플
+            this[34] = bitsPerSample.toByte()
+            this[35] = 0
+
+            // 데이터 청크
+            this[36] = 'd'.code.toByte()
+            this[37] = 'a'.code.toByte()
+            this[38] = 't'.code.toByte()
+            this[39] = 'a'.code.toByte()
+
+            // 데이터 크기
+            this[40] = (audioLength and 0xff).toByte()
+            this[41] = ((audioLength shr 8) and 0xff).toByte()
+            this[42] = ((audioLength shr 16) and 0xff).toByte()
+            this[43] = ((audioLength shr 24) and 0xff).toByte()
+        })
     }
 
     private fun ByteArray.putLittleEndianInt(offset: Int, value: Int) {
