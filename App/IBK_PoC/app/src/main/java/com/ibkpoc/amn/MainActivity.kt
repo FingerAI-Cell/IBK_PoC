@@ -14,8 +14,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.compose.runtime.collectAsState
 import androidx.core.content.ContextCompat
+import androidx.core.app.ActivityCompat
 import com.ibkpoc.amn.ui.screens.main.MainScreen
 import com.ibkpoc.amn.ui.theme.MeetingAppTheme
 import com.ibkpoc.amn.viewmodel.MainViewModel
@@ -27,18 +27,9 @@ class MainActivity : ComponentActivity() {
     
     companion object {
         private const val PERMISSIONS_REQUEST_CODE = 100
-        private val REQUIRED_PERMISSIONS = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            arrayOf(
-                Manifest.permission.RECORD_AUDIO,
-                Manifest.permission.FOREGROUND_SERVICE,
-                Manifest.permission.FOREGROUND_SERVICE_MICROPHONE
-            )
-        } else {
-            arrayOf(
-                Manifest.permission.RECORD_AUDIO,
-                Manifest.permission.FOREGROUND_SERVICE
-            )
-        }
+        private val REQUIRED_PERMISSIONS = arrayOf(
+            Manifest.permission.RECORD_AUDIO  // 음성 권한만 남김
+        )
     }
 
     private val permissionLauncher = registerForActivityResult(
@@ -113,31 +104,24 @@ class MainActivity : ComponentActivity() {
     private fun startApp() {
         setContent {
             MeetingAppTheme {
-                val recordingState = viewModel.recordingState.collectAsState().value
-                val errorMessage = viewModel.errorMessage.collectAsState().value
-                val isLoading = viewModel.isLoading.collectAsState().value
-                
-                MainScreen(
-                    recordingState = recordingState,
-                    errorMessage = errorMessage,
-                    isLoading = isLoading,
-                    onStartMeeting = { viewModel.startMeeting() },
-                    onEndMeeting = { viewModel.endMeeting() }
-                )
+                MainScreen(viewModel = viewModel)
             }
         }
     }
 
     private fun checkPermissions() {
-        val missingPermissions = REQUIRED_PERMISSIONS.filter {
-            ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
+        // 이미 권한이 있는지 먼저 확인
+        val missingPermissions = REQUIRED_PERMISSIONS.filter { permission ->
+            ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED
         }
 
+        // 필요한 권한만 요청
         if (missingPermissions.isNotEmpty()) {
-            permissionLauncher.launch(missingPermissions.toTypedArray())
-        } else {
-            viewModel.setHasRecordPermission(true)
-            startApp()
+            ActivityCompat.requestPermissions(
+                this,
+                missingPermissions.toTypedArray(),
+                PERMISSIONS_REQUEST_CODE
+            )
         }
     }
 

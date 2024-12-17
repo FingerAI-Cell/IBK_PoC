@@ -41,24 +41,20 @@ public class MeetingController {
     }
 
     @PostMapping("/upload/chunk")
-    public ResponseEntity<CommonResponse<?>> uploadRecordChunk(@ModelAttribute AudioChunkRequest request) {
-        log.info("청크 업로드 요청: meetingId={}, chunkStartTime={}",
-                request.getMeetingId(), request.getChunkStartTime());
-
+    public ResponseEntity<CommonResponse<?>> uploadWavChunk(@ModelAttribute WavUploadRequest request) {
         try {
-            recordService.saveRecordChunk(
+            log.info("WAV 청크 업로드 요청: meetingId={}, chunk={}/{}, 파일크기={}",
                     request.getMeetingId(),
-                    request.getChunkStartTime(),
-                    request.getDuration(),
-                    request.getFile()
-            );
-            return ResponseEntity.ok(new CommonResponse<>("SUCCESS", "청크가 업로드되었습니다", null));
+                    request.getCurrentChunk(),
+                    request.getTotalChunks(),
+                    request.getFile().getSize());
+
+            recordService.saveWavFile(request);
+            return ResponseEntity.ok(new CommonResponse<>("SUCCESS", "WAV 청크가 업로드되었습니다", null));
         } catch (Exception e) {
-            log.error("청크 업로드 실패: meetingId={}", request.getMeetingId(), e);
-            // 실패해도 200 응답 (클라이언트가 계속 진행하도록)
-            return ResponseEntity.ok(
-                    new CommonResponse<>("PARTIAL_SUCCESS", "청크 처리 중 일부 오류 발생", null)
-            );
+            log.error("WAV 청크 업로드 실패: meetingId={}", request.getMeetingId(), e);
+            return ResponseEntity.badRequest()
+                    .body(new CommonResponse<>("ERROR", "청크 업로드 실패: " + e.getMessage(), null));
         }
     }
 }

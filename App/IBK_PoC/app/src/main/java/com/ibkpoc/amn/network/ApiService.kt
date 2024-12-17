@@ -20,17 +20,12 @@ interface ApiService {
 
     @Multipart
     @POST("/meeting/upload/chunk")
-    suspend fun uploadMeetingRecordChunk(
+    suspend fun uploadWavChunk(
         @Part("meetingId") meetingId: RequestBody,
-        @Part("chunkStartTime") chunkStartTime: RequestBody,
+        @Part("startTime") startTime: RequestBody,
         @Part("duration") duration: RequestBody,
-        @Part file: MultipartBody.Part
-    ): Response<CommonResponse<Unit>>
-
-    @Multipart
-    @POST("/meeting/upload/wav")
-    suspend fun uploadMeetingWavFile(
-        @Part("meetingId") meetingId: RequestBody,
+        @Part("currentChunk") currentChunk: RequestBody,
+        @Part("totalChunks") totalChunks: RequestBody,
         @Part file: MultipartBody.Part
     ): Response<CommonResponse<Unit>>
 }

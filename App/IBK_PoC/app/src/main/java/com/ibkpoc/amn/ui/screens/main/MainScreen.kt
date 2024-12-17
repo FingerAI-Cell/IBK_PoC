@@ -7,8 +7,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.ibkpoc.amn.viewmodel.MainViewModel.RecordingState
+import com.ibkpoc.amn.model.RecordingState
 import com.ibkpoc.amn.ui.screens.main.components.RecordingIndicator
+import com.ibkpoc.amn.viewmodel.MainViewModel
 
 @Composable
 fun MainScreen(
@@ -41,6 +42,13 @@ fun MainScreen(
                 Text(
                     text = "회의를 시작하려면\n아래 버튼을 눌러주세요",
                     style = MaterialTheme.typography.titleMedium
+                )
+            }
+            is RecordingState.Error -> {
+                Text(
+                    text = recordingState.message,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
         }
@@ -89,4 +97,19 @@ private fun formatDuration(seconds: Long): String {
     val minutes = seconds / 60
     val remainingSeconds = seconds % 60
     return String.format("%02d:%02d", minutes, remainingSeconds)
+}
+
+@Composable
+fun MainScreen(viewModel: MainViewModel) {
+    val recordingState = viewModel.recordingState.collectAsState().value
+    val errorMessage = viewModel.errorMessage.collectAsState().value
+    val isLoading = viewModel.isLoading.collectAsState().value
+
+    MainScreen(
+        recordingState = recordingState,
+        errorMessage = errorMessage,
+        isLoading = isLoading,
+        onStartMeeting = { viewModel.startMeeting() },
+        onEndMeeting = { viewModel.endMeeting() }
+    )
 }

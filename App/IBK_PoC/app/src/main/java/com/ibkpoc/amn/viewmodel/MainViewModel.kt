@@ -36,6 +36,9 @@ import android.content.Intent
 import android.os.Build
 import com.ibkpoc.amn.service.AudioRecordService
 import java.io.FileInputStream
+import android.content.BroadcastReceiver
+import android.content.IntentFilter
+import android.annotation.SuppressLint
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
@@ -66,9 +69,6 @@ class MainViewModel @Inject constructor(
     private val channelConfig = AudioFormat.CHANNEL_IN_MONO
     private val audioFormat = AudioFormat.ENCODING_PCM_16BIT
     private val bufferSize = AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat)
-    private val BUFFER_BLOCK_LIMIT = 10
-
-    private var lastChunkStartTime: Long = 0
 
     private val audioDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
         .resolve("IBK_Records")
@@ -79,38 +79,116 @@ class MainViewModel @Inject constructor(
         }
 
     private var currentRecordFile: File? = null
+    private val bufferLock = Any()
+    private var recordingReceiver: BroadcastReceiver? = null
 
-    private var uploadJob: Job? = null
+    private var recordingJob: Job? = null
 
-    sealed class RecordingState {
-        object Idle : RecordingState()
-        data class Recording(
-            val meetingId: Long,
-            val startTime: String,
-            val duration: Long = 0L
-        ) : RecordingState()
+    init {
+        registerRecordingReceiver()
+    }
+
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
+    private fun registerRecordingReceiver() {
+        recordingReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                if (intent?.action == AudioRecordService.ACTION_RECORDING_DATA) {
+                    intent.getByteArrayExtra(AudioRecordService.EXTRA_AUDIO_DATA)?.let { data ->
+                        processAudioData(data)
+                    }
+                }
+            }
+        }
+        
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                Context.RECEIVER_NOT_EXPORTED
+            } else {
+                0
+            }
+            context.registerReceiver(
+                recordingReceiver,
+                IntentFilter(AudioRecordService.ACTION_RECORDING_DATA),
+                flags
+            )
+        } else {
+            context.registerReceiver(
+                recordingReceiver,
+                IntentFilter(AudioRecordService.ACTION_RECORDING_DATA)
+            )
+        }
+    }
+
+    private fun processAudioData(data: ByteArray) {
+        synchronized(bufferLock) {
+            audioBuffer.add(data)
+            if (audioBuffer.size >= 10) { // 약 1초치 데이터
+                saveBufferToFile()
+            }
+        }
+    }
+
+    private fun saveBufferToFile() {
+        currentRecordFile?.let { file ->
+            try {
+                FileOutputStream(file, true).use { fos ->
+                    synchronized(bufferLock) {
+                        audioBuffer.forEach { chunk ->
+                            fos.write(chunk)
+                        }
+                        fos.flush()
+                        audioBuffer.clear()
+                    }
+                }
+            } catch (e: Exception) {
+                _errorMessage.value = "파일 저장 실패: ${e.message}"
+            }
+        }
     }
 
     fun startMeeting() {
         viewModelScope.launch {
-            _isLoading.value = true
-            val startTime = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
+            val startTime = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date())
             
             repository.startMeeting().collect { result ->
                 when (result) {
                     is NetworkResult.Success -> {
-                        // 서비스 시작 (백그라운드 마이크 접근용)
-                        val serviceIntent = Intent(context, AudioRecordService::class.java)
+                        // 녹음 파일 생성
+                        val recordDir = context.getExternalFilesDir(null)
+                            ?.resolve("IBK_Records")
+                            ?.apply { mkdirs() }
+                        
+                        currentRecordFile = File(
+                            recordDir,
+                            "record_${result.data.convId}_${startTime.replace(":", "-")}.pcm"
+                        ).apply { createNewFile() }
+
+                        // 서비스 시작
+                        val serviceIntent = Intent(context, AudioRecordService::class.java).apply {
+                            action = AudioRecordService.ACTION_START
+                            putExtra(AudioRecordService.EXTRA_MEETING_ID, result.data.convId)
+                            putExtra(AudioRecordService.EXTRA_START_TIME, startTime)
+                        }
+                        
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                             context.startForegroundService(serviceIntent)
                         } else {
                             context.startService(serviceIntent)
                         }
                         
-                        // 녹음 시작 (기존 로직)
-                        startRecording(result.data.convId, startTime)
                         _recordingState.value = RecordingState.Recording(result.data.convId, startTime)
-                        _errorMessage.value = null
+                        
+                        // 녹음 시간 업데이트 로직 추가
+                        recordingJob = viewModelScope.launch {
+                            var seconds = 0L
+                            while (true) {
+                                delay(1000)
+                                seconds++
+                                (_recordingState.value as? RecordingState.Recording)?.let {
+                                    _recordingState.value = it.copy(duration = seconds)
+                                }
+                            }
+                        }
                     }
                     is NetworkResult.Error -> {
                         _errorMessage.value = result.message
@@ -125,56 +203,77 @@ class MainViewModel @Inject constructor(
     }
 
     fun endMeeting() {
-        uploadJob?.cancel()
+        recordingJob?.cancel()  // 타이머 취소
         viewModelScope.launch {
             val currentState = _recordingState.value as? RecordingState.Recording ?: return@launch
             
             try {
-                // 1. 녹음 중지
-                isRecording = false
-                
-                // 2. 마지막 버퍼 처리
-                synchronized(audioBuffer) {
-                    if (audioBuffer.isNotEmpty()) {
-                        saveAndUploadBuffer(currentState.meetingId)
-                    }
-                }
-                
-                // 3. PCM -> WAV 변환
-                currentRecordFile?.let { pcmFile ->
-                    try {
-                        val wavFile = File(audioDir, "meeting_${currentState.meetingId}.wav")
-                        convertPcmToWav(pcmFile, wavFile)
-                        Logger.i("WAV 파일 변환 완료: ${wavFile.absolutePath}")
-                    } catch (e: Exception) {
-                        Logger.e("WAV 파일 변환 실패", e)
-                    }
-                }
-                
-                // 4. 서비스 종료
+                // 1. 녹음 서비스 중지
                 context.stopService(Intent(context, AudioRecordService::class.java))
                 
-                // 5. 회의 종료 API 호출
-                repository.endMeeting(currentState.meetingId).collect { result ->
+                // 2. 마지막 버퍼 저장
+                saveBufferToFile()
+                
+                // 3. PCM -> WAV 변환
+                val wavFile = currentRecordFile?.let { pcmFile ->
+                    File(
+                        pcmFile.parentFile,
+                        "meeting_${currentState.meetingId}_${currentState.startTime.replace(":", "-")}.wav"
+                    ).also { wavFile ->
+                        convertPcmToWav(pcmFile, wavFile)
+                    }
+                } ?: throw Exception("녹음 파일이 없습니다")
+
+                // 4. WAV 파일 업로드
+                val wavUploadData = WavUploadData(
+                    meetingId = currentState.meetingId,
+                    wavFile = wavFile,
+                    startTime = currentState.startTime,
+                    duration = currentState.duration,
+                    totalChunks = 0,
+                    currentChunk = 0,
+                    chunkData = ByteArray(0)
+                )
+                
+                repository.uploadMeetingWavFile(wavUploadData).collect { result ->
                     when (result) {
                         is NetworkResult.Success -> {
-                            _recordingState.value = RecordingState.Idle
-                            cleanupRecording()
+                            repository.endMeeting(currentState.meetingId).collect { endResult ->
+                                when (endResult) {
+                                    is NetworkResult.Success -> {
+                                        _recordingState.value = RecordingState.Idle
+                                        cleanupRecording()
+                                        _isLoading.value = false  // 로딩 상태 해제 추가
+                                    }
+                                    is NetworkResult.Error -> {
+                                        _errorMessage.value = "회의 종료 실패: ${endResult.message}"
+                                        _isLoading.value = false  // 에러 시에도 로딩 상태 해제
+                                    }
+                                    is NetworkResult.Loading -> _isLoading.value = true
+                                }
+                            }
                         }
                         is NetworkResult.Error -> {
-                            _errorMessage.value = "회의 종료 실패: ${result.message}"
+                            _errorMessage.value = "WAV 파일 업로드 실패: ${result.message}"
+                            _isLoading.value = false  // 에러 시에도 로딩 상태 해제
                         }
-                        is NetworkResult.Loading -> {
-                            _isLoading.value = true
-                        }
+                        is NetworkResult.Loading -> _isLoading.value = true
                     }
-                    _isLoading.value = false
                 }
             } catch (e: Exception) {
-                _errorMessage.value = "회의 종료 중 오류 발생: ${e.message}"
+                _errorMessage.value = "녹음 종�� 실패: ${e.message}"
                 cleanupRecording()
+                _isLoading.value = false  // 예외 발생 시에도 로딩 상태 해제
             }
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        recordingReceiver?.let {
+            context.unregisterReceiver(it)
+        }
+        cleanupRecording()
     }
 
     private fun startRecording(meetingId: Long, startTime: String) {
@@ -193,8 +292,6 @@ class MainViewModel @Inject constructor(
             return
         }
 
-        lastChunkStartTime = System.currentTimeMillis()
-        
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 // AudioRecord 초기화 시도
@@ -235,10 +332,11 @@ class MainViewModel @Inject constructor(
                     if (readSize > 0) {
                         synchronized(audioBuffer) {
                             audioBuffer.add(buffer.copyOf(readSize))
-                            
-                            // 버퍼가 일정 크기에 도달하면 저장 및 전송
-                            if (audioBuffer.size >= BUFFER_BLOCK_LIMIT) {
-                                saveAndUploadBuffer(meetingId)
+                            currentRecordFile?.let { file ->
+                                FileOutputStream(file, true).use { fos ->
+                                    fos.write(buffer, 0, readSize)
+                                    fos.flush()
+                                }
                             }
                         }
                     }
@@ -260,67 +358,6 @@ class MainViewModel @Inject constructor(
                     duration = duration
                 ) ?: return@launch
             }
-        }
-    }
-
-    private fun saveAndUploadBuffer(meetingId: Long) {
-        try {
-            val currentTime = System.currentTimeMillis()
-            val duration = currentTime - lastChunkStartTime
-            
-            uploadJob?.cancel()
-            
-            uploadJob = viewModelScope.launch(Dispatchers.IO) {
-                try {
-                    val pcmData = synchronized(audioBuffer) {
-                        if (audioBuffer.isEmpty()) {
-                            Logger.i("빈 버퍼 감지됨 - 처리 건너뜀")
-                            return@launch
-                        }
-                        val data = audioBuffer.reduce { acc, bytes -> acc + bytes }
-                        audioBuffer.clear()
-                        data
-                    }
-                    
-                    // 현재 파일 저장
-                    currentRecordFile?.let { file ->
-                        try {
-                            FileOutputStream(file, true).use { fos ->
-                                fos.write(pcmData)
-                                fos.flush()
-                            }
-                            Logger.i("로컬 파일 저장 성공: ${file.absolutePath}")
-                        } catch (e: Exception) {
-                            Logger.e("로컬 파일 저장 실패", e)
-                        }
-                    }
-                    
-                    // 업로드
-                    repository.uploadMeetingRecordChunk(
-                        RecordingData(
-                            meetingId = meetingId,
-                            chunkStartTime = lastChunkStartTime,
-                            duration = duration,
-                            audioData = pcmData
-                        )
-                    ).collectLatest { result ->
-                        when (result) {
-                            is NetworkResult.Success -> {
-                                Logger.i("버퍼 청크 업로드 성공")
-                                lastChunkStartTime = currentTime
-                            }
-                            is NetworkResult.Error -> {
-                                Logger.e("버퍼 청크 업로드 실패: ${result.message}")
-                            }
-                            is NetworkResult.Loading -> { /* 로딩 처리 */ }
-                        }
-                    }
-                } catch (e: Exception) {
-                    Logger.e("버퍼 청크 업로드 중 오류", e)
-                }
-            }
-        } catch (e: Exception) {
-            Logger.e("버퍼 저장/업로드 실패", e)
         }
     }
 
@@ -450,4 +487,8 @@ class MainViewModel @Inject constructor(
             }
         }
     }
+
+    // 백그라운드/포그라운드 전환 시에는 아무 작업도 하지 않음
+    fun onAppBackgrounded() {}
+    fun onAppForegrounded() {}
 }

@@ -18,19 +18,17 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.*;
 import org.springframework.beans.factory.DisposableBean;
+import com.ibkpoc.amn.dto.WavUploadRequest;
 
 // service/RecordService.java
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class RecordService implements DisposableBean {
-    private final MeetingService meetingService;  // 의존성 추가
+    private final MeetingService meetingService;
 
     @Value("${app.record.base-path:#{systemProperties['user.dir']}/meeting_records}")
     private String baseRecordPath;
@@ -43,116 +41,110 @@ public class RecordService implements DisposableBean {
 
     @PostConstruct
     public void init() {
+        log.info("RecordService init 시작");  // 추가
         try {
             Path basePath = Paths.get(baseRecordPath);
+            log.info("기본 경로: {}", basePath.toAbsolutePath());  // 추가
+
             if (!Files.exists(basePath)) {
                 Files.createDirectories(basePath);
                 log.info("기본 녹음 디렉토리 생성됨: {}", baseRecordPath);
+            } else {
+                log.info("기존 녹음 디렉토리 존재: {}", baseRecordPath);  // 추가
             }
-            // 권한 체크
+
             if (!Files.isWritable(basePath)) {
                 log.error("녹음 디렉토리에 쓰기 권한 없음: {}", baseRecordPath);
                 throw new RuntimeException("녹음 디렉토리 권한 오류");
             }
+            log.info("녹음 디렉토리 권한 확인 완료");  // 추가
         } catch (IOException e) {
-            log.error("녹음 디렉토리 초기화 실패", e);
+            log.error("녹음 디렉토리 초기화 실패: {}", e.getMessage(), e);  // 스택트레이스 추가
             throw new RuntimeException("녹음 디렉토리 초기화 실패", e);
         }
     }
 
     @Data
     private static class RecordingInfo {
-        private final Long meetingId;  // meetingId 필드 추가
+        private final Long meetingId;
         private final Path filePath;
         private long totalBytes = 0;
         private final LocalDateTime startTime;
         private ScheduledFuture<?> timeoutFuture;
         private boolean endSignalReceived = false;
-        private final Set<Long> processedChunks = new HashSet<>();
+        private final TreeMap<Integer, byte[]> wavChunks = new TreeMap<>();
+        private int totalWavChunks = 0;
+        private String originalStartTime;  // 클라이언트가 보낸 원래 시작 시간 저장
+        private Long duration;  // 녹음 duration 저장
 
         public RecordingInfo(Long meetingId, Path filePath, LocalDateTime startTime) {
             this.meetingId = meetingId;
             this.filePath = filePath;
             this.startTime = startTime;
         }
+
+        public boolean isWavComplete() {
+            return wavChunks.size() == totalWavChunks && totalWavChunks > 0;
+        }
     }
 
-    @Async
-    public void saveRecordChunk(Long meetingId, Long chunkStartTime, Long duration, MultipartFile file) {
-        log.info("청크 저장 시작: meetingId={}, chunkStartTime={}, duration={}, size={}",
-                meetingId, chunkStartTime, duration, file.getSize());
+    public void saveWavFile(WavUploadRequest request) throws IOException {
+        log.info("WAV 청크 저장 시작: meetingId={}, chunk={}/{}, size={}, 파일명={}",
+                request.getMeetingId(),
+                request.getCurrentChunk(),
+                request.getTotalChunks(),
+                request.getFile().getSize(),
+                request.getFile().getOriginalFilename());  // 파일명 로깅 추가
 
-        RecordingInfo info = activeRecordings.computeIfAbsent(meetingId, k -> {
+        RecordingInfo info = activeRecordings.computeIfAbsent(request.getMeetingId(), k -> {
             try {
                 LocalDateTime now = LocalDateTime.now();
                 String datePath = String.format("%d/%02d/%02d",
                         now.getYear(), now.getMonthValue(), now.getDayOfMonth());
                 Path directory = Paths.get(baseRecordPath, datePath);
+                log.info("디렉토리 생성 시도: {}", directory.toAbsolutePath());  // 추가
+
                 Files.createDirectories(directory);
-                Path pcmPath = directory.resolve(String.format("meeting_%d.pcm", meetingId));
-                log.info("새 녹음 시작: meetingId={}, path={}", meetingId, pcmPath);
-                return new RecordingInfo(meetingId, pcmPath, now);
+
+                Path wavPath = directory.resolve(String.format("meeting_%d_%s.wav",
+                        request.getMeetingId(),
+                        request.getStartTime().replace(":", "-").replace(" ", "_")));
+                log.info("WAV 파일 경로 생성: {}", wavPath.toAbsolutePath());  // 추가
+                return new RecordingInfo(request.getMeetingId(), wavPath, now);
             } catch (IOException e) {
-                log.error("녹음 초기화 실패: meetingId={}", meetingId, e);
+                log.error("WAV 파일 초기화 실패: meetingId={}, error={}",
+                        request.getMeetingId(), e.getMessage(), e);
                 throw new RuntimeException("디렉토리 생성 실패", e);
             }
         });
 
-        // 중복 청크 체크
-        synchronized (info.processedChunks) {
-            if (!info.processedChunks.add(chunkStartTime)) {
-                log.warn("중복 청크 감지됨: meetingId={}, chunkStartTime={}", meetingId, chunkStartTime);
-                return;  // 이미 처리된 청크는 건너뜀
-            }
-        }
-
         try {
             resetTimeout(info);
-            saveChunkData(info, file, duration);
-            log.info("청크 저장 완료: meetingId={}, totalBytes={}", meetingId, info.getTotalBytes());
-        } catch (Exception e) {
-            // 저장 실패 시 processedChunks에서 제거하여 재시도 가능하게 함
-            synchronized (info.processedChunks) {
-                info.processedChunks.remove(chunkStartTime);
-            }
-            log.error("청크 저장 중 오류 (계속 진행): meetingId={}, chunkStartTime={}, error={}",
-                    meetingId, chunkStartTime, e.getMessage(), e);  // 스택트레이스와 에러 메시지 추가
-        }
-    }
+            info.totalWavChunks = request.getTotalChunks();
+            info.wavChunks.put(request.getCurrentChunk(), request.getFile().getBytes());
+            log.info("청크 저장됨: meetingId={}, chunk={}/{}, 현재 청크 수={}",
+                    request.getMeetingId(),
+                    request.getCurrentChunk(),
+                    request.getTotalChunks(),
+                    info.wavChunks.size());  // 추가
 
-    private void saveChunkData(RecordingInfo info, MultipartFile file, Long duration) throws IOException {
-        try (InputStream inputStream = file.getInputStream();
-             FileOutputStream outputStream = new FileOutputStream(info.getFilePath().toFile(), true)) {
-
-            byte[] buffer = new byte[8192];
-            long totalBytesRead = 0;
-            int bytesRead;
-
-            try {
-                while ((bytesRead = inputStream.read(buffer)) != -1) {
-                    outputStream.write(buffer, 0, bytesRead);
-                    totalBytesRead += bytesRead;
-                    info.totalBytes += bytesRead;
-                }
-            } catch (IOException e) {
-                log.error("청크 데이터 읽기/쓰기 실패: meetingId={}", info.getMeetingId());
-
-                // 실패한 부분을 무음으로 채움
-                long expectedBytes = (duration * 44100 * 16 / 1000) / 8;
-                long remainingBytes = expectedBytes - totalBytesRead;
-
-                if (remainingBytes > 0) {
-                    byte[] silence = new byte[8192];
-                    while (remainingBytes > 0) {
-                        int writeSize = (int) Math.min(8192, remainingBytes);
-                        outputStream.write(silence, 0, writeSize);
-                        remainingBytes -= writeSize;
-                        info.totalBytes += writeSize;
+            if (info.isWavComplete()) {
+                log.info("모든 청크 도착, 파일 병합 시작: meetingId={}", request.getMeetingId());  // 추가
+                try (FileOutputStream fos = new FileOutputStream(info.getFilePath().toFile())) {
+                    for (byte[] chunk : info.wavChunks.values()) {
+                        fos.write(chunk);
+                        info.totalBytes += chunk.length;
                     }
-                    log.info("실패한 청크 무음 처리: {} bytes", expectedBytes - totalBytesRead);
                 }
+                log.info("WAV 파일 생성 완료: meetingId={}, 경로={}, totalBytes={}",
+                        request.getMeetingId(),
+                        info.getFilePath().toAbsolutePath(),  // 절대 경로로 변경
+                        info.getTotalBytes());
             }
-            outputStream.flush();
+        } catch (Exception e) {
+            log.error("WAV 청크 저장 실패: meetingId={}, chunk={}, error={}",
+                    request.getMeetingId(), request.getCurrentChunk(), e.getMessage(), e);
+            throw e;
         }
     }
 
@@ -182,11 +174,6 @@ public class RecordService implements DisposableBean {
         RecordingInfo info = activeRecordings.get(meetingId);
         if (info != null) {
             info.setEndSignalReceived(true);
-            synchronized (info.processedChunks) {
-                log.info("처리된 총 청크 수: {}, meetingId: {}",
-                        info.processedChunks.size(), meetingId);
-                info.processedChunks.clear();  // 메모리 정리
-            }
             log.info("녹음 종료 처리 시작: meetingId={}, totalDuration={}ms",
                     meetingId,
                     java.time.Duration.between(info.getStartTime(), LocalDateTime.now()).toMillis());
@@ -215,73 +202,20 @@ public class RecordService implements DisposableBean {
             if (info.getTimeoutFuture() != null) {
                 info.getTimeoutFuture().cancel(false);
             }
+            // WAV 파일이 완성되지 않았다면 처리
+            if (!info.isWavComplete()) {
+                log.warn("미완성 WAV 파일 감지: meetingId={}, 받은 청크={}/{}",
+                        meetingId, info.getWavChunks().size(), info.getTotalWavChunks());
+            }
 
-            Path pcmFile = info.getFilePath();
-            Path wavFile = pcmFile.resolveSibling(
-                    pcmFile.getFileName().toString().replace(".pcm", forcedEnd ? "_forced.wav" : ".wav")
-            );
-
-            convertPcmToWav(pcmFile, wavFile, info.getTotalBytes());
-            Files.delete(pcmFile);
-            log.info("녹음 파일 변환 완료: meetingId={}, outputFile={}, totalBytes={}",
-                    meetingId, wavFile.getFileName(), info.getTotalBytes());
+            log.info("녹음 파일 처리 완료: meetingId={}, file={}, totalBytes={}, duration={}ms",
+                    meetingId,
+                    info.getFilePath().getFileName(),
+                    info.getTotalBytes(),
+                    info.getDuration());
         } else {
             log.warn("존재하지 않는 녹음에 대한 종료 처리: meetingId={}", meetingId);
         }
-    }
-
-
-    private void convertPcmToWav(Path pcmFile, Path wavFile, long pcmLength) throws IOException {
-        final int sampleRate = 44100;
-        final int channels = 1;
-        final int bitsPerSample = 16;
-        final int byteRate = sampleRate * channels * bitsPerSample / 8;
-        final long totalDataLen = pcmLength + 36;
-
-        try (FileInputStream pcmInput = new FileInputStream(pcmFile.toFile());
-             FileOutputStream wavOutput = new FileOutputStream(wavFile.toFile())) {
-
-            byte[] header = new byte[44];
-
-            // RIFF 헤더
-            header[0] = 'R'; header[1] = 'I'; header[2] = 'F'; header[3] = 'F';
-            putLittleEndianInt(header, 4, (int) totalDataLen);
-            header[8] = 'W'; header[9] = 'A'; header[10] = 'V'; header[11] = 'E';
-
-            // fmt 청크
-            header[12] = 'f'; header[13] = 'm'; header[14] = 't'; header[15] = ' ';
-            putLittleEndianInt(header, 16, 16);
-            putLittleEndianShort(header, 20, (short) 1);
-            putLittleEndianShort(header, 22, (short) channels);
-            putLittleEndianInt(header, 24, sampleRate);
-            putLittleEndianInt(header, 28, byteRate);
-            putLittleEndianShort(header, 32, (short) (channels * bitsPerSample / 8));
-            putLittleEndianShort(header, 34, (short) bitsPerSample);
-
-            // 데이터 청크
-            header[36] = 'd'; header[37] = 'a'; header[38] = 't'; header[39] = 'a';
-            putLittleEndianInt(header, 40, (int) pcmLength);
-
-            wavOutput.write(header);
-
-            byte[] buffer = new byte[8192];
-            int bytesRead;
-            while ((bytesRead = pcmInput.read(buffer)) != -1) {
-                wavOutput.write(buffer, 0, bytesRead);
-            }
-        }
-    }
-
-    private void putLittleEndianInt(byte[] data, int offset, int value) {
-        data[offset] = (byte) (value & 0xFF);
-        data[offset + 1] = (byte) ((value >> 8) & 0xFF);
-        data[offset + 2] = (byte) ((value >> 16) & 0xFF);
-        data[offset + 3] = (byte) ((value >> 24) & 0xFF);
-    }
-
-    private void putLittleEndianShort(byte[] data, int offset, short value) {
-        data[offset] = (byte) (value & 0xFF);
-        data[offset + 1] = (byte) ((value >> 8) & 0xFF);
     }
 
     @Override
@@ -307,7 +241,7 @@ public class RecordService implements DisposableBean {
         } catch (InterruptedException e) {
             scheduler.shutdownNow();
             log.error("스케줄러 종료 중 인터럽트", e);
-            Thread.currentThread().interrupt();  // 인터럽트 상태 복원
+            Thread.currentThread().interrupt();
         }
     }
 }
