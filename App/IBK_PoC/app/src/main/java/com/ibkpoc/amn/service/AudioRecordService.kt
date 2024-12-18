@@ -119,6 +119,7 @@ class AudioRecordService : Service() {
         }
         
         try {
+            Logger.e("AudioRecord 초기화 시작")
             isRecording = true
             audioRecord = AudioRecord(
                 MediaRecorder.AudioSource.VOICE_RECOGNITION,
@@ -155,6 +156,7 @@ class AudioRecordService : Service() {
             try {
                 val readSize = audioRecord?.read(buffer, 0, bufferSize) ?: -1
                 if (readSize > 0) {
+                    Logger.e("오디오 데이터 읽기 성공: $readSize 바이트")
                     // 원본 데이터 그대로 전송
                     Intent(ACTION_RECORDING_DATA).also { intent ->
                         intent.putExtra(EXTRA_AUDIO_DATA, buffer.copyOf(readSize))
