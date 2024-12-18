@@ -29,10 +29,14 @@ class MeetingRepositoryImpl @Inject constructor(
         private const val CHUNK_SIZE = 5 * 1024 * 1024 // 5MB
     }
 
-    override suspend fun startMeeting(): Flow<NetworkResult<MeetingSession>> = flow {
+    override suspend fun startMeeting(participantCount: Int): Flow<NetworkResult<MeetingSession>> = flow {
         emit(NetworkResult.Loading)
         try {
-            val request = MeetingStartRequest(startTime = getCurrentTime())
+            val request = MeetingStartRequest(
+                startTime = getCurrentTime(),
+                participantCount = participantCount
+            )
+            Logger.i("서버로 전달되는 참가자 수: ${request.participantCount}")
             val response = apiService.startMeeting(request)
             if (response.isSuccessful) {
                 response.body()?.data?.let {
@@ -54,7 +58,13 @@ class MeetingRepositoryImpl @Inject constructor(
             val request = MeetingEndRequest(meetingId = meetingId)
             val response = apiService.endMeeting(request)
             if (response.isSuccessful) {
-                emit(NetworkResult.Success(Unit))
+                response.body()?.let {
+                    if (it.status == "SUCCESS") {
+                        emit(NetworkResult.Success(Unit))
+                    } else {
+                        emit(NetworkResult.Error(response.code(), it.message))
+                    }
+                } ?: emit(NetworkResult.Error(response.code(), "응답이 비어있습니다"))
             } else {
                 Logger.e("회의 종료 실패: ${response.message()}", null)
                 emit(NetworkResult.Error(response.code(), "회의 종료 실패"))
@@ -106,6 +116,22 @@ class MeetingRepositoryImpl @Inject constructor(
             emit(NetworkResult.Error(0, "파일 업로드 중 오류: ${e.message}"))
         }
     }
+
+    override suspend fun convertWavToStt(meetingId: Long): Flow<NetworkResult<Unit>> = flow {
+        emit(NetworkResult.Loading)
+        try {
+            val request = SttRequest(meetingId)
+            val response = apiService.convertWavToStt(request)
+            if (response.isSuccessful) {
+                emit(NetworkResult.Success(Unit))
+            } else {
+                emit(NetworkResult.Error(response.code(), "STT 변환 실패: ${response.message()}"))
+            }
+        } catch (e: Exception) {
+            emit(NetworkResult.Error(0, "STT 변환 중 오류 발생: ${e.message}"))
+        }
+    }
+
 
     private suspend fun uploadChunk(chunkData: WavUploadData) {
         uploadMutex.withLock {

@@ -28,4 +28,7 @@ interface ApiService {
         @Part("totalChunks") totalChunks: RequestBody,
         @Part file: MultipartBody.Part
     ): Response<CommonResponse<Unit>>
+
+    @POST("/meeting/convert-stt")
+    suspend fun convertWavToStt(@Body request: SttRequest): Response<CommonResponse<Unit>>
 }

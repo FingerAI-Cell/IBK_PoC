@@ -7,7 +7,9 @@ import kotlinx.coroutines.flow.Flow
 import java.io.File
 
 interface MeetingRepository {
-    suspend fun startMeeting(): Flow<NetworkResult<MeetingSession>>
+    suspend fun startMeeting(participantCount: Int): Flow<NetworkResult<MeetingSession>>
     suspend fun endMeeting(meetingId: Long): Flow<NetworkResult<Unit>>
     suspend fun uploadMeetingWavFile(wavUploadData: WavUploadData): Flow<NetworkResult<Unit>>
+    suspend fun convertWavToStt(meetingId: Long): Flow<NetworkResult<Unit>>
+
 }

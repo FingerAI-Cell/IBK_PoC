@@ -58,6 +58,9 @@ class MainViewModel @Inject constructor(
     private val _hasRecordPermission = MutableStateFlow(false)
     val hasRecordPermission = _hasRecordPermission.asStateFlow()
 
+    private val _showSuccessMessage = MutableStateFlow(false)
+    val showSuccessMessage = _showSuccessMessage.asStateFlow()
+
     // 녹음 관련 설정
     private var audioRecord: AudioRecord? = null
     private val audioBuffer = mutableListOf<ByteArray>()
@@ -146,11 +149,17 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun startMeeting() {
+    fun startMeeting(participantCount: Int) {
+        if (participantCount <= 0) {
+            _errorMessage.value = "참가자 수는 1명 이상이어야 합니다"
+            return
+        }
+        Logger.i("MainViewModel 전달받은 참가자 수: $participantCount")
+
         viewModelScope.launch {
             val startTime = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date())
             
-            repository.startMeeting().collect { result ->
+            repository.startMeeting(participantCount).collect { result ->
                 when (result) {
                     is NetworkResult.Success -> {
                         // 녹음 파일 생성
@@ -224,46 +233,71 @@ class MainViewModel @Inject constructor(
                     }
                 } ?: throw Exception("녹음 파일이 없습니다")
 
-                // 4. WAV 파일 업로드
-                val wavUploadData = WavUploadData(
-                    meetingId = currentState.meetingId,
-                    wavFile = wavFile,
-                    startTime = currentState.startTime,
-                    duration = currentState.duration,
-                    totalChunks = 0,
-                    currentChunk = 0,
-                    chunkData = ByteArray(0)
-                )
-                
-                repository.uploadMeetingWavFile(wavUploadData).collect { result ->
+                // 4. 회의 종료 API 호출 (독립적)
+                repository.endMeeting(currentState.meetingId).collect { result ->
                     when (result) {
                         is NetworkResult.Success -> {
-                            repository.endMeeting(currentState.meetingId).collect { endResult ->
-                                when (endResult) {
-                                    is NetworkResult.Success -> {
-                                        _recordingState.value = RecordingState.Idle
-                                        cleanupRecording()
-                                        _isLoading.value = false  // 로딩 상태 해제 추가
-                                    }
-                                    is NetworkResult.Error -> {
-                                        _errorMessage.value = "회의 종료 실패: ${endResult.message}"
-                                        _isLoading.value = false  // 에러 시에도 로딩 상태 해제
-                                    }
-                                    is NetworkResult.Loading -> _isLoading.value = true
-                                }
-                            }
+                            Logger.i("회의 종료 완료: meetingId=${currentState.meetingId}")
+                            _errorMessage.value = null
                         }
                         is NetworkResult.Error -> {
-                            _errorMessage.value = "WAV 파일 업로드 실패: ${result.message}"
-                            _isLoading.value = false  // 에러 시에도 로딩 상태 해제
+                            _errorMessage.value = "회의 종료 실패: ${result.message}"
                         }
                         is NetworkResult.Loading -> _isLoading.value = true
                     }
                 }
+
+                // 5. WAV 파일 업로드 (별도 진행)
+                uploadWavAndConvertToStt(currentState.meetingId, wavFile, currentState.startTime, currentState.duration)
+
             } catch (e: Exception) {
-                _errorMessage.value = "녹음 종�� 실패: ${e.message}"
+                _errorMessage.value = "녹음 종료 실패: ${e.message}"
                 cleanupRecording()
-                _isLoading.value = false  // 예외 발생 시에도 로딩 상태 해제
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    private suspend fun uploadWavAndConvertToStt(meetingId: Long, wavFile: File, startTime: String, duration: Long) {
+        val wavUploadData = WavUploadData(
+            meetingId = meetingId,
+            wavFile = wavFile,
+            startTime = startTime,
+            duration = duration,
+            totalChunks = 0,
+            currentChunk = 0,
+            chunkData = ByteArray(0)
+        )
+
+        repository.uploadMeetingWavFile(wavUploadData).collect { uploadResult ->
+            when (uploadResult) {
+                is NetworkResult.Success -> {
+                    Logger.i("WAV 파일 업로드 완료: meetingId=$meetingId")
+
+                    // STT 변환 호출
+                    repository.convertWavToStt(meetingId).collect { sttResult ->
+                        when (sttResult) {
+                            is NetworkResult.Success -> {
+                                Logger.i("STT 변환 완료: meetingId=$meetingId")
+                                handleMeetingEndSuccess() // UI 업데이트
+                                cleanupRecording()
+                            }
+                            is NetworkResult.Error -> {
+                                _errorMessage.value = "STT 변환 실패: ${sttResult.message}"
+                            }
+                            is NetworkResult.Loading -> {
+                                _isLoading.value = true
+                            }
+                        }
+                    }
+                }
+                is NetworkResult.Error -> {
+                    _errorMessage.value = "WAV 파일 업로드 실패: ${uploadResult.message}"
+                }
+                is NetworkResult.Loading -> {
+                    _isLoading.value = true
+                }
             }
         }
     }
@@ -491,4 +525,17 @@ class MainViewModel @Inject constructor(
     // 백그라운드/포그라운드 전환 시에는 아무 작업도 하지 않음
     fun onAppBackgrounded() {}
     fun onAppForegrounded() {}
+
+    fun onMessageShown() {
+        _errorMessage.value = null
+    }
+
+
+    fun handleMeetingEndSuccess() {
+        viewModelScope.launch {
+            _showSuccessMessage.value = true
+            delay(2000) // 2초 후
+            _showSuccessMessage.value = false
+        }
+    }
 }

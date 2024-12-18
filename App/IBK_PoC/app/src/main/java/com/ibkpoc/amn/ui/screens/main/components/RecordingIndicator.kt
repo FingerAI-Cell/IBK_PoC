@@ -24,7 +24,7 @@ fun RecordingIndicator(
             imageVector = Icons.Rounded.Mic,
             contentDescription = "녹음 중",
             tint = MaterialTheme.colorScheme.error,
-            modifier = Modifier.scale(animateFloatAsState(
+            modifier = Modifier.size(16.dp).scale(animateFloatAsState(
                 targetValue = 1.2f,
                 animationSpec = infiniteRepeatable(
                     animation = tween(500),
@@ -34,7 +34,8 @@ fun RecordingIndicator(
             ).value)
         )
         Text(
-            text = "녹음중",
+            text = "녹음중입니다",
+            style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.error
         )
     }

@@ -2,5 +2,6 @@
 package com.ibkpoc.amn.model
 
 data class MeetingStartRequest(
-    val startTime: String
+    val startTime: String,
+    val participantCount: Int
 )

@@ -213,6 +213,18 @@ public class RecordService implements DisposableBean {
                     info.getFilePath().getFileName(),
                     info.getTotalBytes(),
                     info.getDuration());
+            if (info.isWavComplete()) {
+                try {
+                    Path absoluteFilePath = info.getFilePath().toAbsolutePath(); // 절대 경로 포함
+                    String absolutePathString = absoluteFilePath.toString();     // String으로 변환
+                    log.info("WAV 파일 생성 완료: meetingId={}, 절대 경로={}", meetingId, absolutePathString);
+
+                    // MeetingService를 통해 wavSrc 필드 업데이트
+                    meetingService.updateWavSrc(meetingId, absolutePathString);
+                } catch (Exception e) {
+                    log.error("녹음 파일 경로 업데이트 실패: meetingId={}, error={}", meetingId, e.getMessage(), e);
+                }
+            }
         } else {
             log.warn("존재하지 않는 녹음에 대한 종료 처리: meetingId={}", meetingId);
         }

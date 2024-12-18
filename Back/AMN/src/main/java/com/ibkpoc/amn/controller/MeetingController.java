@@ -22,7 +22,9 @@ public class MeetingController {
 
     @PostMapping("/start")
     public ResponseEntity<CommonResponse<?>> startMeeting(@RequestBody StartMeetingRequest request) {
-        StartMeetingResponse response = meetingService.startMeeting(request.getStartTime());
+        // 전달받은 참가자 수와 시작 시간 로그 출력
+        log.info("회의 시작 요청: startTime={}, participants={}", request.getStartTime(), request.getParticipants());
+        StartMeetingResponse response = meetingService.startMeeting(request.getParticipants(), request.getStartTime());
         return ResponseEntity.ok(new CommonResponse<>("SUCCESS", "회의가 시작되었습니다", response));
     }
 
@@ -55,6 +57,22 @@ public class MeetingController {
             log.error("WAV 청크 업로드 실패: meetingId={}", request.getMeetingId(), e);
             return ResponseEntity.badRequest()
                     .body(new CommonResponse<>("ERROR", "청크 업로드 실패: " + e.getMessage(), null));
+        }
+    }
+
+    @PostMapping("/stt-request")
+    public ResponseEntity<CommonResponse<?>> processStt(@RequestBody SttRequest request) {
+        try {
+            log.info("STT 요청 수신: meetingId={}", request.getMeetingId());
+
+            // 서비스 호출
+            meetingService.processSttRequest(request.getMeetingId());
+
+            return ResponseEntity.ok(new CommonResponse<>("SUCCESS", "STT 요청이 처리되었습니다", null));
+        } catch (Exception e) {
+            log.error("STT 요청 처리 실패: meetingId={}", request.getMeetingId(), e);
+            return ResponseEntity.badRequest()
+                    .body(new CommonResponse<>("ERROR", "STT 요청 처리 실패: " + e.getMessage(), null));
         }
     }
 }
