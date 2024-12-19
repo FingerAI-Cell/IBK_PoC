@@ -39,10 +39,6 @@ import java.io.FileInputStream
 import android.content.BroadcastReceiver
 import android.content.IntentFilter
 import android.annotation.SuppressLint
-import android.net.Uri
-import android.provider.MediaStore
-import android.content.ContentValues
-import androidx.core.net.toUri
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
@@ -82,7 +78,7 @@ class MainViewModel @Inject constructor(
             }
         }
 
-    private var currentRecordFile: Uri? = null
+    private var currentRecordFile: File? = null
     private val bufferLock = Any()
     private var recordingReceiver: BroadcastReceiver? = null
 
@@ -126,8 +122,8 @@ class MainViewModel @Inject constructor(
     private fun processAudioData(data: ByteArray) {
         val dataCopy: ByteArray
         synchronized(audioBuffer) {
-            audioBuffer.add(data)
             dataCopy = data.copyOf()
+            audioBuffer.add(dataCopy)
         }
         viewModelScope.launch {
             savePcmData(dataCopy)
@@ -136,14 +132,14 @@ class MainViewModel @Inject constructor(
 
     private suspend fun savePcmData(data: ByteArray) {
         try {
-            currentRecordFile?.let { uri ->
+            currentRecordFile?.let { file ->
                 withContext(Dispatchers.IO) {
-                    context.contentResolver.openOutputStream(uri, "wa")?.use { output ->
+                    FileOutputStream(file, true).use { output ->
                         output.write(data)
                         output.flush()
-                    } ?: throw IOException("스트림을 열 수 없습니다")
+                    }
                 }
-            } ?: throw IOException("파일 URI가 null입니다")
+            } ?: throw IOException("파일이 null입니다")
         } catch (e: Exception) {
             Logger.e("파일 저장 실패: ${e.message}")
             _errorMessage.value = "녹음 파일 저장 실패"
@@ -153,79 +149,30 @@ class MainViewModel @Inject constructor(
     private fun saveBufferToFile() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val chunksToSave = mutableListOf<ByteArray>()
-                @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
+                val tempBuffer = mutableListOf<ByteArray>()
                 synchronized(bufferLock) {
-                    chunksToSave.addAll(audioBuffer)
+                    tempBuffer.addAll(audioBuffer)
                     audioBuffer.clear()
                 }
-                chunksToSave.forEach { chunk ->
+                tempBuffer.forEach { chunk ->
                     savePcmData(chunk)
                 }
             } catch (e: Exception) {
-                _errorMessage.value = "파일 저장 실패: ${e.message}"
+                Logger.e("버퍼 저장 실패", e)
             }
         }
     }
 
-    private suspend fun createRecordFile(meetingId: Long, startTime: String): Uri? {
+    private suspend fun createRecordFile(meetingId: Long, startTime: String): File {
         return withContext(Dispatchers.IO) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                val contentValues = ContentValues().apply {
-                    put(MediaStore.Downloads.DISPLAY_NAME, "record_${meetingId}_${startTime}.pcm")
-                    put(MediaStore.Downloads.MIME_TYPE, "audio/x-pcm")
-                    put(MediaStore.Downloads.RELATIVE_PATH, "Download/IBK_Records")
-                    put(MediaStore.Downloads.IS_PENDING, 1)
-                }
-                
-                context.contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)?.also { _ ->
-                    Logger.e("파일 생성 시도 성공")
-                } ?: run {
-                    Logger.e("파일 생성 실패: insert returned null")
-                    throw IOException("파일 생성 실패")
-                }
-            } else {
-                val file = File(
-                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-                    "IBK_Records/record_${meetingId}_${startTime}.pcm"
-                ).apply {
-                    parentFile?.mkdirs()
-                    createNewFile()
-                }
-                Logger.e("Android 9 이하 - 파일 생성됨: ${file.absolutePath}")
-                Uri.fromFile(file)
+            File(audioDir, "record_${meetingId}_${startTime}.pcm").apply {
+                parentFile?.mkdirs()
+                createNewFile()
             }
         }
     }
 
-    private suspend fun createWavFile(meetingId: Long, startTime: String): Uri? {
-        return withContext(Dispatchers.IO) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                val contentValues = ContentValues().apply {
-                    put(MediaStore.Downloads.DISPLAY_NAME, "meeting_${meetingId}_${startTime}.wav")
-                    put(MediaStore.Downloads.MIME_TYPE, "audio/wav")
-                    put(MediaStore.Downloads.RELATIVE_PATH, "Download/IBK_Records")
-                }
-                Logger.e("Android 10 이상 - WAV 파일 생성 시도: Download/IBK_Records/meeting_${meetingId}_${startTime}.wav")
-                
-                context.contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)?.also { uri ->
-                    Logger.e("WAV 파일 URI 생성됨: $uri")
-                    Logger.e("WAV 파일 실제 경로: ${uri.path}")
-                    uri.path ?: throw IllegalStateException("URI path is null")
-                }
-            } else {
-                val file = File(
-                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-                    "IBK_Records/meeting_${meetingId}_${startTime}.wav"
-                ).apply {
-                    parentFile?.mkdirs()
-                    createNewFile()
-                }
-                Logger.e("Android 9 이하 - WAV 파일 생성됨: ${file.absolutePath}")
-                Uri.fromFile(file)
-            }
-        }
-    }
+    
 
     fun startMeeting(participantCount: Int) {
         if (participantCount <= 0) {
@@ -248,7 +195,7 @@ class MainViewModel @Inject constructor(
                             action = AudioRecordService.ACTION_START
                             putExtra(AudioRecordService.EXTRA_MEETING_ID, result.data.convId)
                             putExtra(AudioRecordService.EXTRA_START_TIME, startTime)
-                            putExtra(AudioRecordService.EXTRA_FILE_URI, currentRecordFile.toString())
+                            putExtra("file_path", currentRecordFile?.absolutePath)
                         }
                         
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -296,38 +243,34 @@ class MainViewModel @Inject constructor(
                 saveBufferToFile()
                 
                 // 3. PCM -> WAV 변환
-                val pcmUri = currentRecordFile ?: throw Exception("녹음 파일이 없습니다")
-                val wavUri = createWavFile(currentState.meetingId, currentState.startTime) 
-                    ?: throw Exception("WAV 파일을 생성할 수 없습니다")
-                
-                convertPcmToWav(pcmUri, wavUri)
-
-                // Uri에서 실제 File 객체를 얻기
-                val wavFile = getFileFromUri(wavUri) ?: throw IOException("WAV 파일을 찾을 수 없습니다")
-                
-                // 4. 회의 종료 API 호출 (독립적)
-                repository.endMeeting(currentState.meetingId).collect { result ->
-                    when (result) {
-                        is NetworkResult.Success -> {
-                            Logger.i("회의 종료 완료: meetingId=${currentState.meetingId}")
-                            _errorMessage.value = null
+                currentRecordFile?.let { pcmFile ->
+                    val wavFile = convertPcmToWav(pcmFile)
+                    
+                    // 4. 회의 종료 API 호출
+                    repository.endMeeting(currentState.meetingId).collect { result ->
+                        when (result) {
+                            is NetworkResult.Success -> {
+                                Logger.i("회의 종료 완료: meetingId=${currentState.meetingId}")
+                                _errorMessage.value = null
+                                
+                                // 5. WAV 파일 업로드 및 STT 변환
+                                uploadWavAndConvertToStt(
+                                    currentState.meetingId,
+                                    wavFile,
+                                    currentState.startTime,
+                                    currentState.duration
+                                )
+                            }
+                            is NetworkResult.Error -> {
+                                _errorMessage.value = "회의 종료 실패: ${result.message}"
+                            }
+                            is NetworkResult.Loading -> _isLoading.value = true
                         }
-                        is NetworkResult.Error -> {
-                            _errorMessage.value = "회의 종료 실패: ${result.message}"
-                        }
-                        is NetworkResult.Loading -> _isLoading.value = true
                     }
-                }
-
-                // 5. WAV 파일 업로드 (별도 진행)
-                uploadWavAndConvertToStt(
-                    currentState.meetingId,
-                    wavFile,
-                    currentState.startTime,
-                    currentState.duration
-                )
-
+                } ?: throw IOException("녹음 파일이 없습니다")
+                
             } catch (e: Exception) {
+                Logger.e("녹음 종료 실패", e)
                 _errorMessage.value = "녹음 종료 실패: ${e.message}"
                 cleanupRecording()
             } finally {
@@ -490,15 +433,15 @@ class MainViewModel @Inject constructor(
         currentRecordFile = null  // 녹음 종료시 파일 참조 제거
     }
 
-    private suspend fun convertPcmToWav(pcmUri: Uri, wavUri: Uri) {
+    private suspend fun convertPcmToWav(pcmFile: File): File {
+        val wavFile = File(audioDir, pcmFile.name.replace(".pcm", ".wav"))
         withContext(Dispatchers.IO) {
-            context.contentResolver.openInputStream(pcmUri)?.use { input ->
-                context.contentResolver.openOutputStream(wavUri)?.use { output ->
+            FileInputStream(pcmFile).use { input ->
+                FileOutputStream(wavFile).use { output ->
                     // WAV 헤더 작성
-                    val pcmLength = input.available().toLong()
-                    writeWavHeader(output, pcmLength)
+                    writeWavHeader(output, pcmFile.length())
                     
-                    // 청크 단위로 복사
+                    // PCM 데이터 복사
                     val buffer = ByteArray(8192)
                     var bytesRead: Int
                     while (input.read(buffer).also { bytesRead = it } != -1) {
@@ -507,9 +450,10 @@ class MainViewModel @Inject constructor(
                 }
             }
         }
+        return wavFile
     }
 
-    // 백그라운드/포그라운��� 전환 시에는 아무 작업도 하지 않음
+    // 백그라운드/포그라운 전환 시에는 아무 작업도 하지 않음
     fun onAppBackgrounded() {}
     fun onAppForegrounded() {}
 
@@ -523,37 +467,6 @@ class MainViewModel @Inject constructor(
             _showSuccessMessage.value = true
             delay(2000) // 2초 후
             _showSuccessMessage.value = false
-        }
-    }
-
-    // Uri에서 실제 File 객체를 얻는 메서드 추가
-    private fun getFileFromUri(uri: Uri): File? {
-        return when {
-            // Android 10 이상
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
-                try {
-                    // 임시 파일 생성
-                    val tempFile = File(context.cacheDir, "temp_wav_file.wav")
-                    context.contentResolver.openInputStream(uri)?.use { input ->
-                        tempFile.outputStream().use { output ->
-                            input.copyTo(output)
-                        }
-                    }
-                    tempFile
-                } catch (e: Exception) {
-                    Logger.e("파일 변환 실패: ${e.message}")
-                    null
-                }
-            }
-            // Android 9 이하
-            else -> {
-                try {
-                    uri.path?.let { File(it) }
-                } catch (e: Exception) {
-                    Logger.e("파일 경로 변환 실패: ${e.message}")
-                    null
-                }
-            }
         }
     }
 
