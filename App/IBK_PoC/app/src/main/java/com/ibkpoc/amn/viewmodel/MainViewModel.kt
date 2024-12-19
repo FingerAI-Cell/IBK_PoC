@@ -176,11 +176,16 @@ class MainViewModel @Inject constructor(
                     put(MediaStore.Downloads.MIME_TYPE, "audio/pcm")
                     put(MediaStore.Downloads.RELATIVE_PATH, "Download/IBK_Records")
                 }
-                Logger.e("Android 10 이상 - 파일 생성 시도: Download/IBK_Records/record_${meetingId}_${startTime}.pcm")
                 
                 context.contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)?.also { uri ->
-                    Logger.e("파일 URI 생성됨: $uri")
-                    Logger.e("파일 실제 경로: ${uri.path}")
+                    val cursor = context.contentResolver.query(uri, arrayOf("_data"), null, null, null)
+                    cursor?.use {
+                        if (it.moveToFirst()) {
+                            val columnIndex = it.getColumnIndex("_data")
+                            val filePath = it.getString(columnIndex)
+                            Logger.e("파일시스템 실제 경로: $filePath")
+                        }
+                    }
                 }
             } else {
                 val file = File(
@@ -398,7 +403,7 @@ class MainViewModel @Inject constructor(
             this[2] = 'F'.code.toByte()
             this[3] = 'F'.code.toByte()
 
-            // 파일 크기
+            // ���일 크기
             this[4] = (totalDataLen and 0xff).toByte()
             this[5] = ((totalDataLen shr 8) and 0xff).toByte()
             this[6] = ((totalDataLen shr 16) and 0xff).toByte()
