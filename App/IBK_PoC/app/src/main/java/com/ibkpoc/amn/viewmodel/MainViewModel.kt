@@ -84,6 +84,8 @@ class MainViewModel @Inject constructor(
 
     private var recordingJob: Job? = null
 
+    private var fileOutputStream: FileOutputStream? = null
+
     init {
         registerRecordingReceiver()
     }
@@ -125,21 +127,23 @@ class MainViewModel @Inject constructor(
             dataCopy = data.copyOf()
             audioBuffer.add(dataCopy)
         }
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             savePcmData(dataCopy)
         }
     }
 
     private suspend fun savePcmData(data: ByteArray) {
         try {
-            currentRecordFile?.let { file ->
-                withContext(Dispatchers.IO) {
-                    FileOutputStream(file, true).use { output ->
-                        output.write(data)
-                        output.flush()
-                    }
-                }
-            } ?: throw IOException("파일이 null입니다")
+            if (fileOutputStream == null) {
+                currentRecordFile?.let { file ->
+                    fileOutputStream = FileOutputStream(file, true)
+                } ?: throw IOException("파일이 null입니다")
+            }
+            
+            fileOutputStream?.let { output ->
+                output.write(data)
+                output.flush()
+            }
         } catch (e: Exception) {
             Logger.e("파일 저장 실패: ${e.message}")
             _errorMessage.value = "녹음 파일 저장 실패"
@@ -430,7 +434,13 @@ class MainViewModel @Inject constructor(
 
     private fun cleanupRecording() {
         recordingDurationJob?.cancel()
-        currentRecordFile = null  // 녹음 종료시 파일 참조 제거
+        try {
+            fileOutputStream?.close()
+            fileOutputStream = null
+        } catch (e: Exception) {
+            Logger.e("파일 스트림 닫기 실패", e)
+        }
+        currentRecordFile = null
     }
 
     private suspend fun convertPcmToWav(pcmFile: File): File {

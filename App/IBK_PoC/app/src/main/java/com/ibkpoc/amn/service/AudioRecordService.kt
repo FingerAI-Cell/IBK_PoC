@@ -34,7 +34,7 @@ class AudioRecordService : Service() {
         const val ACTION_STOP = "action_stop"
         const val EXTRA_MEETING_ID = "meeting_id"
         const val EXTRA_START_TIME = "start_time"
-        const val EXTRA_FILE_URI = "file_uri"
+        const val EXTRA_FILE_PATH = "file_path"
         
         const val ACTION_RECORDING_DATA = "com.ibkpoc.amn.action.RECORDING_DATA"
         const val EXTRA_AUDIO_DATA = "com.ibkpoc.amn.extra.AUDIO_DATA"
@@ -44,7 +44,7 @@ class AudioRecordService : Service() {
     private var audioRecord: AudioRecord? = null
     private var isRecording = false
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    private var currentFileUri: Uri? = null
+    private var currentFilePath: String? = null
     
     private val sampleRate = 44100
     private val channelConfig = AudioFormat.CHANNEL_IN_MONO
@@ -94,10 +94,10 @@ class AudioRecordService : Service() {
             ACTION_START -> {
                 val meetingId = intent.getLongExtra(EXTRA_MEETING_ID, -1)
                 val startTime = intent.getStringExtra(EXTRA_START_TIME)
-                val fileUri = intent.getStringExtra(EXTRA_FILE_URI)?.let { Uri.parse(it) }
+                val filePath = intent.getStringExtra(EXTRA_FILE_PATH)
                 
-                if (meetingId != -1L && startTime != null && fileUri != null && !isRecording) {
-                    currentFileUri = fileUri
+                if (meetingId != -1L && startTime != null && filePath != null && !isRecording) {
+                    currentFilePath = filePath
                     startForeground(NOTIFICATION_ID, createNotification())
                     startRecording()
                 }
