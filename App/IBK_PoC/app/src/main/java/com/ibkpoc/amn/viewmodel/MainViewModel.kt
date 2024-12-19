@@ -173,19 +173,16 @@ class MainViewModel @Inject constructor(
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 val contentValues = ContentValues().apply {
                     put(MediaStore.Downloads.DISPLAY_NAME, "record_${meetingId}_${startTime}.pcm")
-                    put(MediaStore.Downloads.MIME_TYPE, "audio/pcm")
+                    put(MediaStore.Downloads.MIME_TYPE, "audio/x-pcm")
                     put(MediaStore.Downloads.RELATIVE_PATH, "Download/IBK_Records")
+                    put(MediaStore.Downloads.IS_PENDING, 1)
                 }
                 
-                context.contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)?.also { uri ->
-                    val cursor = context.contentResolver.query(uri, arrayOf("_data"), null, null, null)
-                    cursor?.use {
-                        if (it.moveToFirst()) {
-                            val columnIndex = it.getColumnIndex("_data")
-                            val filePath = it.getString(columnIndex)
-                            Logger.e("파일시스템 실제 경로: $filePath")
-                        }
-                    }
+                context.contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)?.also { _ ->
+                    Logger.e("파일 생성 시도 성공")
+                } ?: run {
+                    Logger.e("파일 생성 실패: insert returned null")
+                    throw IOException("파일 생성 실패")
                 }
             } else {
                 val file = File(
@@ -403,7 +400,7 @@ class MainViewModel @Inject constructor(
             this[2] = 'F'.code.toByte()
             this[3] = 'F'.code.toByte()
 
-            // ���일 크기
+            // 파일 크기
             this[4] = (totalDataLen and 0xff).toByte()
             this[5] = ((totalDataLen shr 8) and 0xff).toByte()
             this[6] = ((totalDataLen shr 16) and 0xff).toByte()
@@ -512,7 +509,7 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    // 백그라운드/포그라운드 전환 시에는 아무 작업도 하지 않음
+    // 백그라운드/포그라운��� 전환 시에는 아무 작업도 하지 않음
     fun onAppBackgrounded() {}
     fun onAppForegrounded() {}
 
