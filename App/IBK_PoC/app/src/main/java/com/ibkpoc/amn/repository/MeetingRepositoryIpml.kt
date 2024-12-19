@@ -26,7 +26,7 @@ class MeetingRepositoryImpl @Inject constructor(
     private val uploadMutex = Mutex()
     
     companion object {
-        private const val CHUNK_SIZE = 5 * 1024 * 1024 // 5MB
+        private const val CHUNK_SIZE = 4 * 1024 * 1024  // 4MB
     }
 
     override suspend fun startMeeting(participantCount: Int): Flow<NetworkResult<MeetingSession>> = flow {
@@ -109,8 +109,8 @@ class MeetingRepositoryImpl @Inject constructor(
                 }
                 
                 Logger.i("파일 업로드 완료")
+                emit(NetworkResult.Success(Unit))
             }
-            emit(NetworkResult.Success(Unit))
         } catch (e: Exception) {
             Logger.e("파일 업로드 실패", e)
             emit(NetworkResult.Error(0, "파일 업로드 중 오류: ${e.message}"))

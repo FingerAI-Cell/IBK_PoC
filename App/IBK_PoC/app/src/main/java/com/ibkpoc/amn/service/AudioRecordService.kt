@@ -25,6 +25,7 @@ import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
 import android.util.Log
+import android.net.Uri
 
 @AndroidEntryPoint
 class AudioRecordService : Service() {
@@ -33,6 +34,7 @@ class AudioRecordService : Service() {
         const val ACTION_STOP = "action_stop"
         const val EXTRA_MEETING_ID = "meeting_id"
         const val EXTRA_START_TIME = "start_time"
+        const val EXTRA_FILE_URI = "file_uri"
         
         const val ACTION_RECORDING_DATA = "com.ibkpoc.amn.action.RECORDING_DATA"
         const val EXTRA_AUDIO_DATA = "com.ibkpoc.amn.extra.AUDIO_DATA"
@@ -42,7 +44,7 @@ class AudioRecordService : Service() {
     private var audioRecord: AudioRecord? = null
     private var isRecording = false
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    private var currentRecordFile: File? = null
+    private var currentFileUri: Uri? = null
     
     private val sampleRate = 44100
     private val channelConfig = AudioFormat.CHANNEL_IN_MONO
@@ -92,7 +94,10 @@ class AudioRecordService : Service() {
             ACTION_START -> {
                 val meetingId = intent.getLongExtra(EXTRA_MEETING_ID, -1)
                 val startTime = intent.getStringExtra(EXTRA_START_TIME)
-                if (meetingId != -1L && startTime != null && !isRecording) {
+                val fileUri = intent.getStringExtra(EXTRA_FILE_URI)?.let { Uri.parse(it) }
+                
+                if (meetingId != -1L && startTime != null && fileUri != null && !isRecording) {
+                    currentFileUri = fileUri
                     startForeground(NOTIFICATION_ID, createNotification())
                     startRecording()
                 }
@@ -150,14 +155,12 @@ class AudioRecordService : Service() {
         }
     }
 
-    private suspend fun recordAudioData() {
+    private fun recordAudioData() {
         val buffer = ByteArray(bufferSize)
         while (isRecording) {
             try {
                 val readSize = audioRecord?.read(buffer, 0, bufferSize) ?: -1
                 if (readSize > 0) {
-                    Logger.e("오디오 데이터 읽기 성공: $readSize 바이트")
-                    // 원본 데이터 그대로 전송
                     Intent(ACTION_RECORDING_DATA).also { intent ->
                         intent.putExtra(EXTRA_AUDIO_DATA, buffer.copyOf(readSize))
                         sendBroadcast(intent)
@@ -185,15 +188,6 @@ class AudioRecordService : Service() {
             release()
         }
         audioRecord = null
-        
-        currentRecordFile?.let {
-            if (it.exists() && it.length() > 0) {
-                Log.i(TAG, "녹음 파일 저장 완료: ${it.absolutePath}")
-            } else {
-                Logger.e("녹음 파일 저장 실패 또는 빈 파일")
-            }
-        }
-        currentRecordFile = null
     }
 
     override fun onDestroy() {

@@ -99,8 +99,7 @@ public class RecordService implements DisposableBean {
         RecordingInfo info = activeRecordings.computeIfAbsent(request.getMeetingId(), k -> {
             try {
                 LocalDateTime now = LocalDateTime.now();
-                String datePath = String.format("%d/%02d/%02d",
-                        now.getYear(), now.getMonthValue(), now.getDayOfMonth());
+                String datePath = "/";
                 Path directory = Paths.get(baseRecordPath, datePath);
                 log.info("디렉토리 생성 시도: {}", directory.toAbsolutePath());  // 추가
 
@@ -108,7 +107,7 @@ public class RecordService implements DisposableBean {
 
                 Path wavPath = directory.resolve(String.format("meeting_%d_%s.wav",
                         request.getMeetingId(),
-                        request.getStartTime().replace(":", "-").replace(" ", "_")));
+                        request.getStartTime()));
                 log.info("WAV 파일 경로 생성: {}", wavPath.toAbsolutePath());  // 추가
                 return new RecordingInfo(request.getMeetingId(), wavPath, now);
             } catch (IOException e) {
