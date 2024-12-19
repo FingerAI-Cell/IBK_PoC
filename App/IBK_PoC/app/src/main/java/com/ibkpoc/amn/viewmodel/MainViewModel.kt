@@ -176,7 +176,12 @@ class MainViewModel @Inject constructor(
                     put(MediaStore.Downloads.MIME_TYPE, "audio/pcm")
                     put(MediaStore.Downloads.RELATIVE_PATH, "Download/IBK_Records")
                 }
-                context.contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+                Logger.e("Android 10 이상 - 파일 생성 시도: Download/IBK_Records/record_${meetingId}_${startTime}.pcm")
+                
+                context.contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)?.also { uri ->
+                    Logger.e("파일 URI 생성됨: $uri")
+                    Logger.e("파일 실제 경로: ${uri.path}")
+                }
             } else {
                 val file = File(
                     Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
@@ -185,6 +190,7 @@ class MainViewModel @Inject constructor(
                     parentFile?.mkdirs()
                     createNewFile()
                 }
+                Logger.e("Android 9 이하 - 파일 생성됨: ${file.absolutePath}")
                 Uri.fromFile(file)
             }
         }
@@ -198,7 +204,11 @@ class MainViewModel @Inject constructor(
                     put(MediaStore.Downloads.MIME_TYPE, "audio/wav")
                     put(MediaStore.Downloads.RELATIVE_PATH, "Download/IBK_Records")
                 }
+                Logger.e("Android 10 이상 - WAV 파일 생성 시도: Download/IBK_Records/meeting_${meetingId}_${startTime}.wav")
+                
                 context.contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)?.also { uri ->
+                    Logger.e("WAV 파일 URI 생성됨: $uri")
+                    Logger.e("WAV 파일 실제 경로: ${uri.path}")
                     uri.path ?: throw IllegalStateException("URI path is null")
                 }
             } else {
@@ -209,6 +219,7 @@ class MainViewModel @Inject constructor(
                     parentFile?.mkdirs()
                     createNewFile()
                 }
+                Logger.e("Android 9 이하 - WAV 파일 생성됨: ${file.absolutePath}")
                 Uri.fromFile(file)
             }
         }
