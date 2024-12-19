@@ -161,6 +161,7 @@ class AudioRecordService : Service() {
             try {
                 val readSize = audioRecord?.read(buffer, 0, bufferSize) ?: -1
                 if (readSize > 0) {
+                    Logger.e("오디오 데이터 브로드캐스트 전송: $readSize bytes")
                     Intent(ACTION_RECORDING_DATA).also { intent ->
                         intent.putExtra(EXTRA_AUDIO_DATA, buffer.copyOf(readSize))
                         sendBroadcast(intent)

@@ -94,8 +94,10 @@ class MainViewModel @Inject constructor(
     private fun registerRecordingReceiver() {
         recordingReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
+                Logger.e("브로드캐스트 수신됨: action=${intent?.action}")
                 if (intent?.action == AudioRecordService.ACTION_RECORDING_DATA) {
                     intent.getByteArrayExtra(AudioRecordService.EXTRA_AUDIO_DATA)?.let { data ->
+                        Logger.e("오디오 데이터 수신: ${data.size} bytes")
                         processAudioData(data)
                     }
                 }
@@ -122,10 +124,12 @@ class MainViewModel @Inject constructor(
     }
 
     private fun processAudioData(data: ByteArray) {
+        Logger.e("오디오 데이터 처리 시작: ${data.size} bytes")
         val dataCopy: ByteArray
         synchronized(audioBuffer) {
             dataCopy = data.copyOf()
             audioBuffer.add(dataCopy)
+            Logger.e("현재 버퍼 크기: ${audioBuffer.size}")
         }
         viewModelScope.launch(Dispatchers.IO) {
             savePcmData(dataCopy)
@@ -141,8 +145,10 @@ class MainViewModel @Inject constructor(
             }
             
             fileOutputStream?.let { output ->
+                Logger.e("PCM 데이터 저장 중: ${data.size} bytes")
                 output.write(data)
                 output.flush()
+                Logger.e("현재 파일 크기: ${currentRecordFile?.length() ?: 0} bytes")
             }
         } catch (e: Exception) {
             Logger.e("파일 저장 실패: ${e.message}")
@@ -155,10 +161,14 @@ class MainViewModel @Inject constructor(
             try {
                 val tempBuffer = mutableListOf<ByteArray>()
                 synchronized(bufferLock) {
+                    Logger.e("버퍼 동기화 시작: 현재 버퍼 크기 ${audioBuffer.size}")
                     tempBuffer.addAll(audioBuffer)
                     audioBuffer.clear()
                 }
-                tempBuffer.forEach { chunk ->
+                Logger.e("임시 버퍼에 복사된 데이터 크기: ${tempBuffer.size}")
+                
+                tempBuffer.forEachIndexed { index, chunk ->
+                    Logger.e("청크 ${index + 1}/${tempBuffer.size} 저장 중 (${chunk.size} bytes)")
                     savePcmData(chunk)
                 }
             } catch (e: Exception) {
