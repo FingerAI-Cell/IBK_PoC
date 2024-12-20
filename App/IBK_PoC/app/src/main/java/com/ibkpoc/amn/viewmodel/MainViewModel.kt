@@ -39,6 +39,7 @@ import java.io.FileInputStream
 import android.content.BroadcastReceiver
 import android.content.IntentFilter
 import android.annotation.SuppressLint
+import com.ibkpoc.amn.receiver.AudioRecordReceiver
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
@@ -86,96 +87,6 @@ class MainViewModel @Inject constructor(
 
     private var fileOutputStream: FileOutputStream? = null
 
-    init {
-        registerRecordingReceiver()
-    }
-
-    @SuppressLint("UnspecifiedRegisterReceiverFlag")
-    private fun registerRecordingReceiver() {
-        recordingReceiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent?) {
-                Logger.e("브로드캐스트 수신됨: action=${intent?.action}")
-                if (intent?.action == AudioRecordService.ACTION_RECORDING_DATA) {
-                    intent.getByteArrayExtra(AudioRecordService.EXTRA_AUDIO_DATA)?.let { data ->
-                        Logger.e("오디오 데이터 수신: ${data.size} bytes")
-                        processAudioData(data)
-                    }
-                }
-            }
-        }
-        
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                Context.RECEIVER_NOT_EXPORTED
-            } else {
-                0
-            }
-            context.registerReceiver(
-                recordingReceiver,
-                IntentFilter(AudioRecordService.ACTION_RECORDING_DATA),
-                flags
-            )
-        } else {
-            context.registerReceiver(
-                recordingReceiver,
-                IntentFilter(AudioRecordService.ACTION_RECORDING_DATA)
-            )
-        }
-    }
-
-    private fun processAudioData(data: ByteArray) {
-        Logger.e("오디오 데이터 처리 시작: ${data.size} bytes")
-        val dataCopy: ByteArray
-        synchronized(audioBuffer) {
-            dataCopy = data.copyOf()
-            audioBuffer.add(dataCopy)
-            Logger.e("현재 버퍼 크기: ${audioBuffer.size}")
-        }
-        viewModelScope.launch(Dispatchers.IO) {
-            savePcmData(dataCopy)
-        }
-    }
-
-    private suspend fun savePcmData(data: ByteArray) {
-        try {
-            if (fileOutputStream == null) {
-                currentRecordFile?.let { file ->
-                    fileOutputStream = FileOutputStream(file, true)
-                } ?: throw IOException("파일이 null입니다")
-            }
-            
-            fileOutputStream?.let { output ->
-                Logger.e("PCM 데이터 저장 중: ${data.size} bytes")
-                output.write(data)
-                output.flush()
-                Logger.e("현재 파일 크기: ${currentRecordFile?.length() ?: 0} bytes")
-            }
-        } catch (e: Exception) {
-            Logger.e("파일 저장 실패: ${e.message}")
-            _errorMessage.value = "녹음 파일 저장 실패"
-        }
-    }
-
-    private fun saveBufferToFile() {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val tempBuffer = mutableListOf<ByteArray>()
-                synchronized(bufferLock) {
-                    Logger.e("버퍼 동기화 시작: 현재 버퍼 크기 ${audioBuffer.size}")
-                    tempBuffer.addAll(audioBuffer)
-                    audioBuffer.clear()
-                }
-                Logger.e("임시 버퍼에 복사된 데이터 크기: ${tempBuffer.size}")
-                
-                tempBuffer.forEachIndexed { index, chunk ->
-                    Logger.e("청크 ${index + 1}/${tempBuffer.size} 저장 중 (${chunk.size} bytes)")
-                    savePcmData(chunk)
-                }
-            } catch (e: Exception) {
-                Logger.e("버퍼 저장 실패", e)
-            }
-        }
-    }
 
     private suspend fun createRecordFile(meetingId: Long, startTime: String): File {
         return withContext(Dispatchers.IO) {
@@ -253,8 +164,9 @@ class MainViewModel @Inject constructor(
                 // 1. 녹음 서비스 중지
                 context.stopService(Intent(context, AudioRecordService::class.java))
                 
-                // 2. 마지막 버퍼 저장
-                saveBufferToFile()
+                // 2. 파일 스트림 정리
+                fileOutputStream?.close()
+                fileOutputStream = null
                 
                 // 3. PCM -> WAV 변환
                 currentRecordFile?.let { pcmFile ->
@@ -264,9 +176,6 @@ class MainViewModel @Inject constructor(
                     repository.endMeeting(currentState.meetingId).collect { result ->
                         when (result) {
                             is NetworkResult.Success -> {
-                                Logger.i("회의 종료 완료: meetingId=${currentState.meetingId}")
-                                _errorMessage.value = null
-                                
                                 // 5. WAV 파일 업로드 및 STT 변환
                                 uploadWavAndConvertToStt(
                                     currentState.meetingId,
@@ -281,14 +190,14 @@ class MainViewModel @Inject constructor(
                             is NetworkResult.Loading -> _isLoading.value = true
                         }
                     }
-                } ?: throw IOException("녹음 파일이 없습니다")
+                }
                 
             } catch (e: Exception) {
                 Logger.e("녹음 종료 실패", e)
                 _errorMessage.value = "녹음 종료 실패: ${e.message}"
-                cleanupRecording()
             } finally {
                 _isLoading.value = false
+                cleanupRecording()
             }
         }
     }
@@ -443,7 +352,7 @@ class MainViewModel @Inject constructor(
     }
 
     private fun cleanupRecording() {
-        recordingDurationJob?.cancel()
+        recordingJob?.cancel()
         try {
             fileOutputStream?.close()
             fileOutputStream = null
@@ -451,6 +360,7 @@ class MainViewModel @Inject constructor(
             Logger.e("파일 스트림 닫기 실패", e)
         }
         currentRecordFile = null
+        _recordingState.value = RecordingState.Idle
     }
 
     private suspend fun convertPcmToWav(pcmFile: File): File {

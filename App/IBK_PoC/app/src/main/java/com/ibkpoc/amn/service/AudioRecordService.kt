@@ -157,14 +157,30 @@ class AudioRecordService : Service() {
 
     private fun recordAudioData() {
         val buffer = ByteArray(bufferSize)
+        var accumulatedData = ByteArray(0)
+        var lastBroadcastTime = System.currentTimeMillis()
+        val BROADCAST_INTERVAL = 200L  // 200ms 간격
+        
         while (isRecording) {
             try {
                 val readSize = audioRecord?.read(buffer, 0, bufferSize) ?: -1
                 if (readSize > 0) {
-                    Logger.e("오디오 데이터 브로드캐스트 전송: $readSize bytes")
-                    Intent(ACTION_RECORDING_DATA).also { intent ->
-                        intent.putExtra(EXTRA_AUDIO_DATA, buffer.copyOf(readSize))
-                        sendBroadcast(intent)
+                    // 데이터 누적
+                    accumulatedData = accumulatedData.plus(buffer.copyOf(readSize))
+                    
+                    val currentTime = System.currentTimeMillis()
+                    if (currentTime - lastBroadcastTime >= BROADCAST_INTERVAL) {
+                        Logger.e("오디오 데이터 전송: ${accumulatedData.size} bytes")
+                        Intent(ACTION_RECORDING_DATA).apply {
+                            setPackage(applicationContext.packageName)
+                            putExtra(EXTRA_AUDIO_DATA, accumulatedData)
+                            addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
+                            sendBroadcast(this)
+                        }
+                        
+                        // 초기화
+                        accumulatedData = ByteArray(0)
+                        lastBroadcastTime = currentTime
                     }
                 }
             } catch (e: Exception) {
