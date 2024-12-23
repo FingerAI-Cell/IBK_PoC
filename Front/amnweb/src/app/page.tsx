@@ -1,37 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useService } from "./context/ServiceContext";
 
 export default function Home() {
-  const [currentService, setCurrentService] = useState("default");
+  const { currentService } = useService();
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
-      {/* 서비스 전환 버튼 */}
-      <nav className="space-x-4 mb-4">
-        <button
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          onClick={() => setCurrentService("service1")}
-        >
-          Service 1
-        </button>
-        <button
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          onClick={() => setCurrentService("service2")}
-        >
-          Service 2
-        </button>
-      </nav>
-
-      {/* 동적 콘텐츠 */}
       <div className="bg-white p-6 rounded shadow">
         {currentService === "default" ? (
-          <p>Select a service to continue.</p>
-        ) : currentService === "service1" ? (
-          <p>Service 1 Content</p>
-        ) : currentService === "service2" ? (
-          <p>Service 2 Content</p>
-        ) : null}
+          <p>서비스를 선택해주세요.</p>
+        ) : (
+          <p>{currentService} 콘텐츠</p>
+        )}
       </div>
     </div>
   );

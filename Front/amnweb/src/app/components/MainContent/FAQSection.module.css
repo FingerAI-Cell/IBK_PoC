@@ -1,0 +1,25 @@
+.container {
+    margin-top: 2rem;
+  }
+  
+  .faqList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  
+  .faqItem {
+    flex: 1;
+    min-width: 45%;
+    padding: 0.75rem;
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    text-align: center;
+    cursor: pointer;
+  }
+  
+  .faqItem:hover {
+    background-color: #e2e6ea;
+  }
+  

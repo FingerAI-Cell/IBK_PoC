@@ -1,0 +1,28 @@
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 16rem;
+    height: 100vh;
+    background-color: #ffffff;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+    z-index: 1000;
+    margin-top: var(--header-height);
+  }
+  
+  .categories {
+    padding: 1rem;
+  }
+  
+  .categoryTitle {
+    font-weight: 700;
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+  }
+  
+  .recentHistory {
+    margin-top: 2rem;
+    padding: 1rem;
+  }
+  

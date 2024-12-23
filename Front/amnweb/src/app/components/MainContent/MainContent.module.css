@@ -1,0 +1,25 @@
+.container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.serviceTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 2rem;
+}
+
+/* 채팅 컨테이너 스타일 */
+.chatContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* 입력 영역 스타일 */
+.inputArea {
+  margin-top: 1rem;
+}
+  
