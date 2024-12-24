@@ -16,10 +16,18 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.Lifecycle
+import kotlinx.coroutines.launch
+import com.ibkpoc.amn.model.RecordServiceState
+import com.ibkpoc.amn.service.AudioRecordService
 import com.ibkpoc.amn.ui.screens.main.MainScreen
 import com.ibkpoc.amn.ui.theme.MeetingAppTheme
 import com.ibkpoc.amn.viewmodel.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import com.ibkpoc.amn.event.RecordingStateEvent
+import com.ibkpoc.amn.event.EventBus
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -52,7 +60,7 @@ class MainActivity : ComponentActivity() {
         AlertDialog.Builder(this)
             .setTitle("권한 필요")
             .setMessage("음성 녹음 및 파일 저장을 위해 권한이 필요합니다.\n권한을 허용하시겠습니까?")
-            .setPositiveButton("권한 설정") { dialog: DialogInterface, _: Int ->
+            .setPositiveButton("권한 수정") { dialog: DialogInterface, _: Int ->
                 dialog.dismiss()
                 checkPermissions()
             }
@@ -91,6 +99,26 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        // LocalBroadcastManager 대신 EventBus 사용
+        lifecycleScope.launch {
+            EventBus.subscribe<RecordingStateEvent>().collect { event ->
+                // 상태 처리
+                when (val state = event.state) {
+                    is RecordServiceState.Error -> {
+                        Toast.makeText(
+                            this@MainActivity,
+                            state.message,
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    is RecordServiceState.Completed -> {
+                        // 녹음 완료 처리
+                    }
+                    else -> { /* 다른 상태 처리 */ }
+                }
+            }
+        }
 
         // 앱 실행 시 권한 확인 및 초기화
         if (hasAllPermissions()) {
@@ -99,6 +127,10 @@ class MainActivity : ComponentActivity() {
         } else {
             checkPermissions()
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
     }
 
     private fun startApp() {

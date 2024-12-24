@@ -1,13 +1,23 @@
 .categories {
+    margin-top: -0.5rem;
+  }
+  
+  .categoryTitle {
+    font-size: 1.25rem;
+    font-weight: 700;
     padding: 1rem;
+    margin-bottom: 0.5rem;
   }
   
   .categoryItem {
     display: flex;
     align-items: center;
-    padding: 0.5rem 1rem;
+    padding: 0.5rem 0;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    gap: 0.75rem;
+    margin: 0 1rem;
+    padding-left: 1.5rem;
   }
   
   .categoryItem:hover {
@@ -16,5 +26,12 @@
   
   .categoryItem.active {
     background-color: #e2e8f0;
+  }
+  
+  .icon {
+    display: flex;
+    align-items: center;
+    font-size: 1.25rem;
+    color: #4a5568;
   }
   

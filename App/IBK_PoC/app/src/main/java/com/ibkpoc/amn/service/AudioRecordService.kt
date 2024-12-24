@@ -26,22 +26,24 @@ import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
 import android.util.Log
 import android.net.Uri
+import com.ibkpoc.amn.model.RecordServiceState
+import com.ibkpoc.amn.event.RecordingStateEvent
+import com.ibkpoc.amn.event.EventBus
 
 @AndroidEntryPoint
 class AudioRecordService : Service() {
     companion object {
-        const val ACTION_START = "action_start"
-        const val ACTION_STOP = "action_stop"
+        const val ACTION_START = "com.ibkpoc.amn.action.START_RECORDING"
+        const val ACTION_STOP = "com.ibkpoc.amn.action.STOP_RECORDING"
         const val EXTRA_MEETING_ID = "meeting_id"
         const val EXTRA_START_TIME = "start_time"
         const val EXTRA_FILE_PATH = "file_path"
-        
-        const val ACTION_RECORDING_DATA = "com.ibkpoc.amn.action.RECORDING_DATA"
-        const val EXTRA_AUDIO_DATA = "com.ibkpoc.amn.extra.AUDIO_DATA"
         private const val TAG = "AudioRecordService"
     }
 
     private var audioRecord: AudioRecord? = null
+    private var noiseSuppressor: NoiseSuppressor? = null
+    private var fileOutputStream: FileOutputStream? = null
     private var isRecording = false
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var currentFilePath: String? = null
@@ -51,10 +53,12 @@ class AudioRecordService : Service() {
     private val audioFormat = AudioFormat.ENCODING_PCM_16BIT
     private val bufferSize = AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat)
     
-    private var noiseSuppressor: NoiseSuppressor? = null
-
     private val NOTIFICATION_ID = 1
     private val CHANNEL_ID = "audio_record_channel"
+
+    private var recordFile: File? = null
+    private var currentMeetingId: Long = -1
+    private var currentStartTime: String = ""
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -92,12 +96,12 @@ class AudioRecordService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when(intent?.action) {
             ACTION_START -> {
-                val meetingId = intent.getLongExtra(EXTRA_MEETING_ID, -1)
-                val startTime = intent.getStringExtra(EXTRA_START_TIME)
-                val filePath = intent.getStringExtra(EXTRA_FILE_PATH)
+                currentMeetingId = intent.getLongExtra(EXTRA_MEETING_ID, -1)
+                currentStartTime = intent.getStringExtra(EXTRA_START_TIME) ?: ""
+                currentFilePath = intent.getStringExtra(EXTRA_FILE_PATH)
                 
-                if (meetingId != -1L && startTime != null && filePath != null && !isRecording) {
-                    currentFilePath = filePath
+                if (currentMeetingId != -1L && currentStartTime.isNotEmpty() && 
+                    currentFilePath != null && !isRecording) {
                     startForeground(NOTIFICATION_ID, createNotification())
                     startRecording()
                 }
@@ -118,73 +122,65 @@ class AudioRecordService : Service() {
     }
 
     private fun startRecording() {
-        if (!checkRecordPermission()) {
-            Logger.e("권한 없음")
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.RECORD_AUDIO
+            ) != PackageManager.PERMISSION_GRANTED) {
+            stopSelf()
             return
         }
-        
+
         try {
-            Logger.e("AudioRecord 초기화 시작")
-            isRecording = true
+            // 파일 생성
+            recordFile = File(currentFilePath ?: throw IllegalStateException("파일 경로가 없습니다"))
+            fileOutputStream = FileOutputStream(recordFile)
+            
+            // 녹음 초기화
             audioRecord = AudioRecord(
                 MediaRecorder.AudioSource.VOICE_RECOGNITION,
-                sampleRate,
-                channelConfig,
-                audioFormat,
-                bufferSize
+                sampleRate, channelConfig, audioFormat, bufferSize
             ).apply {
                 startRecording()
             }
-
-            if (NoiseSuppressor.isAvailable()) {
-                try {
-                    noiseSuppressor = NoiseSuppressor.create(audioRecord?.audioSessionId ?: 0)
-                    noiseSuppressor?.enabled = true
-                    Logger.i("노이즈 서프레서 활성화됨")
-                } catch (e: Exception) {
-                    Logger.e("노이즈 서프레서 초기화 실패: ${e.message}")
-                }
-            }
-
+            
+            setupNoiseSuppressor()
+            
+            isRecording = true
             serviceScope.launch {
+                broadcastState(RecordServiceState.Recording(
+                    meetingId = currentMeetingId,
+                    startTime = currentStartTime
+                ))
                 recordAudioData()
             }
+        } catch (e: SecurityException) {
+            serviceScope.launch {
+                broadcastState(RecordServiceState.Error("권한이 없습니다"))
+            }
+            stopSelf()
         } catch (e: Exception) {
-            Logger.e("녹음 시작 실패: ${e.message}")
+            serviceScope.launch {
+                broadcastState(RecordServiceState.Error("녹음을 시작할 수 없습니다: ${e.message}"))
+            }
             stopSelf()
         }
     }
 
     private fun recordAudioData() {
         val buffer = ByteArray(bufferSize)
-        var accumulatedData = ByteArray(0)
-        var lastBroadcastTime = System.currentTimeMillis()
-        val BROADCAST_INTERVAL = 200L  // 200ms 간격
         
         while (isRecording) {
             try {
                 val readSize = audioRecord?.read(buffer, 0, bufferSize) ?: -1
                 if (readSize > 0) {
-                    // 데이터 누적
-                    accumulatedData = accumulatedData.plus(buffer.copyOf(readSize))
-                    
-                    val currentTime = System.currentTimeMillis()
-                    if (currentTime - lastBroadcastTime >= BROADCAST_INTERVAL) {
-                        Logger.e("오디오 데이터 전송: ${accumulatedData.size} bytes")
-                        Intent(ACTION_RECORDING_DATA).apply {
-                            setPackage(applicationContext.packageName)
-                            putExtra(EXTRA_AUDIO_DATA, accumulatedData)
-                            addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
-                            sendBroadcast(this)
-                        }
-                        
-                        // 초기화
-                        accumulatedData = ByteArray(0)
-                        lastBroadcastTime = currentTime
-                    }
+                    fileOutputStream?.write(buffer, 0, readSize)
+                    fileOutputStream?.flush()
                 }
             } catch (e: Exception) {
                 Logger.e("녹음 중 오류: ${e.message}")
+                serviceScope.launch {
+                    broadcastState(RecordServiceState.Error(e.message ?: "녹음 중 오류 발생"))
+                }
                 isRecording = false
                 break
             }
@@ -192,19 +188,33 @@ class AudioRecordService : Service() {
     }
 
     private fun stopRecording() {
-        isRecording = false
-        
-        noiseSuppressor?.apply {
-            enabled = false
-            release()
+        try {
+            isRecording = false
+            
+            audioRecord?.let { recorder ->
+                if (recorder.recordingState == AudioRecord.RECORDSTATE_RECORDING) {
+                    recorder.stop()
+                }
+                recorder.release()
+            }
+            
+            fileOutputStream?.close()
+            noiseSuppressor?.release()
+            
+            currentFilePath?.let { path ->
+                serviceScope.launch {
+                    broadcastState(RecordServiceState.Completed(path))
+                }
+            }
+        } catch (e: Exception) {
+            serviceScope.launch {
+                broadcastState(RecordServiceState.Error(e.message ?: "녹음 종료 중 오류 발생"))
+            }
+        } finally {
+            audioRecord = null
+            fileOutputStream = null
+            noiseSuppressor = null
         }
-        noiseSuppressor = null
-        
-        audioRecord?.apply {
-            stop()
-            release()
-        }
-        audioRecord = null
     }
 
     override fun onDestroy() {
@@ -213,5 +223,19 @@ class AudioRecordService : Service() {
             isRecording = false
             stopRecording()
         }
+    }
+
+    private fun setupNoiseSuppressor() {
+        if (NoiseSuppressor.isAvailable()) {
+            audioRecord?.let { record ->
+                noiseSuppressor = NoiseSuppressor.create(record.audioSessionId)?.apply {
+                    enabled = true
+                }
+            }
+        }
+    }
+
+    private suspend fun broadcastState(state: RecordServiceState) {
+        EventBus.post(RecordingStateEvent(state))
     }
 }

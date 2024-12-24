@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useService } from "../../context/ServiceContext";
 import { serviceConfig } from "../../config/serviceConfig";
+import styles from "./RecentHistory.module.css";
 
 interface HistoryItem {
   id: number;
@@ -13,10 +14,13 @@ interface HistoryItem {
 export function RecentHistory() {
   const { currentService } = useService();
   const [history, setHistory] = useState<HistoryItem[]>([]);
+  const currentConfig = serviceConfig[currentService] || serviceConfig["general-chat"];
   
+  const needsSmallerFont = (service: string) => {
+    return ["branch-manual", "investment-report"].includes(service);
+  };
+
   useEffect(() => {
-    // 현재 서비스 설정이 유효한지 확인
-    const currentConfig = serviceConfig[currentService] || serviceConfig["general-chat"];
     const historyKey = currentConfig.historyKey;
     
     try {
@@ -24,28 +28,32 @@ export function RecentHistory() {
       if (savedHistory) {
         setHistory(JSON.parse(savedHistory));
       } else {
-        setHistory([]); // 히스토리가 없으면 빈 배열
+        setHistory([]);
       }
     } catch (error) {
       console.error('히스토리 로드 중 오류:', error);
-      setHistory([]); // 에러 발생 시 빈 배열로 초기화
+      setHistory([]);
     }
-  }, [currentService]);
+  }, [currentService, currentConfig.historyKey]);
 
   return (
-    <div className="p-6 border-t border-gray-300">
-      <h2 className="text-lg font-bold mb-4">최근 이력</h2>
+    <div className={styles.container}>
+      <h2 className={`${styles.title} ${needsSmallerFont(currentService) ? styles.smallTitle : ''}`}>
+        {currentService === "general-chat" 
+          ? "최근 이력" 
+          : `${currentConfig.title} 최근 이력`}
+      </h2>
       {history.length > 0 ? (
-        <ul className="space-y-2">
+        <ul className={styles.historyList}>
           {history.map((item) => (
-            <li key={item.id} className="text-sm">
-              <p className="font-medium">{item.text}</p>
-              <p className="text-xs text-gray-500">{item.time}</p>
+            <li key={item.id} className={styles.historyItem}>
+              <p className={styles.historyText}>{item.text}</p>
+              <p className={styles.historyTime}>{item.time}</p>
             </li>
           ))}
         </ul>
       ) : (
-        <p className="text-sm text-gray-500">최근 대화 이력이 없습니다.</p>
+        <p className={styles.emptyMessage}>최근 대화 이력이 없습니다.</p>
       )}
     </div>
   );

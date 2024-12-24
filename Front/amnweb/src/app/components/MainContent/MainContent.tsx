@@ -1,5 +1,4 @@
 "use client";
-// 업데이트
 
 import { useState, useEffect } from "react";
 import styles from "./MainContent.module.css";
@@ -11,7 +10,7 @@ import { useService } from "../../context/ServiceContext";
 import { serviceConfig } from "../../config/serviceConfig";
 
 export default function MainContent() {
-  const { currentService, setCurrentService } = useService();
+  const { currentService, setPageState, setCurrentService } = useService();
   const [isChatting, setIsChatting] = useState(false);
   const [chatInput, setChatInput] = useState("");
 
@@ -40,12 +39,14 @@ export default function MainContent() {
   const handleQuestionSubmit = () => {
     if (chatInput.trim()) {
       setIsChatting(true);
+      setPageState('chat');
     }
   };
 
   const handleFAQClick = (question: string) => {
     setChatInput(question);
     setIsChatting(true);
+    setPageState('chat');
   };
 
   const handleReset = () => {
@@ -56,14 +57,13 @@ export default function MainContent() {
 
   return (
     <div className={styles.container}>
-      <h2 className={styles.serviceTitle}>{currentConfig.title}</h2>
       {!isChatting ? (
         <>
           <GreetingSection
             chatInput={chatInput}
             onInputChange={setChatInput}
             onSubmit={handleQuestionSubmit}
-            placeholder={currentConfig.defaultMessage}
+            serviceType={currentService}
           />
           <FAQSection faqs={faqs} onFAQClick={handleFAQClick} />
         </>

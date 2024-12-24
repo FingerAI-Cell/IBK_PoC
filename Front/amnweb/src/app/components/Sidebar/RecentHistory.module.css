@@ -1,0 +1,49 @@
+.container {
+  border-top: 1px solid #e2e8f0;
+  margin-top: -0.5rem;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  padding: 1rem;
+  margin-top: 0.5rem;
+  line-height: 1.2;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+.smallTitle {
+  font-size: 1.1rem;
+}
+
+.historyList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0 1rem;
+}
+
+.historyItem {
+  padding: 0.5rem 0;
+}
+
+.historyText {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #1a202c;
+  margin-bottom: 0.25rem;
+  line-height: 1.4;
+  word-break: break-all;
+}
+
+.historyTime {
+  font-size: 0.75rem;
+  color: #718096;
+}
+
+.emptyMessage {
+  font-size: 0.875rem;
+  color: #718096;
+  padding: 0 1rem;
+}

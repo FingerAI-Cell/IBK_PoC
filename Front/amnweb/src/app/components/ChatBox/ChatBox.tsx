@@ -2,14 +2,14 @@
 
 import { useChat } from "../../hooks/useChat";
 import styles from "./ChatBox.module.css";
-import { useEffect, memo } from "react"; // 추가: useEffect 임포트
+import { useEffect, memo } from "react";
 
 interface ChatBoxProps {
   sendApiRequest: (message: string) => Promise<string>;
   initialInput: string;
   onReset: () => void;
   serviceName: string;
-  showReset?: boolean; // 돌아가기 버튼 표시 여부
+  showReset?: boolean;
 }
 
 // 메시지 컴포넌트 분리
@@ -19,7 +19,12 @@ const ChatMessage = memo(({ sender, text }: { sender: string; text: string }) =>
       sender === "user" ? styles.userMessage : styles.botMessage
     }`}
   >
-    {text}
+    {text.split('\n').map((line, i) => (
+      <span key={i}>
+        {line}
+        {i !== text.split('\n').length - 1 && <br />}
+      </span>
+    ))}
   </div>
 ));
 
@@ -44,13 +49,6 @@ export default function ChatBox({ sendApiRequest, initialInput, onReset, service
     }
   }, [initialInput, setInput]);
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      sendMessage();
-    }
-  };
-
   return (
     <div className={styles.container}>
       <div className={styles.messageList}>
@@ -61,7 +59,12 @@ export default function ChatBox({ sendApiRequest, initialInput, onReset, service
               msg.sender === "user" ? styles.userMessage : styles.botMessage
             }`}
           >
-            {msg.text}
+            {msg.text.split('\n').map((line, i) => (
+              <span key={i}>
+                {line}
+                {i !== msg.text.split('\n').length - 1 && <br />}
+              </span>
+            ))}
           </div>
         ))}
         <div ref={messageEndRef} />
@@ -75,14 +78,24 @@ export default function ChatBox({ sendApiRequest, initialInput, onReset, service
             className={`${styles.input} ${styles.disabledInput}`}
           />
         ) : (
-          <input
-            type="text"
+          <textarea
             value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
+            onChange={(e) => {
+              setInput(e.target.value);
+              // 동적 높이 조절
+              e.target.style.height = 'auto';
+              e.target.style.height = e.target.scrollHeight + 'px';
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+              }
+            }}
             ref={inputRef}
             className={styles.input}
             placeholder="메시지를 입력하세요..."
+            rows={1}
           />
         )}
         {isSending ? (

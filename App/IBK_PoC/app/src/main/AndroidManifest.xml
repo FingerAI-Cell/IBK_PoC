@@ -33,13 +33,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <receiver 
-            android:name=".receiver.AudioRecordReceiver"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.ibkpoc.amn.action.RECORDING_DATA" />
-            </intent-filter>
-        </receiver>
         <service
             android:name=".service.AudioRecordService"
             android:foregroundServiceType="microphone"

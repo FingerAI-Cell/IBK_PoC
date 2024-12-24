@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.material.icons.automirrored.rounded.List
-import com.ibkpoc.amn.model.RecordingState
+import com.ibkpoc.amn.model.RecordServiceState
 import com.ibkpoc.amn.ui.screens.main.components.RecordingIndicator
 import com.ibkpoc.amn.viewmodel.MainViewModel
 import androidx.compose.foundation.shape.CircleShape
@@ -41,14 +41,16 @@ import androidx.compose.ui.text.input.KeyboardType
 
 @Composable
 fun MainScreen(
-    recordingState: RecordingState,
+    recordingState: RecordServiceState,
     errorMessage: String?,
     isLoading: Boolean,
     showSuccessMessage: Boolean,
+    elapsedTime: Long,
     onStartMeeting: (Int) -> Unit,
     onEndMeeting: () -> Unit,
-    onMessageShown: () -> Unit,
+    onMessageShown: () -> Unit
 ) {
+    val context = LocalContext.current
     var showDialog by remember { mutableStateOf(false) }
     var participantCount by remember { mutableStateOf("") }
     var showError by remember { mutableStateOf(false) }
@@ -63,6 +65,63 @@ fun MainScreen(
                 duration = SnackbarDuration.Short
             )
             onMessageShown()
+        }
+    }
+
+    // 녹음 상태에 따른 UI 표시
+    when (recordingState) {
+        is RecordServiceState.Recording -> {
+            // 녹음 중일 때의 UI
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Info,
+                        contentDescription = null,
+                        tint = StatusGreenText
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "녹음 중입니다.",
+                        color = StatusGreenText
+                    )
+                }
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "회의 ID: ${recordingState.meetingId}",
+                    color = StatusGreenText
+                )
+                Text(
+                    text = "녹음 시간: ${formatDuration(elapsedTime)}",
+                    color = StatusGreenText
+                )
+            }
+        }
+        is RecordServiceState.Completed -> {
+            // 녹음 완료 시 UI
+            if (showSuccessMessage) {
+                LaunchedEffect(showSuccessMessage) {
+                    Toast.makeText(context, "녹음이 완료되었습니다.", Toast.LENGTH_SHORT).show()
+                    onMessageShown()
+                }
+            }
+        }
+        is RecordServiceState.Error -> {
+            // 에러 발생 시 UI
+            if (errorMessage != null) {
+                LaunchedEffect(errorMessage) {
+                    Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+                    onMessageShown()
+                }
+            }
+        }
+        RecordServiceState.Idle -> {
+            // 대기 상태 UI
         }
     }
 
@@ -131,7 +190,7 @@ fun MainScreen(
                     )
 
                     // 버음 중 상태 표시
-                    if (recordingState is RecordingState.Recording) {
+                    if (recordingState is RecordServiceState.Recording) {
                         Spacer(modifier = Modifier.height(16.dp))
                         Card(
                             modifier = Modifier.fillMaxWidth(),
@@ -182,9 +241,9 @@ fun MainScreen(
                             text = "회의 시작",
                             icon = Icons.Rounded.PlayArrow,
                             onClick = { showDialog = true },
-                            enabled = recordingState !is RecordingState.Recording && !isLoading,
+                            enabled = recordingState !is RecordServiceState.Recording && !isLoading,
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = if (recordingState !is RecordingState.Recording) 
+                                containerColor = if (recordingState !is RecordServiceState.Recording) 
                                     ButtonBlack else ButtonGray
                             )
                         )
@@ -257,9 +316,9 @@ fun MainScreen(
                             text = "회의 종료",
                             icon = Icons.Rounded.Stop,
                             onClick = onEndMeeting,
-                            enabled = recordingState is RecordingState.Recording && !isLoading,
+                            enabled = recordingState is RecordServiceState.Recording && !isLoading,
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = if (recordingState is RecordingState.Recording) 
+                                containerColor = if (recordingState is RecordServiceState.Recording) 
                                     ButtonRed else ButtonLightRed,
                                 disabledContainerColor = ButtonLightRed
                             )
@@ -329,18 +388,42 @@ private fun formatDuration(seconds: Long): String {
 
 @Composable
 fun MainScreen(viewModel: MainViewModel) {
-    val recordingState = viewModel.recordingState.collectAsState().value
-    val errorMessage = viewModel.errorMessage.collectAsState().value
-    val isLoading = viewModel.isLoading.collectAsState().value
-    val showSuccessMessage = viewModel.showSuccessMessage.collectAsState().value
-
+    val recordingState by viewModel.recordingState.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
+    val showSuccessMessage by viewModel.showSuccessMessage.collectAsState()
+    val elapsedTime by viewModel.elapsedTime.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    
     MainScreen(
         recordingState = recordingState,
         errorMessage = errorMessage,
         isLoading = isLoading,
         showSuccessMessage = showSuccessMessage,
+        elapsedTime = elapsedTime,
         onStartMeeting = { count -> viewModel.startMeeting(count) },
         onEndMeeting = { viewModel.endMeeting() },
         onMessageShown = { viewModel.onMessageShown() }
     )
+}
+
+@Composable
+private fun RecordingIndicator(
+    elapsedTime: String,
+    onStopRecording: () -> Unit
+) {
+    Row(
+        modifier = Modifier.padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = "녹음 중... $elapsedTime",
+            style = MaterialTheme.typography.bodyLarge
+        )
+        IconButton(onClick = onStopRecording) {
+            Icon(
+                imageVector = Icons.Rounded.Stop,
+                contentDescription = "녹음 중지"
+            )
+        }
+    }
 }
