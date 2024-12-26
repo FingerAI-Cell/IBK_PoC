@@ -71,7 +71,6 @@ public class RecordService implements DisposableBean {
         private long totalBytes = 0;
         private final LocalDateTime startTime;
         private ScheduledFuture<?> timeoutFuture;
-        private boolean endSignalReceived = false;
         private final TreeMap<Integer, byte[]> wavChunks = new TreeMap<>();
         private int totalWavChunks = 0;
         private String originalStartTime;  // 클라이언트가 보낸 원래 시작 시간 저장
@@ -135,9 +134,17 @@ public class RecordService implements DisposableBean {
                         info.totalBytes += chunk.length;
                     }
                 }
-                log.info("WAV 파일 생성 완료: meetingId={}, 경로={}, totalBytes={}",
+                // 2. 타임아웃 타이머 취소 (모든 청크 수신 완료)
+                if (info.getTimeoutFuture() != null) {
+                    info.getTimeoutFuture().cancel(false);
+                }
+
+                // 3. DB 업데이트 및 정리 작업
+                finalizeRecording(info.getMeetingId(), false);
+
+                log.info("WAV 파일 처리 완료: meetingId={}, 경로={}, totalBytes={}",
                         request.getMeetingId(),
-                        info.getFilePath().toAbsolutePath(),  // 절대 경로로 변경
+                        info.getFilePath().toAbsolutePath(),
                         info.getTotalBytes());
             }
         } catch (Exception e) {
@@ -153,45 +160,16 @@ public class RecordService implements DisposableBean {
         }
 
         ScheduledFuture<?> timeoutFuture = scheduler.schedule(() -> {
-            if (!info.isEndSignalReceived()) {
-                try {
-                    log.warn("타임아웃으로 인한 강제 종료: meetingId={}", info.getMeetingId());
-                    finalizeRecording(info.getMeetingId(), true);
-                    meetingService.endMeeting(info.getMeetingId());
-                } catch (IOException e) {
-                    log.error("강제 종료 중 오류", e);
-                }
+            try {
+                log.warn("타임아웃으로 인한 강제 종료: meetingId={}", info.getMeetingId());
+                finalizeRecording(info.getMeetingId(), true);
+                meetingService.endMeeting(info.getMeetingId());
+            } catch (IOException e) {
+                log.error("강제 종료 중 오류", e);
             }
         }, 30, TimeUnit.SECONDS);
 
         info.setTimeoutFuture(timeoutFuture);
-    }
-
-    @Async
-    public void markEndSignal(Long meetingId) {
-        log.info("녹음 종료 신호 수신: meetingId={}", meetingId);
-        RecordingInfo info = activeRecordings.get(meetingId);
-        if (info != null) {
-            info.setEndSignalReceived(true);
-            log.info("녹음 종료 처리 시작: meetingId={}, totalDuration={}ms",
-                    meetingId,
-                    java.time.Duration.between(info.getStartTime(), LocalDateTime.now()).toMillis());
-
-            if (info.getTimeoutFuture() != null) {
-                info.getTimeoutFuture().cancel(false);
-                log.debug("타임아웃 타이머 취소됨: meetingId={}", meetingId);
-            }
-
-            scheduler.schedule(() -> {
-                try {
-                    finalizeRecording(meetingId, false);
-                } catch (IOException e) {
-                    log.error("녹음 종료 처리 실패: meetingId={}", meetingId, e);
-                }
-            }, 2, TimeUnit.SECONDS);
-        } else {
-            log.warn("존재하지 않는 녹음에 대한 종료 신호: meetingId={}", meetingId);
-        }
     }
 
     private synchronized void finalizeRecording(Long meetingId, boolean forcedEnd) throws IOException {
