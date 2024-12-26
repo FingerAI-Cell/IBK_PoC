@@ -10,12 +10,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
 import java.util.Map;
 
@@ -103,31 +101,28 @@ public class MeetingService {
         );
 
         try {
-            // RestTemplate으로 API 호출
-            RestTemplate restTemplate = new RestTemplate();
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-
-            HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestData, headers);
-
-            log.info("STT API 호출 시작: {}", apiUrl);
-            ResponseEntity<Map> responseEntity = restTemplate.exchange(
-                    apiUrl,
-                    HttpMethod.POST,
-                    requestEntity,
-                    Map.class
+            // 파이썬 코드의 data 파라미터 구조에 맞춤
+            String requestJson = String.format(
+                    "{\"file_name\": \"%s\", \"participant\": %d}",
+                    meeting.getWavSrc(),
+                    meeting.getParticipants()
             );
 
-            // 응답 처리
-            if (responseEntity.getStatusCode() == HttpStatus.OK) {
-                Map<String, Object> responseBody = responseEntity.getBody();
-                log.info("STT API 호출 성공: 응답={}", responseBody);
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(apiUrl))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(requestJson))
+                    .build();
 
-                // 필요한 경우, 응답 데이터를 Meeting 객체에 저장하거나 추가 처리
-                // 예: meeting.setSttResult(responseBody.get("result").toString());
-                // meetingRepository.save(meeting);
+            log.info("STT API 호출 시작: {}, 요청 데이터: {}", apiUrl, requestJson);
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 200) {
+                log.info("STT API 호출 성공: 응답={}", response.body());
             } else {
-                log.error("STT API 호출 실패: 상태 코드={}", responseEntity.getStatusCode());
+                log.error("STT API 호출 실패: 상태 코드={}", response.statusCode());
                 throw new RuntimeException("STT API 호출 실패");
             }
 
