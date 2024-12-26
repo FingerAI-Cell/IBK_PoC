@@ -32,7 +32,6 @@ public class MeetingController {
     public ResponseEntity<CommonResponse<?>> endMeeting(@RequestBody EndMeetingRequest request) {
         try {
             Long meetingId = request.getMeetingId();
-            recordService.markEndSignal(meetingId);
             meetingService.endMeeting(meetingId);
             return ResponseEntity.ok(new CommonResponse<>("SUCCESS", "회의가 종료되었습니다", null));
         } catch (Exception e) {
