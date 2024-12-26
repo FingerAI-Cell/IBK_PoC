@@ -5,6 +5,7 @@ import com.ibkpoc.amn.entity.*;
 import com.ibkpoc.amn.repository.*;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
@@ -74,6 +75,7 @@ public class MeetingService {
         meetingRepository.save(meeting);
     }
 
+    @Transactional
     public void processSttRequest(Long meetingId) {
         // DB에서 회의 정보 조회
         Meeting meeting = meetingRepository.findById(meetingId)
