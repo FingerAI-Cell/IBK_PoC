@@ -5,14 +5,16 @@ import com.ibkpoc.amn.entity.*;
 import com.ibkpoc.amn.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-
+import org.springframework.web.client.RestTemplate;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 
 @Slf4j
 @Service
@@ -80,35 +82,47 @@ public class MeetingService {
             throw new IllegalStateException("WAV 파일 경로가 존재하지 않습니다: meetingId=" + meetingId);
         }
 
-        // 파이썬 코드 실행
-        String pythonScriptPath = "/path/to/stt_script.py"; // 파이썬 스크립트 경로 설정
-        ProcessBuilder processBuilder = new ProcessBuilder(
-                "python", pythonScriptPath,
-                "--file_name", meeting.getWavSrc(),
-                "--participant", meeting.getParticipants().toString()
+        // API URL 설정
+        String apiUrl = "http://localhost:8081/run";
+
+        // 요청 데이터 생성
+        Map<String, Object> requestData = Map.of(
+                "file_name", meeting.getWavSrc(),
+                "participant", meeting.getParticipants()
         );
 
         try {
-            log.info("STT 파이썬 스크립트 실행 시작: {}", pythonScriptPath);
-            Process process = processBuilder.start();
+            // RestTemplate으로 API 호출
+            RestTemplate restTemplate = new RestTemplate();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
 
-            // 결과 출력 로그
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                log.info("STT 스크립트 결과: {}", line);
-            }
+            HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestData, headers);
 
-            int exitCode = process.waitFor();
-            log.info("STT 파이썬 스크립트 종료: exitCode={}", exitCode);
+            log.info("STT API 호출 시작: {}", apiUrl);
+            ResponseEntity<Map> responseEntity = restTemplate.exchange(
+                    apiUrl,
+                    HttpMethod.POST,
+                    requestEntity,
+                    Map.class
+            );
 
-            if (exitCode != 0) {
-                throw new RuntimeException("STT 스크립트 실행 중 오류 발생");
+            // 응답 처리
+            if (responseEntity.getStatusCode() == HttpStatus.OK) {
+                Map<String, Object> responseBody = responseEntity.getBody();
+                log.info("STT API 호출 성공: 응답={}", responseBody);
+
+                // 필요한 경우, 응답 데이터를 Meeting 객체에 저장하거나 추가 처리
+                // 예: meeting.setSttResult(responseBody.get("result").toString());
+                // meetingRepository.save(meeting);
+            } else {
+                log.error("STT API 호출 실패: 상태 코드={}", responseEntity.getStatusCode());
+                throw new RuntimeException("STT API 호출 실패");
             }
 
         } catch (Exception e) {
-            log.error("STT 스크립트 실행 실패: {}", e.getMessage(), e);
-            throw new RuntimeException("STT 처리 실패", e);
+            log.error("STT API 호출 중 예외 발생: {}", e.getMessage(), e);
+            throw new RuntimeException("STT API 처리 실패", e);
         }
     }
 }

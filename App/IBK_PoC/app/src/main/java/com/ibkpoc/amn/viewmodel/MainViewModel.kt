@@ -47,8 +47,11 @@ class MainViewModel @Inject constructor(
     private val repository: MeetingRepository,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
+    private var recordingTimer: Job? = null
+    private var lastRecordingState: RecordingStateInfo? = null
+
     private val _recordingState = MutableStateFlow<RecordServiceState>(RecordServiceState.Idle)
-    val recordingState: StateFlow<RecordServiceState> = _recordingState.asStateFlow()
+    val recordingState = _recordingState.asStateFlow()
 
     private val _elapsedTime = MutableStateFlow(0L)
     val elapsedTime = _elapsedTime.asStateFlow()
@@ -76,25 +79,35 @@ class MainViewModel @Inject constructor(
     }
 
     private fun handleRecordServiceState(state: RecordServiceState) {
-        Logger.e("상태 처리: $state")
-        _recordingState.value = state
+        Logger.e("[상태처리] 새로운 상태 수신: $state")
         when (state) {
             is RecordServiceState.Recording -> {
-                Logger.e("녹음 타이머 시작")
+                Logger.e("[상태처리] 녹음 시작 - 회의ID: ${state.meetingId}, 시작시간: ${state.startTime}")
+                lastRecordingState = RecordingStateInfo(
+                    meetingId = state.meetingId,
+                    startTime = state.startTime,
+                    duration = state.duration
+                )
                 startRecordingTimer()
+                _recordingState.value = state
             }
             is RecordServiceState.Completed -> {
+                Logger.e("[상태처리] 녹음 완료 - 파일경로: ${state.filePath}")
                 stopRecordingTimer()
                 viewModelScope.launch {
                     handleRecordingComplete(File(state.filePath))
                 }
             }
             is RecordServiceState.Error -> {
+                Logger.e("[상태처리] 에러 발생: ${state.message}")
                 stopRecordingTimer()
                 _errorMessage.value = state.message
+                _recordingState.value = RecordServiceState.Idle
             }
             RecordServiceState.Idle -> {
+                Logger.e("[상태처리] 대기 상태로 전환")
                 stopRecordingTimer()
+                _recordingState.value = state
             }
         }
     }
@@ -141,28 +154,48 @@ class MainViewModel @Inject constructor(
     }
 
     private suspend fun handleRecordingComplete(pcmFile: File) {
-        val currentState = _recordingState.value as? RecordingState.Recording ?: return
-        
         try {
-            val wavFile = convertPcmToWav(pcmFile)
-            repository.endMeeting(currentState.meetingId).collect { result ->
+            val recordingInfo = lastRecordingState
+            if (recordingInfo == null) {
+                Logger.e("[녹음완료처리] 이전 Recording 상태 정보 없음")
+                _errorMessage.value = "녹음 정보를 찾을 수 없습니다"
+                _recordingState.value = RecordServiceState.Idle
+                return
+            }
+
+            repository.endMeeting(recordingInfo.meetingId).collect { result ->
                 when (result) {
                     is NetworkResult.Success -> {
-                        uploadWavAndConvertToStt(
-                            currentState.meetingId,
-                            wavFile,
-                            currentState.startTime,
-                            currentState.duration
-                        )
+                        Logger.e("[녹음완료처리] 회의 종료 API 성공")
+                        // 성공 시 즉시 Idle 상태로 전환하여 UI 업데이트
+                        _recordingState.value = RecordServiceState.Idle
+                        _showSuccessMessage.value = true
+                        lastRecordingState = null
+                        
+                        // WAV 변환 및 업로드는 백그라운드에서 계속 진행
+                        viewModelScope.launch {
+                            uploadWavAndConvertToStt(
+                                recordingInfo.meetingId,
+                                convertPcmToWav(pcmFile),
+                                recordingInfo.startTime,
+                                recordingInfo.duration
+                            )
+                        }
                     }
                     is NetworkResult.Error -> {
+                        Logger.e("[녹음완료처리] 회의 종료 API 실패: ${result.message}")
                         _errorMessage.value = "회의 종료 실패: ${result.message}"
+                        _recordingState.value = RecordServiceState.Idle
                     }
-                    is NetworkResult.Loading -> _isLoading.value = true
+                    is NetworkResult.Loading -> {
+                        _isLoading.value = true
+                    }
                 }
             }
         } catch (e: Exception) {
-            _errorMessage.value = "WAV 변환 실패: ${e.message}"
+            Logger.e("[녹음완료처리] 오류 발생: ${e.message}")
+            _errorMessage.value = "녹음 처리 실패: ${e.message}"
+            _recordingState.value = RecordServiceState.Idle
         }
     }
 
@@ -336,6 +369,8 @@ class MainViewModel @Inject constructor(
     }
 
     private suspend fun uploadWavAndConvertToStt(meetingId: Long, wavFile: File, startTime: String, duration: Long) {
+        Logger.e("[파일업로드] 시작 - 회의ID: $meetingId, WAV파일: ${wavFile.absolutePath}")
+        
         val wavUploadData = WavUploadData(
             meetingId = meetingId,
             wavFile = wavFile,
@@ -349,26 +384,30 @@ class MainViewModel @Inject constructor(
         repository.uploadMeetingWavFile(wavUploadData).collect { uploadResult ->
             when (uploadResult) {
                 is NetworkResult.Success -> {
-                    // 5. STT 변환 API
+                    Logger.e("[파일업로드] WAV 파일 업로드 성공")
                     repository.convertWavToStt(meetingId).collect { sttResult ->
                         when (sttResult) {
                             is NetworkResult.Success -> {
-                                // 성공 시 UI 업데이트 없음
-                                Logger.i("STT 변환 완료")
+                                Logger.e("[STT변환] STT 변환 완료")
+                                _showSuccessMessage.value = true
                             }
                             is NetworkResult.Error -> {
+                                Logger.e("[STT변환] STT 변환 실패: ${sttResult.message}")
                                 _errorMessage.value = "STT 변환 실패: ${sttResult.message}"
                             }
                             is NetworkResult.Loading -> {
+                                Logger.e("[STT변환] STT 변환 중")
                                 _isLoading.value = true
                             }
                         }
                     }
                 }
                 is NetworkResult.Error -> {
+                    Logger.e("[파일업로드] WAV 파일 업로드 실패: ${uploadResult.message}")
                     _errorMessage.value = "WAV 파일 업로드 실패: ${uploadResult.message}"
                 }
                 is NetworkResult.Loading -> {
+                    Logger.e("[파일업로드] WAV 파일 업로드 중")
                     _isLoading.value = true
                 }
             }
@@ -473,4 +512,11 @@ class MainViewModel @Inject constructor(
             context.startService(this)
         }
     }
+
+    // Recording 상태 정보를 저장하기 위한 데이터 클래스
+    private data class RecordingStateInfo(
+        val meetingId: Long,
+        val startTime: String,
+        val duration: Long
+    )
 }

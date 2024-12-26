@@ -389,20 +389,20 @@ private fun formatDuration(seconds: Long): String {
 @Composable
 fun MainScreen(viewModel: MainViewModel) {
     val recordingState by viewModel.recordingState.collectAsState()
-    val errorMessage by viewModel.errorMessage.collectAsState()
-    val showSuccessMessage by viewModel.showSuccessMessage.collectAsState()
     val elapsedTime by viewModel.elapsedTime.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
-    
+    val showSuccessMessage by viewModel.showSuccessMessage.collectAsState()
+
     MainScreen(
         recordingState = recordingState,
         errorMessage = errorMessage,
         isLoading = isLoading,
         showSuccessMessage = showSuccessMessage,
         elapsedTime = elapsedTime,
-        onStartMeeting = { count -> viewModel.startMeeting(count) },
-        onEndMeeting = { viewModel.endMeeting() },
-        onMessageShown = { viewModel.onMessageShown() }
+        onStartMeeting = viewModel::startMeeting,
+        onEndMeeting = viewModel::endMeeting,
+        onMessageShown = viewModel::onMessageShown
     )
 }
 
