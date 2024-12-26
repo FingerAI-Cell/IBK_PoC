@@ -38,6 +38,10 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TextButton
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.window.DialogProperties
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 
 @Composable
 fun MainScreen(
@@ -50,8 +54,10 @@ fun MainScreen(
     onEndMeeting: () -> Unit,
     onMessageShown: () -> Unit
 ) {
-    val context = LocalContext.current
+    var showRecordDialog by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
     var participantCount by remember { mutableStateOf("") }
     var showError by remember { mutableStateOf(false) }
 
@@ -224,7 +230,7 @@ fun MainScreen(
                                     color = StatusGreenText
                                 )
                                 Text(
-                                    text = "녹음 시간: ${formatDuration(recordingState.duration)}",
+                                    text = "녹음 시간: ${formatDuration(elapsedTime)}",
                                     color = StatusGreenText
                                 )
                             }
@@ -328,8 +334,9 @@ fun MainScreen(
 
                         // 기록 버튼
                         OutlinedButton(
-                            onClick = { /* TODO */ },
+                            onClick = { showRecordDialog = true },
                             modifier = Modifier.fillMaxWidth(),
+                            enabled = recordingState !is RecordServiceState.Recording,
                             border = BorderStroke(1.dp, Color.Gray),
                             shape = RoundedCornerShape(8.dp)
                         ) {
@@ -345,6 +352,52 @@ fun MainScreen(
                 }
             }
         }
+    }
+
+    // 기록 대화상자
+    if (showRecordDialog) {
+        AlertDialog(
+            onDismissRequest = { showRecordDialog = false },
+            title = {
+                Text(
+                    text = "녹음 파일 목록",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    // 예시 데이터로 표시
+                    MeetingRecordItem(
+                        title = "회의 녹음 2024-12-16",
+                        duration = "45:22",
+                        onPlayClick = { /* 임시 */ },
+                        onSendClick = { /* 임시 */ }
+                    )
+                    MeetingRecordItem(
+                        title = "회의 녹음 2024-12-15",
+                        duration = "32:18",
+                        onPlayClick = { /* 임시 */ },
+                        onSendClick = { /* 임시 */ }
+                    )
+                    MeetingRecordItem(
+                        title = "회의 녹음 2024-12-14",
+                        duration = "28:45",
+                        onPlayClick = { /* 임시 */ },
+                        onSendClick = { /* 임시 */ }
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showRecordDialog = false }) {
+                    Text("닫기")
+                }
+            }
+        )
     }
 }
 
@@ -425,5 +478,115 @@ private fun RecordingIndicator(
                 contentDescription = "녹음 중지"
             )
         }
+    }
+}
+
+@Composable
+private fun RecordItem(
+    title: String,
+    dateTime: String,
+    duration: String
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Medium
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = dateTime,
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.Gray
+            )
+            Text(
+                text = duration,
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.Gray
+            )
+        }
+        HorizontalDivider(
+            modifier = Modifier.padding(top = 8.dp),
+            color = Color.LightGray
+        )
+    }
+}
+
+@Composable
+private fun MeetingRecordItem(
+    title: String,
+    duration: String,
+    onPlayClick: () -> Unit,
+    onSendClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Medium
+        )
+        
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = duration,
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.Gray
+            )
+            
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                // 재생 버튼
+                IconButton(
+                    onClick = onPlayClick,
+                    modifier = Modifier
+                        .size(32.dp)
+                        .border(1.dp, Color.Gray, CircleShape)
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.PlayArrow,
+                        contentDescription = "재생",
+                        modifier = Modifier.size(18.dp),
+                        tint = Color.Gray
+                    )
+                }
+                
+                // 전송 버튼
+                OutlinedButton(
+                    onClick = onSendClick,
+                    modifier = Modifier.height(32.dp),
+                    contentPadding = PaddingValues(horizontal = 12.dp),
+                    border = BorderStroke(1.dp, Color.Gray)
+                ) {
+                    Text(
+                        "전송하기",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            }
+        }
+        
+        HorizontalDivider(
+            modifier = Modifier.padding(top = 8.dp),
+            color = Color.LightGray
+        )
     }
 }

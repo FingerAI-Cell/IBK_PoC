@@ -31,4 +31,7 @@ interface ApiService {
 
     @POST("/meeting/stt-request")
     suspend fun convertWavToStt(@Body request: SttRequest): Response<CommonResponse<Unit>>
+
+    @GET("/meeting/list")
+    suspend fun getMeetingList(): Response<CommonResponse<List<MeetingListResponse>>>
 }

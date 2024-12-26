@@ -132,6 +132,23 @@ class MeetingRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun getMeetingList(): Flow<NetworkResult<List<MeetingListResponse>>> = flow {
+        emit(NetworkResult.Loading)
+        try {
+            val response = apiService.getMeetingList()
+            if (response.isSuccessful) {
+                response.body()?.data?.let {
+                    emit(NetworkResult.Success(it))
+                } ?: emit(NetworkResult.Error(response.code(), "응답이 비어있습니다"))
+            } else {
+                Logger.e("회의 목록 조회 실패: ${response.message()}", null)
+                emit(NetworkResult.Error(response.code(), response.message()))
+            }
+        } catch (e: Exception) {
+            Logger.e("회의 목록 조회 중 오류 발생", e)
+            emit(NetworkResult.Error(0, "회의 목록 조회 중 오류 발생: ${e.message}"))
+        }
+    }
 
     private suspend fun uploadChunk(chunkData: WavUploadData) {
         uploadMutex.withLock {

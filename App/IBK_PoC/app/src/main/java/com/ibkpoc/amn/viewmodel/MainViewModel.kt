@@ -94,6 +94,8 @@ class MainViewModel @Inject constructor(
             is RecordServiceState.Completed -> {
                 Logger.e("[상태처리] 녹음 완료 - 파일경로: ${state.filePath}")
                 stopRecordingTimer()
+                _recordingState.value = RecordServiceState.Idle
+                _isLoading.value = false
                 viewModelScope.launch {
                     handleRecordingComplete(File(state.filePath))
                 }
@@ -103,11 +105,13 @@ class MainViewModel @Inject constructor(
                 stopRecordingTimer()
                 _errorMessage.value = state.message
                 _recordingState.value = RecordServiceState.Idle
+                _isLoading.value = false
             }
             RecordServiceState.Idle -> {
                 Logger.e("[상태처리] 대기 상태로 전환")
                 stopRecordingTimer()
                 _recordingState.value = state
+                _isLoading.value = false
             }
         }
     }
@@ -163,34 +167,22 @@ class MainViewModel @Inject constructor(
                 return
             }
 
-            repository.endMeeting(recordingInfo.meetingId).collect { result ->
-                when (result) {
-                    is NetworkResult.Success -> {
-                        Logger.e("[녹음완료처리] 회의 종료 API 성공")
-                        // 성공 시 즉시 Idle 상태로 전환하여 UI 업데이트
-                        _recordingState.value = RecordServiceState.Idle
-                        _showSuccessMessage.value = true
-                        lastRecordingState = null
-                        
-                        // WAV 변환 및 업로드는 백그라운드에서 계속 진행
-                        viewModelScope.launch {
-                            uploadWavAndConvertToStt(
-                                recordingInfo.meetingId,
-                                convertPcmToWav(pcmFile),
-                                recordingInfo.startTime,
-                                recordingInfo.duration
-                            )
-                        }
-                    }
-                    is NetworkResult.Error -> {
-                        Logger.e("[녹음완료처리] 회의 종료 API 실패: ${result.message}")
-                        _errorMessage.value = "회의 종료 실패: ${result.message}"
-                        _recordingState.value = RecordServiceState.Idle
-                    }
-                    is NetworkResult.Loading -> {
-                        _isLoading.value = true
-                    }
-                }
+            // 즉시 Idle 상태로 전환하고 성공 메시지 표시
+            _recordingState.value = RecordServiceState.Idle
+            
+            // 2초 후 성공 메시지 숨기기
+            viewModelScope.launch {
+                delay(2000)
+            }
+
+            // WAV 변환 및 업로드는 백그라운드에서 계속 진행
+            viewModelScope.launch {
+                uploadWavAndConvertToStt(
+                    recordingInfo.meetingId,
+                    convertPcmToWav(pcmFile),
+                    recordingInfo.startTime,
+                    recordingInfo.duration
+                )
             }
         } catch (e: Exception) {
             Logger.e("[녹음완료처리] 오류 발생: ${e.message}")
@@ -284,9 +276,9 @@ class MainViewModel @Inject constructor(
 
     fun handleMeetingEndSuccess() {
         viewModelScope.launch {
-            _showSuccessMessage.value = true
-            delay(2000) // 2초 후
-            _showSuccessMessage.value = false
+            viewModelScope.launch {
+                delay(2000) // 2초 후
+            }
         }
     }
 
@@ -346,14 +338,18 @@ class MainViewModel @Inject constructor(
         val currentState = recordingState.value as? RecordServiceState.Recording ?: return
         
         viewModelScope.launch {
-            // 1. 먼저 회의 종료 API 호출
+            _isLoading.value = true  // 로딩 시작
             repository.endMeeting(currentState.meetingId).collect { result ->
                 when (result) {
                     is NetworkResult.Success -> {
-                        // 2. UI 즉시 업데이트 (성공 메시지 표시)
-                        handleMeetingEndSuccess()
+                        // 회의 종료 API 성공 시에만 성공 메시지 표시
+                        _showSuccessMessage.value = true
+                        viewModelScope.launch {
+                            delay(2000)
+                            _showSuccessMessage.value = false
+                        }
                         
-                        // 3. 녹음 중지 요청
+                        // 녹음 중지 요청
                         val serviceIntent = Intent(context, AudioRecordService::class.java).apply {
                             action = AudioRecordService.ACTION_STOP
                         }
@@ -361,6 +357,7 @@ class MainViewModel @Inject constructor(
                     }
                     is NetworkResult.Error -> {
                         _errorMessage.value = "회의 종료 실패: ${result.message}"
+                        _isLoading.value = false  // 에러 시 로딩 종료
                     }
                     is NetworkResult.Loading -> _isLoading.value = true
                 }
@@ -389,7 +386,6 @@ class MainViewModel @Inject constructor(
                         when (sttResult) {
                             is NetworkResult.Success -> {
                                 Logger.e("[STT변환] STT 변환 완료")
-                                _showSuccessMessage.value = true
                             }
                             is NetworkResult.Error -> {
                                 Logger.e("[STT변환] STT 변환 실패: ${sttResult.message}")
@@ -397,7 +393,6 @@ class MainViewModel @Inject constructor(
                             }
                             is NetworkResult.Loading -> {
                                 Logger.e("[STT변환] STT 변환 중")
-                                _isLoading.value = true
                             }
                         }
                     }
@@ -408,7 +403,6 @@ class MainViewModel @Inject constructor(
                 }
                 is NetworkResult.Loading -> {
                     Logger.e("[파일업로드] WAV 파일 업로드 중")
-                    _isLoading.value = true
                 }
             }
         }
