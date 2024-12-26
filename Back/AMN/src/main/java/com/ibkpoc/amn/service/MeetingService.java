@@ -3,6 +3,8 @@ package com.ibkpoc.amn.service;
 import com.ibkpoc.amn.dto.*;
 import com.ibkpoc.amn.entity.*;
 import com.ibkpoc.amn.repository.*;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
@@ -21,6 +23,9 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class MeetingService {
     private final MeetingRepository meetingRepository;
+    @PersistenceContext
+    private EntityManager entityManager; // EntityManager 주입
+
 
     // 회의 시작
     public StartMeetingResponse startMeeting(Integer participants,String startTimeStr) {
@@ -73,6 +78,8 @@ public class MeetingService {
         // DB에서 회의 정보 조회
         Meeting meeting = meetingRepository.findById(meetingId)
                 .orElseThrow(() -> new IllegalArgumentException("회의 정보를 찾을 수 없습니다: meetingId=" + meetingId));
+
+        entityManager.refresh(meeting);
 
         // 필요한 정보 로그
         log.info("STT 파라미터 조회: meetingId={}, participants={}, wavSrc={}",

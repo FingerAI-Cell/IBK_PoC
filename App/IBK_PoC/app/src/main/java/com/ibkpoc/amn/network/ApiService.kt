@@ -29,6 +29,6 @@ interface ApiService {
         @Part file: MultipartBody.Part
     ): Response<CommonResponse<Unit>>
 
-    @POST("/meeting/convert-stt")
+    @POST("/meeting/stt-request")
     suspend fun convertWavToStt(@Body request: SttRequest): Response<CommonResponse<Unit>>
 }
