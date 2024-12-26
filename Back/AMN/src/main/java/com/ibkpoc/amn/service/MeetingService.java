@@ -96,8 +96,10 @@ public class MeetingService {
 
         // 요청 데이터 생성
         Map<String, Object> requestData = Map.of(
-                "file_name", meeting.getWavSrc(),
-                "participant", meeting.getParticipants()
+                "data", Map.of(
+                        "file_name", meeting.getWavSrc(),
+                        "participant", meeting.getParticipants()
+                )
         );
 
         try {
