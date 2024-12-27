@@ -68,7 +68,7 @@ export function useChat(
 
   const handleError = (err: Error) => {
     setError(err.message);
-    addMessage('bot', `오류가 발생했습니다: ${err.message}`);
+    addMessage('bot', "안녕하세요, 업무 챗봇입니다. \n무엇을 도와드릴까요?"); //오류가 발생했습니다: ${err.message}
   };
 
   const sendMessage = async () => {

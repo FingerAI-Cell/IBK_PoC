@@ -41,14 +41,21 @@ import android.content.IntentFilter
 import android.annotation.SuppressLint
 import com.ibkpoc.amn.event.EventBus
 import com.ibkpoc.amn.event.RecordingStateEvent
+import android.media.MediaPlayer
+import com.ibkpoc.amn.network.ApiService
+import android.app.Application
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val repository: MeetingRepository,
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val apiService: ApiService,
+    private val application: Application
 ) : ViewModel() {
     private var recordingTimer: Job? = null
     private var lastRecordingState: RecordingStateInfo? = null
+    private var lastFileName: String? = null
+    private var pendingAudioFile: String? = null
 
     private val _recordingState = MutableStateFlow<RecordServiceState>(RecordServiceState.Idle)
     val recordingState = _recordingState.asStateFlow()
@@ -69,11 +76,40 @@ class MainViewModel @Inject constructor(
 
     private var fileOutputStream: FileOutputStream? = null
 
+    private var mediaPlayer: MediaPlayer? = null
+
+    private val _isPlaying = MutableStateFlow(false)
+    val isPlaying: StateFlow<Boolean> = _isPlaying.asStateFlow()
+
+    var lastRequestedFile: String? = null
+
+    private val _currentPosition = MutableStateFlow(0f)
+    val currentPosition: StateFlow<Float> = _currentPosition.asStateFlow()
+
+    private val _duration = MutableStateFlow(0f)
+    val duration: StateFlow<Float> = _duration.asStateFlow()
+
+    private val _showPlayer = MutableStateFlow(false)
+    val showPlayer: StateFlow<Boolean> = _showPlayer.asStateFlow()
+
+    private val _currentFileName = MutableStateFlow<String?>(null)
+    val currentFileName: StateFlow<String?> = _currentFileName.asStateFlow()
+
     init {
         viewModelScope.launch {
             EventBus.subscribe<RecordingStateEvent>().collect { event ->
                 Logger.e("상태 이벤트 수신: ${event.state}")
                 handleRecordServiceState(event.state)
+            }
+        }
+        viewModelScope.launch {
+            while (true) {
+                if (_isPlaying.value) {
+                    mediaPlayer?.let { player ->
+                        _currentPosition.value = player.currentPosition.toFloat()
+                    }
+                }
+                delay(100) // 100ms마다 업데이트
             }
         }
     }
@@ -411,6 +447,8 @@ class MainViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         cleanupRecording()
+        mediaPlayer?.release()
+        mediaPlayer = null
     }
 
     private fun writeWavHeader(output: java.io.OutputStream, audioLength: Long) {
@@ -513,4 +551,101 @@ class MainViewModel @Inject constructor(
         val startTime: String,
         val duration: Long
     )
+
+    fun playAudioFile(fileName: String) {
+        viewModelScope.launch {
+            try {
+                // 기존 MediaPlayer 해제
+                mediaPlayer?.release()
+                
+                // 다운로드 디렉토리에서 파일 찾기
+                val downloadDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                val audioFile = if (fileName.contains("/")) {
+                    // 서브디렉토리가 포함된 경우
+                    File(downloadDir, fileName)
+                } else {
+                    // 다운로드 디렉토리 직접 접근
+                    File(downloadDir, fileName)
+                }
+                
+                if (!audioFile.exists()) {
+                    _errorMessage.value = "파일을 찾을 수 없습니다: $fileName"
+                    return@launch
+                }
+
+                // 새로운 MediaPlayer 생성 및 재생
+                mediaPlayer = MediaPlayer().apply {
+                    setDataSource(audioFile.path)
+                    setOnPreparedListener {
+                        start()
+                        _isPlaying.value = true
+                        _duration.value = duration.toFloat()
+                        _currentFileName.value = fileName
+                        _showPlayer.value = true
+                    }
+                    setOnCompletionListener {
+                        _isPlaying.value = false
+                    }
+                    setOnErrorListener { _, what, extra ->
+                        _errorMessage.value = "재생 중 오류 발생: $what, $extra"
+                        _isPlaying.value = false
+                        true
+                    }
+                    prepareAsync()
+                }
+            } catch (e: Exception) {
+                _errorMessage.value = "음성 파일 재생 중 오류가 발생했습니다: ${e.message}"
+                _isPlaying.value = false
+            }
+        }
+    }
+
+    fun seekTo(position: Float) {
+        mediaPlayer?.seekTo(position.toInt())
+    }
+
+    fun forward10Seconds() {
+        mediaPlayer?.let { player ->
+            val newPosition = minOf(player.currentPosition + 10000, player.duration)
+            player.seekTo(newPosition)
+        }
+    }
+
+    fun rewind10Seconds() {
+        mediaPlayer?.let { player ->
+            val newPosition = maxOf(player.currentPosition - 10000, 0)
+            player.seekTo(newPosition)
+        }
+    }
+
+    fun togglePlayPause() {
+        mediaPlayer?.let { player ->
+            if (player.isPlaying) {
+                player.pause()
+                _isPlaying.value = false
+            } else {
+                player.start()
+                _isPlaying.value = true
+            }
+        }
+    }
+
+    fun hidePlayer() {
+        _showPlayer.value = false
+        mediaPlayer?.stop()
+        mediaPlayer?.release()
+        mediaPlayer = null
+        _isPlaying.value = false
+    }
+
+    fun setPendingAudioFile(fileName: String) {
+        pendingAudioFile = fileName
+    }
+
+    fun playPendingAudio() {
+        pendingAudioFile?.let { fileName ->
+            playAudioFile(fileName)
+            pendingAudioFile = null
+        }
+    }
 }

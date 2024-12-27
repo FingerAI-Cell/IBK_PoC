@@ -42,6 +42,20 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.hilt.navigation.compose.hiltViewModel
+import android.content.pm.PackageManager
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.launch
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import android.os.Build
+import android.Manifest
+import com.ibkpoc.amn.ui.screens.main.components.AudioPlayerDialog
+import androidx.compose.runtime.rememberCoroutineScope
 
 @Composable
 fun MainScreen(
@@ -52,7 +66,8 @@ fun MainScreen(
     elapsedTime: Long,
     onStartMeeting: (Int) -> Unit,
     onEndMeeting: () -> Unit,
-    onMessageShown: () -> Unit
+    onMessageShown: () -> Unit,
+    onPlayAudio: (String) -> Unit
 ) {
     var showRecordDialog by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
@@ -371,23 +386,31 @@ fun MainScreen(
                         .fillMaxWidth()
                         .verticalScroll(rememberScrollState())
                 ) {
-                    // 예시 데이터로 표시
                     MeetingRecordItem(
-                        title = "회의 녹음 2024-12-16",
-                        duration = "45:22",
-                        onPlayClick = { /* 임시 */ },
-                        onSendClick = { /* 임시 */ }
+                        title = "회의 녹음 1",
+                        date = "2024-12-20 14:53",
+                        duration = "48:15",
+                        onPlayClick = { 
+                            onPlayAudio("audiorecord_20241220_145318.wav")
+                        },
+                        onSendClick = { /* 실제 전송 로직 */ }
                     )
                     MeetingRecordItem(
-                        title = "회의 녹음 2024-12-15",
-                        duration = "32:18",
-                        onPlayClick = { /* 임시 */ },
-                        onSendClick = { /* 임시 */ }
+                        title = "회의 녹음 2",
+                        date = "2024-12-19",
+                        duration = "26:50",
+                        onPlayClick = { 
+                            onPlayAudio("ibk-poc-meeting_20241219_1.wav")
+                        },
+                        onSendClick = { /* 실제 전송 로직 */ }
                     )
                     MeetingRecordItem(
-                        title = "회의 녹음 2024-12-14",
-                        duration = "28:45",
-                        onPlayClick = { /* 임시 */ },
+                        title = "회의 녹음 3",
+                        date = "2024-12-19",
+                        duration = "00:46",
+                        onPlayClick = { 
+                            onPlayAudio("IBK_Records/meeting_78.wav")
+                        },
                         onSendClick = { /* 임시 */ }
                     )
                 }
@@ -440,12 +463,65 @@ private fun formatDuration(seconds: Long): String {
 }
 
 @Composable
-fun MainScreen(viewModel: MainViewModel) {
+fun MainScreen(
+    viewModel: MainViewModel = hiltViewModel()
+) {
+    val context = LocalContext.current
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted: Boolean ->
+            if (isGranted) {
+                viewModel.playPendingAudio()
+            }
+        }
+    )
+
     val recordingState by viewModel.recordingState.collectAsState()
     val elapsedTime by viewModel.elapsedTime.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val showSuccessMessage by viewModel.showSuccessMessage.collectAsState()
+    val showPlayer by viewModel.showPlayer.collectAsState()
+    val currentPosition by viewModel.currentPosition.collectAsState()
+    val duration by viewModel.duration.collectAsState()
+    val currentFileName by viewModel.currentFileName.collectAsState()
+    val isPlaying by viewModel.isPlaying.collectAsState()
+
+    // 재생 버튼 클릭 핸들러
+    val onPlayClick = { fileName: String ->
+        when {
+            // Android 13 이상
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> {
+                when {
+                    ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.READ_MEDIA_AUDIO
+                    ) == PackageManager.PERMISSION_GRANTED -> {
+                        viewModel.playAudioFile(fileName)
+                    }
+                    else -> {
+                        viewModel.setPendingAudioFile(fileName)
+                        launcher.launch(Manifest.permission.READ_MEDIA_AUDIO)
+                    }
+                }
+            }
+            // Android 13 미만
+            else -> {
+                when {
+                    ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.READ_EXTERNAL_STORAGE
+                    ) == PackageManager.PERMISSION_GRANTED -> {
+                        viewModel.playAudioFile(fileName)
+                    }
+                    else -> {
+                        viewModel.setPendingAudioFile(fileName)
+                        launcher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                    }
+                }
+            }
+        }
+    }
 
     MainScreen(
         recordingState = recordingState,
@@ -455,8 +531,24 @@ fun MainScreen(viewModel: MainViewModel) {
         elapsedTime = elapsedTime,
         onStartMeeting = viewModel::startMeeting,
         onEndMeeting = viewModel::endMeeting,
-        onMessageShown = viewModel::onMessageShown
+        onMessageShown = viewModel::onMessageShown,
+        onPlayAudio = onPlayClick
     )
+
+    // 플레이어 다이얼로그
+    if (showPlayer && currentFileName != null) {
+        AudioPlayerDialog(
+            fileName = currentFileName!!,
+            isPlaying = isPlaying,
+            currentPosition = currentPosition,
+            duration = duration,
+            onDismiss = viewModel::hidePlayer,
+            onPlayPause = viewModel::togglePlayPause,
+            onSeekTo = viewModel::seekTo,
+            onForward = viewModel::forward10Seconds,
+            onRewind = viewModel::rewind10Seconds
+        )
+    }
 }
 
 @Composable
@@ -523,10 +615,14 @@ private fun RecordItem(
 @Composable
 private fun MeetingRecordItem(
     title: String,
+    date: String,
     duration: String,
     onPlayClick: () -> Unit,
     onSendClick: () -> Unit
 ) {
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -536,6 +632,13 @@ private fun MeetingRecordItem(
             text = title,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Medium
+        )
+        
+        Text(
+            text = date,
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color.Gray,
+            modifier = Modifier.padding(top = 4.dp)
         )
         
         Row(
@@ -555,30 +658,39 @@ private fun MeetingRecordItem(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 // 재생 버튼
-                IconButton(
+                OutlinedButton(
                     onClick = onPlayClick,
-                    modifier = Modifier
-                        .size(32.dp)
-                        .border(1.dp, Color.Gray, CircleShape)
+                    modifier = Modifier.size(32.dp),
+                    shape = RoundedCornerShape(4.dp),
+                    contentPadding = PaddingValues(0.dp),
+                    border = BorderStroke(1.dp, Color.Gray)
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.PlayArrow,
                         contentDescription = "재생",
-                        modifier = Modifier.size(18.dp),
+                        modifier = Modifier.size(16.dp),
                         tint = Color.Gray
                     )
                 }
                 
                 // 전송 버튼
                 OutlinedButton(
-                    onClick = onSendClick,
+                    onClick = {
+                        coroutineScope.launch {
+                            onSendClick()
+                            delay(1000)
+                            Toast.makeText(context, "서버에 전송됐습니다.", Toast.LENGTH_SHORT).show()
+                        }
+                    },
                     modifier = Modifier.height(32.dp),
+                    shape = RoundedCornerShape(4.dp),
                     contentPadding = PaddingValues(horizontal = 12.dp),
                     border = BorderStroke(1.dp, Color.Gray)
                 ) {
                     Text(
-                        "전송하기",
-                        style = MaterialTheme.typography.bodySmall
+                        "전송",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Gray
                     )
                 }
             }

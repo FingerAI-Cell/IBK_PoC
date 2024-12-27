@@ -10,7 +10,7 @@ import { useService } from "../../context/ServiceContext";
 import { serviceConfig } from "../../config/serviceConfig";
 
 export default function MainContent() {
-  const { currentService, setPageState, setCurrentService } = useService();
+  const { currentService, setPageState } = useService();
   const [isChatting, setIsChatting] = useState(false);
   const [chatInput, setChatInput] = useState("");
 
@@ -49,12 +49,6 @@ export default function MainContent() {
     setPageState('chat');
   };
 
-  const handleReset = () => {
-    setCurrentService("general-chat");
-    setIsChatting(false);
-    setChatInput("");
-  };
-
   return (
     <div className={styles.container}>
       {!isChatting ? (
@@ -71,7 +65,6 @@ export default function MainContent() {
         <ChatBox
           sendApiRequest={sendApiRequest}
           initialInput={chatInput}
-          onReset={handleReset}
           serviceName={currentConfig.title}
           showReset={false}
         />

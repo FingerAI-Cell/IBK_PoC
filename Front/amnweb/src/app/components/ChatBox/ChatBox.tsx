@@ -7,7 +7,6 @@ import { useEffect, memo } from "react";
 interface ChatBoxProps {
   sendApiRequest: (message: string) => Promise<string>;
   initialInput: string;
-  onReset: () => void;
   serviceName: string;
   showReset?: boolean;
 }
@@ -30,7 +29,7 @@ const ChatMessage = memo(({ sender, text }: { sender: string; text: string }) =>
 
 ChatMessage.displayName = 'ChatMessage';
 
-export default function ChatBox({ sendApiRequest, initialInput, onReset, serviceName, showReset = true }: ChatBoxProps) {
+export default function ChatBox({ sendApiRequest, initialInput, serviceName }: ChatBoxProps) {
   const {
     messages,
     input,
@@ -105,11 +104,6 @@ export default function ChatBox({ sendApiRequest, initialInput, onReset, service
         ) : (
           <button onClick={sendMessage} className={styles.sendButton} disabled={!input.trim()}>
             전송
-          </button>
-        )}
-        {showReset && ( // 조건부 렌더링
-          <button onClick={onReset} className={styles.cancelButton}>
-            돌아가기
           </button>
         )}
       </div>

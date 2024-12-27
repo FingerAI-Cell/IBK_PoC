@@ -28,8 +28,7 @@ export default function ChatPage() {
       <h1>Chat Page</h1>
       <ChatBox
         sendApiRequest={sendApiRequest}
-        initialInput="" // 기본값
-        onReset={() => console.log("Chat reset!")} // 리셋 동작
+        initialInput=""
         serviceName={currentConfig.title}
       />
     </div>
