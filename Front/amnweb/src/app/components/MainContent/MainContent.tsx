@@ -5,12 +5,14 @@ import styles from "./MainContent.module.css";
 import ChatBox from "../ChatBox/ChatBox";
 import GreetingSection from "./GreetingSection";
 import FAQSection from "./FAQSection";
+import MeetingList from "../MeetingList/MeetingList";
+import AdminDashboard from "../AdminDashboard/AdminDashboard";
 import { faqs } from "../../data/faqData";
 import { useService } from "../../context/ServiceContext";
 import { serviceConfig } from "../../config/serviceConfig";
 
 export default function MainContent() {
-  const { currentService, setPageState, setCurrentService } = useService();
+  const { currentService, pageState, setPageState, setCurrentService } = useService();
   const [isChatting, setIsChatting] = useState(false);
   const [chatInput, setChatInput] = useState("");
 
@@ -57,24 +59,30 @@ export default function MainContent() {
 
   return (
     <div className={styles.container}>
-      {!isChatting ? (
-        <>
-          <GreetingSection
-            chatInput={chatInput}
-            onInputChange={setChatInput}
-            onSubmit={handleQuestionSubmit}
-            serviceType={currentService}
-          />
-          <FAQSection faqs={faqs} onFAQClick={handleFAQClick} />
-        </>
+      {pageState === 'admin' ? (
+        <AdminDashboard />
+      ) : currentService === "meeting-minutes" ? (
+        <MeetingList />
       ) : (
-        <ChatBox
-          sendApiRequest={sendApiRequest}
-          initialInput={chatInput}
-          onReset={handleReset}
-          serviceName={currentConfig.title}
-          showReset={false}
-        />
+        !isChatting ? (
+          <>
+            <GreetingSection
+              chatInput={chatInput}
+              onInputChange={setChatInput}
+              onSubmit={handleQuestionSubmit}
+              serviceType={currentService}
+            />
+            <FAQSection faqs={faqs} onFAQClick={handleFAQClick} />
+          </>
+        ) : (
+          <ChatBox
+            sendApiRequest={sendApiRequest}
+            initialInput={chatInput}
+            onReset={handleReset}
+            serviceName={currentConfig.title}
+            showReset={false}
+          />
+        )
       )}
     </div>
   );

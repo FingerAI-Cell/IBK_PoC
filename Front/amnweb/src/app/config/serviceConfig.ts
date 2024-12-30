@@ -6,9 +6,13 @@ interface ServiceConfig {
   greeting: string;
 }
 
+export const apiConfig = {
+  baseURL: 'http://localhost:8080'  // 스프링 서버 주소
+};
+
 export const serviceConfig: { [key: string]: ServiceConfig } = {
   'general-chat': {
-    apiEndpoint: '/api/chat/general',
+    apiEndpoint: `${apiConfig.baseURL}/api/chat/general`,
     title: '일반 채팅',
     defaultMessage: '궁금하신 내용을 입력해주세요.',
     historyKey: 'chat-history-general',
@@ -36,7 +40,7 @@ export const serviceConfig: { [key: string]: ServiceConfig } = {
     greeting: '영업점 매뉴얼 도우미입니다.'
   },
   'meeting-minutes': {
-    apiEndpoint: '/api/chat/meeting',
+    apiEndpoint: `${apiConfig.baseURL}/api/meetings`,
     title: '회의록',
     defaultMessage: '회의록에 대해 질문해주세요.',
     historyKey: 'chat-history-meeting',

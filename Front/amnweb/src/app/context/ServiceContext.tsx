@@ -6,8 +6,8 @@ import { createContext, useState, useContext, useEffect } from "react";
 interface ServiceContextType {
   currentService: string;
   setCurrentService: (service: string) => void;
-  pageState: 'select' | 'chat';
-  setPageState: (state: 'select' | 'chat') => void;
+  pageState: 'select' | 'chat' | 'admin';
+  setPageState: (state: 'select' | 'chat' | 'admin') => void;
   handleMyServices: () => void;
 }
 
@@ -23,7 +23,7 @@ const ServiceContext = createContext<ServiceContextType>(defaultValue);
 
 export function ServiceProvider({ children }: { children: React.ReactNode }) {
   const [currentService, setCurrentService] = useState("general-chat");
-  const [pageState, setPageState] = useState<'select' | 'chat'>('select');
+  const [pageState, setPageState] = useState<'select' | 'chat' | 'admin'>('select');
 
   const handleServiceChange = (service: string) => {
     console.log('Service Change:', {

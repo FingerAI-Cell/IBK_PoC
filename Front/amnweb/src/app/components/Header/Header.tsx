@@ -4,7 +4,7 @@ import styles from "./Header.module.css";
 import { useService } from "../../context/ServiceContext";
 
 export default function Header() {
-  const { handleMyServices } = useService();
+  const { handleMyServices, setPageState } = useService();
 
   return (
     <header className={styles.header}>
@@ -14,7 +14,12 @@ export default function Header() {
       >
         My Services
       </button>
-      <button className={styles.myPageButton}>My Page</button>
+      <button 
+        className={styles.adminButton}
+        onClick={() => setPageState('admin')}
+      >
+        관리자
+      </button>
     </header>
   );
 }

@@ -11,4 +11,5 @@ import java.util.Optional;
 @Repository
 public interface MeetingRepository extends JpaRepository<Meeting, Long> {
     Optional<Meeting> findByConfIdAndIsActiveTrue(Long confId);
+    List<Meeting> findAllByOrderByStartTimeDesc();
 }

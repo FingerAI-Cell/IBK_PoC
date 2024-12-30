@@ -1,0 +1,42 @@
+.tabs {
+  width: 100%;
+}
+
+.tabsList {
+  display: flex;
+  gap: 1px;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.tabsTrigger {
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: #64748b;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.tabsTrigger:hover {
+  color: #0f172a;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.tabsTrigger.selected {
+  background: white;
+  color: #0f172a;
+  font-weight: 500;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.tabsContent {
+  padding: 16px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+} 
