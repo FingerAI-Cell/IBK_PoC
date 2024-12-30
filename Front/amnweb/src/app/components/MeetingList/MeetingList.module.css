@@ -1,0 +1,67 @@
+.container {
+  padding: 2rem;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
+}
+
+.meetingList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.meetingItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  background: white;
+  border: 1px solid #eee;
+  border-radius: 8px;
+}
+
+.meetingInfo {
+  flex: 1;
+}
+
+.meetingTitle {
+  font-size: 1.2rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.meetingDetails {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.summaryButton, .originalButton {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  border: none;
+}
+
+.summaryButton {
+  background-color: #e8f1ff;
+  color: #0066ff;
+}
+
+.originalButton {
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+.summaryButton:hover, .originalButton:hover {
+  opacity: 0.8;
+} 
