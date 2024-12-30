@@ -101,10 +101,33 @@ export default function MeetingList() {
   useEffect(() => {
     const fetchMeetings = async () => {
       try {
-        const response = await fetch(`${apiConfig.baseURL}/api/meetings/`);
-        const data = await response.json();
-        console.log('API 응답:', data);
-        setMeetings(data);
+        const response = await fetch(`${apiConfig.baseURL}/api/meetings/`, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json'
+          }
+        });
+        
+        // 응답 헤더 확인
+        console.log('Response headers:', {
+          contentType: response.headers.get('content-type'),
+          status: response.status
+        });
+
+        // 원본 텍스트 응답 확인
+        const textData = await response.text();
+        console.log('Raw response text:', textData);
+        
+        try {
+          // JSON 파싱 시도
+          const data = JSON.parse(textData);
+          console.log('Parsed JSON:', data);
+          setMeetings(data);
+        } catch (parseError) {
+          console.error('JSON 파싱 에러:', parseError);
+          console.error('문제가 있는 텍스트:', textData);
+        }
+        
       } catch (error) {
         console.error('회의록 로딩 실패:', error);
       }
