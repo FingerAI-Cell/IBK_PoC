@@ -1,0 +1,48 @@
+.alertOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.alertModal {
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  min-width: 300px;
+  max-width: 400px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.alertContent {
+  text-align: center;
+}
+
+.alertMessage {
+  margin: 0 0 20px 0;
+  font-size: 1rem;
+  color: #333;
+  line-height: 1.5;
+}
+
+.alertButton {
+  padding: 8px 24px;
+  border-radius: 6px;
+  background: #2196F3;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.alertButton:hover {
+  background: #1976D2;
+} 

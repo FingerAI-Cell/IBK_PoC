@@ -1,0 +1,237 @@
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: white;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 1000px;
+  height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.modalHeader {
+  padding: 20px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  border-radius: 8px 8px 0 0;
+}
+
+.modalTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+  color: #333;
+}
+
+.closeButton {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  background: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  color: #666;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.closeButton:hover {
+  background: #eeeeee;
+  color: #333;
+}
+
+.closeButton:active {
+  background: #e0e0e0;
+}
+
+.speakerFilter {
+  padding: 12px 20px;
+  border-bottom: 1px solid #eee;
+  background: white;
+}
+
+.filterTitle {
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #666;
+}
+
+.speakerList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  background: white;
+  border-radius: 4px;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.speakerButton {
+  padding: 6px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.speakerButton:hover {
+  background: #f5f5f5;
+}
+
+.speakerButton.selected {
+  background: #2196F3;
+  color: white;
+  border-color: #2196F3;
+}
+
+.modalContent {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.sttItem {
+  margin-bottom: 15px;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.speaker {
+  font-weight: bold;
+  margin-right: 10px;
+  color: #2196F3;
+}
+
+.text {
+  color: #333;
+}
+
+.speakerItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.speakerInput {
+  flex: 1;
+  padding: 4px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  min-width: 200px;
+  height: 32px;
+}
+
+.speakerInput:focus {
+  outline: none;
+  border-color: #2196F3;
+  box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.1);
+}
+
+.speakerButton {
+  padding: 6px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.speakerButton:hover {
+  background: #f5f5f5;
+}
+
+.speakerButton.selected {
+  background: #2196F3;
+  color: white;
+  border-color: #2196F3;
+}
+
+.filterButton {
+  padding: 4px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.filterButton.selected {
+  background: #2196F3;
+  color: white;
+  border-color: #2196F3;
+}
+
+.searchBox {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #eee;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: #2196F3;
+  box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.1);
+}
+
+.headerButtons {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.summarizeButton {
+  padding: 8px 20px;
+  border-radius: 6px;
+  background: #2196F3;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(33, 150, 243, 0.2);
+}
+
+.summarizeButton:hover {
+  background: #1976D2;
+  box-shadow: 0 4px 8px rgba(33, 150, 243, 0.3);
+  transform: translateY(-1px);
+}
+
+.summarizeButton:active {
+  background: #1565C0;
+  transform: translateY(0);
+} 
