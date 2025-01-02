@@ -51,7 +51,7 @@ public class MeetingService {
         // 5. 참가자 수만큼 MeetingUser 생성
         for (int i = 0; i < participants; i++) {
             MeetingUser meetingUser = new MeetingUser();
-            meetingUser.setMeeting(meeting); // 회의 ID 설정
+            meetingUser.setMeeting(meeting.getConfId()); // 회의 ID 설정
             meetingUser.setSpeakerId(String.format("SPEAKER_%02d", i)); // SPEAKER_00, SPEAKER_01, ...
             meetingUser.setName(null); // name은 비워둠
             meetingUser.setCompany(null); // company는 비워둠

@@ -16,9 +16,8 @@ public class MeetingUser {
     private String name;
     private String company;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "conf_id")
-    private Meeting meeting;
+    @Column(name = "conf_id")
+    private Long meeting;
 
     private String speakerId;
 }
