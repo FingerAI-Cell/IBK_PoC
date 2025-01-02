@@ -51,14 +51,24 @@ public class WebService {
         }
 
         try {
+            // 파일 존재 여부 로그
+            System.out.println("파일 경로 확인: " + filePath);
+
             // JSON 파일을 SttContentDto 리스트로 변환
-            return objectMapper.readValue(
+            List<SttContentDto> sttContentList = objectMapper.readValue(
                     file,
                     objectMapper.getTypeFactory().constructCollectionType(List.class, SttContentDto.class)
             );
+
+            // 변환된 리스트 크기 확인 로그
+            System.out.println("JSON 파일 읽기 성공: " + sttContentList.size() + "개의 항목이 변환되었습니다.");
+
+            return sttContentList;
         } catch (JsonParseException | JsonMappingException e) {
+            System.err.println("잘못된 JSON 형식입니다: " + e.getMessage());
             throw new IllegalArgumentException("잘못된 JSON 형식입니다.", e);
         } catch (IOException e) {
+            System.err.println("파일 읽기 중 오류 발생: " + e.getMessage());
             throw new IOException("파일 읽기 중 오류가 발생했습니다.", e);
         }
     }

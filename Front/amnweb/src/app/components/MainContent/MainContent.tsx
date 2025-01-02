@@ -57,35 +57,26 @@ export default function MainContent() {
         <AdminDashboard />
       ) : currentService === "meeting-minutes" ? (
         <MeetingList />
+      ) : !isChatting ? (
+        <>
+          <GreetingSection
+            chatInput={chatInput}
+            onInputChange={setChatInput}
+            onSubmit={handleQuestionSubmit}
+            serviceType={currentService}
+          />
+          <FAQSection faqs={faqs} onFAQClick={handleFAQClick} />
+        </>
       ) : (
-        !isChatting ? (
-          <>
-            <GreetingSection
-              chatInput={chatInput}
-              onInputChange={setChatInput}
-              onSubmit={handleQuestionSubmit}
-              serviceType={currentService}
-            />
-            <FAQSection faqs={faqs} onFAQClick={handleFAQClick} />
-          </>
-        ) : (
+        <>
           <ChatBox
             sendApiRequest={sendApiRequest}
             initialInput={chatInput}
-            onReset={handleReset}
             serviceName={currentConfig.title}
             showReset={false}
           />
           <FAQSection faqs={faqs} onFAQClick={handleFAQClick} />
         </>
-      ) : (
-        <ChatBox
-          sendApiRequest={sendApiRequest}
-          initialInput={chatInput}
-          onReset={handleReset}
-          serviceName={currentConfig.title}
-          showReset={false}
-        />
       )}
     </div>
   );
