@@ -11,5 +11,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class SttContentDto {
     private String speaker;
+    private String start_time;
+    private String end_time;
     private String text;
 }
