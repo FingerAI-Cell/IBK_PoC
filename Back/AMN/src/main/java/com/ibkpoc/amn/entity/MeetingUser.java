@@ -16,8 +16,8 @@ public class MeetingUser {
     private String name;
     private String company;
 
-    @Column(name = "conf_id")
-    private Long meeting;
+    @Column(name = "conf_id", nullable = false) // 테이블의 conf_id 필드에 매핑
+    private Long confId;
 
     private String speakerId;
 }

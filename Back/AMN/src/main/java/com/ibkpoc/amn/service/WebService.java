@@ -58,7 +58,7 @@ public class WebService {
 
     public List<SpeakerResponseDto> getSpeakers(Long confId) {
         // 1. MeetingUser 조회
-        List<MeetingUser> users = meetingUserRepository.findByMeetingId(confId);
+        List<MeetingUser> users = meetingUserRepository.findByConfId(confId);
 
         // 2. SpeakerResponseDto 리스트 반환
         return users.stream()
@@ -143,11 +143,11 @@ public class WebService {
 //                .collect(Collectors.toList());
 
         // 4. speaker 치환: MeetingUser 데이터를 기반으로 매핑
-        Map<String, String> speakerMapping = meetingUserRepository.findByMeetingId(confId).stream()
-                .collect(Collectors.toMap(
-                        user -> "SPEAKER_" + String.format("%02d", user.getSpeakerId()),
-                        user -> user.getName() // 명확히 String 반환
-                ));
+//        Map<String, String> speakerMapping = meetingUserRepository.findByMeetingId(confId).stream()
+//                .collect(Collectors.toMap(
+//                        user -> "SPEAKER_" + String.format("%02d", user.getSpeakerId()),
+//                        user -> user.getName() // 명확히 String 반환
+//                ));
 
 
 

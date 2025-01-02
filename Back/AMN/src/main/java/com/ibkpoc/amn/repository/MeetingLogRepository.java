@@ -12,8 +12,6 @@ import java.util.Optional;
 
 @Repository
 public interface MeetingLogRepository extends JpaRepository<MeetingLog, Long> {
-    List<MeetingLog> findByMeetingUser_Meeting_ConfId(Long confId);
-
-    @Query("SELECT l FROM MeetingLog l WHERE l.meetingUser.meeting.confId = :confId")
+    @Query("SELECT l FROM MeetingLog l WHERE l.meetingUser.confId = :confId")
     List<MeetingLog> findByConfId(@Param("confId") Long confId);
 }
