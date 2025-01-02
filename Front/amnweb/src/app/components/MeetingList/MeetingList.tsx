@@ -13,8 +13,8 @@ interface Meeting {
   startTime: string;
   endTime: string | null;
   summary: string | null;
-  sttSrc: string | null;
   participants: number | null;
+  sttSign: boolean;
 }
 
 interface SttContent {
@@ -22,15 +22,34 @@ interface SttContent {
   text: string;
 }
 
+interface Speaker {
+  speakerId: string;
+  cuserId: number;
+  name: string;
+}
+
+interface LogContent {
+  content: string;
+  cuserId: number;
+  name: string;
+}
+
 export default function MeetingList() {
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [sttContents, setSttContents] = useState<SttContent[]>([]);
-  const [currentSttSrc, setCurrentSttSrc] = useState<string | null>(null);
   const [isSummaryModalOpen, setIsSummaryModalOpen] = useState(false);
   const [currentMeeting, setCurrentMeeting] = useState<Meeting | null>(null);
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
+  const [speakers, setSpeakers] = useState<Speaker[]>([]);
+  const [logContents, setLogContents] = useState<LogContent[]>([]);
+  const [currentMeetingId, setCurrentMeetingId] = useState<number | null>(null);
+  const [summaryData, setSummaryData] = useState({
+    title: '',
+    date: '',
+    participants: [],
+    content: ''
+  });
 
   // 회의 시간 계산 함수
   const calculateDuration = (start: string, end: string | null): string => {
@@ -70,28 +89,42 @@ export default function MeetingList() {
     }
   };
 
-  // STT 내용 가져오기
-  const fetchSttContent = async (sttSrc: string) => {
+  // speakers와 logs를 가져오는 함수
+  const fetchSttContent = async (meetingId: number) => {
     try {
-      const response = await fetch(`${apiConfig.baseURL}/api/meetings/stt`, {
+      // 1. speakers 데이터 가져오기
+      const speakersResponse = await fetch(`${apiConfig.baseURL}/api/meetings/speakers`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ sttSrc }),
+        body: JSON.stringify({ meetingId }),
       });
       
-      const result = await response.json();
+      const speakersResult = await speakersResponse.json();
       
-      if (result.success) {
-        setSttContents(result.data);
+      // 2. logs 데이터 가져오기
+      const logsResponse = await fetch(`${apiConfig.baseURL}/api/meetings/logs`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ meetingId }),
+      });
+      
+      const logsResult = await logsResponse.json();
+      
+      if (speakersResult.success && logsResult.success) {
+        setSpeakers(speakersResult.data);
+        setLogContents(logsResult.data);
+        setCurrentMeetingId(meetingId);
         setIsModalOpen(true);
-        setCurrentSttSrc(sttSrc);
       } else {
         setAlertMessage('회의 원문을 찾을 수 없습니다.');
         setIsAlertOpen(true);
       }
     } catch (error) {
+      console.error('API 호출 오류:', error);
       setAlertMessage('회의 원문을 불러오는 중 오류가 발생했습니다.');
       setIsAlertOpen(true);
     }
@@ -108,28 +141,16 @@ export default function MeetingList() {
           }
         });
         
-        // 응답 헤더 확인
-        console.log('Response headers:', {
-          contentType: response.headers.get('content-type'),
-          status: response.status
-        });
-
-        // 원본 텍스트 응답 확인
-        const textData = await response.text();
-        console.log('Raw response text:', textData);
-        
-        try {
-          // JSON 파싱 시도
-          const data = JSON.parse(textData);
-          console.log('Parsed JSON:', data);
-          setMeetings(data);
-        } catch (parseError) {
-          console.error('JSON 파싱 에러:', parseError);
-          console.error('문제가 있는 텍스트:', textData);
+        if (!response.ok) {
+          throw new Error('회의록 목록을 불러오는데 실패했습니다.');
         }
-        
+
+        const data = await response.json();
+        setMeetings(data);
       } catch (error) {
         console.error('회의록 로딩 실패:', error);
+        setAlertMessage('회의록 목록을 불러오는데 실패했습니다.');
+        setIsAlertOpen(true);
       }
     };
 
@@ -152,6 +173,62 @@ export default function MeetingList() {
 ...`
   };
 
+  const handleSummaryClick = async (meeting: Meeting) => {
+    try {
+      // 1. speakers 데이터 가져오기
+      const speakersResponse = await fetch(`${apiConfig.baseURL}/api/meetings/speakers`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ meetingId: meeting.confId }),
+      });
+      
+      const speakersResult = await speakersResponse.json();
+      
+      if (speakersResult.success) {
+        const formattedDate = formatMeetingTime(meeting.startTime, meeting.endTime);
+        const participantNames = speakersResult.data.map((speaker: Speaker) => speaker.name || speaker.speakerId);
+
+        setIsSummaryModalOpen(true);
+        setSummaryData({
+          title: meeting.title,
+          date: formattedDate,
+          participants: participantNames,
+          content: meeting.summary || ''
+        });
+      }
+    } catch (error) {
+      console.error('요약 데이터 로딩 실패:', error);
+      setAlertMessage('요약 데이터를 불러오는데 실패했습니다.');
+      setIsAlertOpen(true);
+    }
+  };
+
+  // 시간 포맷팅 함수
+  const formatMeetingTime = (start: string, end: string | null): string => {
+    const startTime = new Date(start);
+    const formattedStart = startTime.toLocaleString('ko-KR', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+    
+    if (!end) {
+      return `${formattedStart} ~ ?`;
+    }
+    
+    const endTime = new Date(end);
+    const formattedEnd = endTime.toLocaleString('ko-KR', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+    
+    return `${formattedStart} ~ ${formattedEnd}`;
+  };
+
   return (
     <div className={styles.container}>
       <h2 className={styles.title}>회의 목록</h2>
@@ -168,22 +245,15 @@ export default function MeetingList() {
             <div className={styles.buttonGroup}>
               <button 
                 className={`${styles.originalButton}`}
-                disabled={meeting.sttSrc === null}
-                onClick={() => {
-                  if (meeting.sttSrc) {
-                    fetchSttContent(meeting.sttSrc);
-                  }
-                }}
+                disabled={!meeting.sttSign}
+                onClick={() => fetchSttContent(meeting.confId)}
               >
                 원문보기
               </button>
               <button 
                 className={`${styles.summaryButton}`}
-                // disabled={meeting.summary === null}  // 추후 실제 데이터 연동 시 주석 해제
-                onClick={() => {
-                  setCurrentMeeting(meeting);
-                  setIsSummaryModalOpen(true);
-                }}
+                disabled={!meeting.summary}
+                onClick={() => handleSummaryClick(meeting)}
               >
                 요약보기
               </button>
@@ -195,16 +265,17 @@ export default function MeetingList() {
       <SttModal 
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        contents={sttContents}
-        title={meetings.find(m => m.sttSrc === currentSttSrc)?.title || "회의 원문"}
+        speakers={speakers}
+        contents={logContents}
+        title={meetings.find(m => m.confId === currentMeetingId)?.title || "회의 원문"}
       />
       <SummaryModal 
         isOpen={isSummaryModalOpen}
         onClose={() => setIsSummaryModalOpen(false)}
-        title={sampleSummary.title}
-        date={sampleSummary.date}
-        participants={sampleSummary.participants}
-        content={sampleSummary.content}
+        title={summaryData.title}
+        date={summaryData.date}
+        participants={summaryData.participants}
+        content={summaryData.content}
       />
       <AlertModal
         isOpen={isAlertOpen}

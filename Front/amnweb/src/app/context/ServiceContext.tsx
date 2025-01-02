@@ -9,6 +9,9 @@ interface ServiceContextType {
   pageState: 'select' | 'chat' | 'admin';
   setPageState: (state: 'select' | 'chat' | 'admin') => void;
   handleMyServices: () => void;
+  reportDate: string | null;
+  reportData: any | null;
+  setReportDate: (date: string, data?: any) => void;
 }
 
 const defaultValue: ServiceContextType = {
@@ -17,6 +20,9 @@ const defaultValue: ServiceContextType = {
   pageState: "select",
   setPageState: () => {},
   handleMyServices: () => {},
+  reportDate: null,
+  reportData: null,
+  setReportDate: () => {},
 };
 
 const ServiceContext = createContext<ServiceContextType>(defaultValue);
@@ -24,6 +30,8 @@ const ServiceContext = createContext<ServiceContextType>(defaultValue);
 export function ServiceProvider({ children }: { children: React.ReactNode }) {
   const [currentService, setCurrentService] = useState("general-chat");
   const [pageState, setPageState] = useState<'select' | 'chat' | 'admin'>('select');
+  const [reportDate, setReportDate] = useState<string | null>(null);
+  const [reportData, setReportData] = useState<any | null>(null);
 
   const handleServiceChange = (service: string) => {
     console.log('Service Change:', {
@@ -48,6 +56,11 @@ export function ServiceProvider({ children }: { children: React.ReactNode }) {
     setPageState('select');
   };
 
+  const handleSetReportDate = (date: string, data?: any) => {
+    setReportDate(date);
+    setReportData(data || null);
+  };
+
   return (
     <ServiceContext.Provider 
       value={{ 
@@ -55,7 +68,10 @@ export function ServiceProvider({ children }: { children: React.ReactNode }) {
         setCurrentService: handleServiceChange,
         pageState,
         setPageState,
-        handleMyServices
+        handleMyServices,
+        reportDate,
+        reportData,
+        setReportDate: handleSetReportDate,
       }}
     >
       {children}

@@ -20,5 +20,5 @@ public class MeetingUser {
     @JoinColumn(name = "conf_id")
     private Meeting meeting;
 
-    private Integer speakerId;
+    private String speakerId;
 }

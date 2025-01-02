@@ -10,6 +10,7 @@ import AdminDashboard from "../AdminDashboard/AdminDashboard";
 import { faqs } from "../../data/faqData";
 import { useService } from "../../context/ServiceContext";
 import { serviceConfig } from "../../config/serviceConfig";
+import InvestmentReport from "../InvestmentReport/InvestmentReport";
 
 export default function MainContent() {
   const { currentService, pageState, setPageState, setCurrentService } = useService();
@@ -57,6 +58,8 @@ export default function MainContent() {
         <AdminDashboard />
       ) : currentService === "meeting-minutes" ? (
         <MeetingList />
+      ) : currentService === "investment-report" ? (
+        <InvestmentReport />
       ) : !isChatting ? (
         <>
           <GreetingSection

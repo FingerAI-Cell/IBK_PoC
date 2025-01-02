@@ -25,7 +25,32 @@
 }
 
 .historyItem {
-  padding: 0.5rem 0;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  position: relative;
+}
+
+.historyItem:hover {
+  background-color: #f8f9fa;
+}
+
+.historyItem::after {
+  content: '›';
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.2rem;
+  color: #a0aec0;
+  opacity: 0;
+  transition: all 0.2s ease;
+}
+
+.historyItem:hover::after {
+  opacity: 1;
+  right: 0.75rem;
 }
 
 .historyText {

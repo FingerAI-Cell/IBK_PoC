@@ -15,7 +15,7 @@ export default function Header() {
         My Services
       </button>
       <button 
-        className={styles.adminButton}
+        className={styles.myPageButton}
         onClick={() => setPageState('admin')}
       >
         관리자

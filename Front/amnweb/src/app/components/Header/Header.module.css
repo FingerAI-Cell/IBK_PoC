@@ -15,18 +15,67 @@
   
   .titleButton {
     font-size: 1.5rem;
-    font-weight: bold;
+    font-weight: 600;
     background: none;
     border: none;
     cursor: pointer;
-    padding: 0.5rem;
+    padding: 0.5rem 1rem;
+    color: #2c3e50;
+    position: relative;
+    transition: color 0.3s ease;
+  }
+  
+  .titleButton:hover {
+    color: #3498db;
+  }
+  
+  .titleButton::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 50%;
+    background-color: #3498db;
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+  }
+  
+  .titleButton:hover::after {
+    width: 100%;
   }
   
   .myPageButton {
-    background-color: #e2e8f0;
-    padding: 0.5rem;
-    border-radius: 0.25rem;
+    font-size: 1rem;
+    font-weight: 500;
+    background-color: #f5f6f7;  /* 매우 연한 회색 배경 */
     border: none;
+    border-radius: 20px;  /* 원형 모서리 */
     cursor: pointer;
+    padding: 0.5rem 1rem;
+    color: #2c3e50;
+    position: relative;
+    transition: all 0.2s ease;
+  }
+  
+  .myPageButton:hover {
+    background-color: #e2e4e7;  /* 호버 시 더 진한 회색 */
+    color: #34495e;
+  }
+  
+  .myPageButton::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: -2px;
+    left: 50%;
+    background-color: #e2e4e7;  /* 밑줄도 더 진한 회색으로 변경 */
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+  }
+  
+  .myPageButton:hover::after {
+    width: 100%;
   }
   

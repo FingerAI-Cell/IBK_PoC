@@ -75,9 +75,9 @@
 }
 
 .speakerList {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
   padding: 8px;
   background: white;
   border-radius: 4px;
@@ -130,17 +130,23 @@
 .speakerItem {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 6px;
+  gap: 8px;
+  margin-bottom: 0;
+}
+
+.originalSpeaker {
+  min-width: 90px;
+  font-size: 0.9rem;
+  color: #666;
 }
 
 .speakerInput {
   flex: 1;
-  padding: 4px 10px;
+  padding: 4px 8px;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 0.9rem;
-  min-width: 200px;
+  min-width: 120px;
   height: 32px;
 }
 

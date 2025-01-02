@@ -17,6 +17,6 @@ public class MeetingResponseDto {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private String summary;
-    private String sttSrc;
+    private Boolean sttSign;
     private Integer participants;
 }

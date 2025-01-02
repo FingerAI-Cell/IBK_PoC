@@ -22,6 +22,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class MeetingService {
     private final MeetingRepository meetingRepository;
+    private final MeetingUserRepository meetingUserRepository;
+
     @PersistenceContext
     private EntityManager entityManager; // EntityManager 주입
 
@@ -45,6 +47,18 @@ public class MeetingService {
         // 회의 번호로 제목 설정
         meeting.setTitle("회의 번호 : " + meeting.getConfId());
         meeting = meetingRepository.save(meeting);
+
+        // 5. 참가자 수만큼 MeetingUser 생성
+        for (int i = 0; i < participants; i++) {
+            MeetingUser meetingUser = new MeetingUser();
+            meetingUser.setMeeting(meeting); // 회의 ID 설정
+            meetingUser.setSpeakerId(String.format("SPEAKER_%02d", i)); // SPEAKER_00, SPEAKER_01, ...
+            meetingUser.setName(null); // name은 비워둠
+            meetingUser.setCompany(null); // company는 비워둠
+
+            // 저장
+            meetingUserRepository.save(meetingUser);
+        }
 
         // 응답 생성
         return new StartMeetingResponse(

@@ -27,4 +27,5 @@ public class Meeting {
     private Integer participants; // 참가자 수
     private String wavSrc; // 녹음 파일 위치 추가
     private String sttSrc; // 녹음 파일 위치 추가
+    private Boolean sttSign;
 }

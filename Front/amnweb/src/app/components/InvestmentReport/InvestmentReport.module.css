@@ -1,0 +1,143 @@
+.container {
+  padding: 24px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 24px;
+  color: #333;
+}
+
+.content {
+  display: flex;
+  gap: 24px;
+}
+
+.leftSection {
+  flex: 1;
+  min-width: 0;
+}
+
+.rightSection {
+  flex: 1;
+  min-width: 0;
+}
+
+.summaryBox {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.amountItem {
+  flex: 1;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.amountItem h3 {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.amountItem p {
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+}
+
+.portfolioChart {
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid #eee;
+}
+
+.portfolioChart h3 {
+  font-size: 16px;
+  margin-bottom: 16px;
+  color: #333;
+}
+
+.chartWrapper {
+  height: 300px;
+  position: relative;
+}
+
+.investmentList {
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid #eee;
+}
+
+.investmentList h3 {
+  font-size: 16px;
+  margin-bottom: 16px;
+  color: #333;
+}
+
+.listHeader {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  padding: 12px 8px;
+  background: #f8f9fa;
+  border-radius: 4px;
+  font-weight: bold;
+  color: #666;
+  font-size: 14px;
+}
+
+.investmentItem {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  padding: 12px 8px;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+}
+
+.investmentItem:last-child {
+  border-bottom: none;
+}
+
+.value {
+  color: #dc3545;
+}
+
+.categoryTabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.categoryTab {
+  padding: 8px 16px;
+  border: none;
+  background: #f5f6f7;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #666;
+  transition: all 0.2s ease;
+}
+
+.categoryTab:hover {
+  background: #e2e4e7;
+}
+
+.activeTab {
+  background: #3498db;
+  color: white;
+}
+
+.activeTab:hover {
+  background: #2980b9;
+} 
