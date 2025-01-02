@@ -137,7 +137,7 @@ class AudioRecordService : Service() {
             
             // 녹음 초기화
             audioRecord = AudioRecord(
-                MediaRecorder.AudioSource.VOICE_RECOGNITION,
+                MediaRecorder.AudioSource.MIC,
                 sampleRate, channelConfig, audioFormat, bufferSize
             ).apply {
                 startRecording()

@@ -2,8 +2,6 @@ package com.ibkpoc.amn.viewmodel
 
 import android.media.AudioFormat
 import android.media.AudioRecord
-import android.media.MediaRecorder
-import android.media.audiofx.NoiseSuppressor
 import android.os.Environment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -41,14 +39,24 @@ import android.content.IntentFilter
 import android.annotation.SuppressLint
 import com.ibkpoc.amn.event.EventBus
 import com.ibkpoc.amn.event.RecordingStateEvent
+import android.media.MediaPlayer
+import com.ibkpoc.amn.network.ApiService
+import android.app.Application
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val repository: MeetingRepository,
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val apiService: ApiService,
+    private val application: Application
 ) : ViewModel() {
+    private var recordingTimer: Job? = null
+    private var lastRecordingState: RecordingStateInfo? = null
+    private var lastFileName: String? = null
+    private var pendingAudioFile: String? = null
+
     private val _recordingState = MutableStateFlow<RecordServiceState>(RecordServiceState.Idle)
-    val recordingState: StateFlow<RecordServiceState> = _recordingState.asStateFlow()
+    val recordingState = _recordingState.asStateFlow()
 
     private val _elapsedTime = MutableStateFlow(0L)
     val elapsedTime = _elapsedTime.asStateFlow()
@@ -66,6 +74,25 @@ class MainViewModel @Inject constructor(
 
     private var fileOutputStream: FileOutputStream? = null
 
+    private var mediaPlayer: MediaPlayer? = null
+
+    private val _isPlaying = MutableStateFlow(false)
+    val isPlaying: StateFlow<Boolean> = _isPlaying.asStateFlow()
+
+    var lastRequestedFile: String? = null
+
+    private val _currentPosition = MutableStateFlow(0f)
+    val currentPosition: StateFlow<Float> = _currentPosition.asStateFlow()
+
+    private val _duration = MutableStateFlow(0f)
+    val duration: StateFlow<Float> = _duration.asStateFlow()
+
+    private val _showPlayer = MutableStateFlow(false)
+    val showPlayer: StateFlow<Boolean> = _showPlayer.asStateFlow()
+
+    private val _currentFileName = MutableStateFlow<String?>(null)
+    val currentFileName: StateFlow<String?> = _currentFileName.asStateFlow()
+
     init {
         viewModelScope.launch {
             EventBus.subscribe<RecordingStateEvent>().collect { event ->
@@ -73,28 +100,52 @@ class MainViewModel @Inject constructor(
                 handleRecordServiceState(event.state)
             }
         }
+        viewModelScope.launch {
+            while (true) {
+                if (_isPlaying.value) {
+                    mediaPlayer?.let { player ->
+                        _currentPosition.value = player.currentPosition.toFloat()
+                    }
+                }
+                delay(100) // 100ms마다 업데이트
+            }
+        }
     }
 
     private fun handleRecordServiceState(state: RecordServiceState) {
-        Logger.e("상태 처리: $state")
-        _recordingState.value = state
+        Logger.e("[상태처리] 새로운 상태 수신: $state")
         when (state) {
             is RecordServiceState.Recording -> {
-                Logger.e("녹음 타이머 시작")
+                Logger.e("[상태처리] 녹음 시작 - 회의ID: ${state.meetingId}, 시작시간: ${state.startTime}")
+                lastRecordingState = RecordingStateInfo(
+                    meetingId = state.meetingId,
+                    startTime = state.startTime,
+                    duration = state.duration
+                )
                 startRecordingTimer()
+                _recordingState.value = state
             }
             is RecordServiceState.Completed -> {
+                Logger.e("[상태처리] 녹음 완료 - 파일경로: ${state.filePath}")
                 stopRecordingTimer()
+                _recordingState.value = RecordServiceState.Idle
+                _isLoading.value = false
                 viewModelScope.launch {
                     handleRecordingComplete(File(state.filePath))
                 }
             }
             is RecordServiceState.Error -> {
+                Logger.e("[상태처리] 에러 발생: ${state.message}")
                 stopRecordingTimer()
                 _errorMessage.value = state.message
+                _recordingState.value = RecordServiceState.Idle
+                _isLoading.value = false
             }
             RecordServiceState.Idle -> {
+                Logger.e("[상태처리] 대기 상태로 전환")
                 stopRecordingTimer()
+                _recordingState.value = state
+                _isLoading.value = false
             }
         }
     }
@@ -141,28 +192,36 @@ class MainViewModel @Inject constructor(
     }
 
     private suspend fun handleRecordingComplete(pcmFile: File) {
-        val currentState = _recordingState.value as? RecordingState.Recording ?: return
-        
         try {
-            val wavFile = convertPcmToWav(pcmFile)
-            repository.endMeeting(currentState.meetingId).collect { result ->
-                when (result) {
-                    is NetworkResult.Success -> {
-                        uploadWavAndConvertToStt(
-                            currentState.meetingId,
-                            wavFile,
-                            currentState.startTime,
-                            currentState.duration
-                        )
-                    }
-                    is NetworkResult.Error -> {
-                        _errorMessage.value = "회의 종료 실패: ${result.message}"
-                    }
-                    is NetworkResult.Loading -> _isLoading.value = true
-                }
+            val recordingInfo = lastRecordingState
+            if (recordingInfo == null) {
+                Logger.e("[녹음완료처리] 이전 Recording 상태 정보 없음")
+                _errorMessage.value = "녹음 정보를 찾을 수 없습니다"
+                _recordingState.value = RecordServiceState.Idle
+                return
+            }
+
+            // 즉시 Idle 상태로 전환하고 성공 메시지 표시
+            _recordingState.value = RecordServiceState.Idle
+            
+            // 2초 후 성공 메시지 숨기기
+            viewModelScope.launch {
+                delay(2000)
+            }
+
+            // WAV 변환 및 업로드는 백그라운드에서 계속 진행
+            viewModelScope.launch {
+                uploadWavAndConvertToStt(
+                    recordingInfo.meetingId,
+                    convertPcmToWav(pcmFile),
+                    recordingInfo.startTime,
+                    recordingInfo.duration
+                )
             }
         } catch (e: Exception) {
-            _errorMessage.value = "WAV 변환 실패: ${e.message}"
+            Logger.e("[녹음완료처리] 오류 발생: ${e.message}")
+            _errorMessage.value = "녹음 처리 실패: ${e.message}"
+            _recordingState.value = RecordServiceState.Idle
         }
     }
 
@@ -251,9 +310,9 @@ class MainViewModel @Inject constructor(
 
     fun handleMeetingEndSuccess() {
         viewModelScope.launch {
-            _showSuccessMessage.value = true
-            delay(2000) // 2초 후
-            _showSuccessMessage.value = false
+            viewModelScope.launch {
+                delay(2000) // 2초 후
+            }
         }
     }
 
@@ -313,14 +372,18 @@ class MainViewModel @Inject constructor(
         val currentState = recordingState.value as? RecordServiceState.Recording ?: return
         
         viewModelScope.launch {
-            // 1. 먼저 회의 종료 API 호출
+            _isLoading.value = true  // 로딩 시작
             repository.endMeeting(currentState.meetingId).collect { result ->
                 when (result) {
                     is NetworkResult.Success -> {
-                        // 2. UI 즉시 업데이트 (성공 메시지 표시)
-                        handleMeetingEndSuccess()
+                        // 회의 종료 API 성공 시에만 성공 메시지 표시
+                        _showSuccessMessage.value = true
+                        viewModelScope.launch {
+                            delay(2000)
+                            _showSuccessMessage.value = false
+                        }
                         
-                        // 3. 녹음 중지 요청
+                        // 녹음 중지 요청
                         val serviceIntent = Intent(context, AudioRecordService::class.java).apply {
                             action = AudioRecordService.ACTION_STOP
                         }
@@ -328,6 +391,7 @@ class MainViewModel @Inject constructor(
                     }
                     is NetworkResult.Error -> {
                         _errorMessage.value = "회의 종료 실패: ${result.message}"
+                        _isLoading.value = false  // 에러 시 로딩 종료
                     }
                     is NetworkResult.Loading -> _isLoading.value = true
                 }
@@ -336,6 +400,8 @@ class MainViewModel @Inject constructor(
     }
 
     private suspend fun uploadWavAndConvertToStt(meetingId: Long, wavFile: File, startTime: String, duration: Long) {
+        Logger.e("[파일업로드] 시작 - 회의ID: $meetingId, WAV파일: ${wavFile.absolutePath}")
+        
         val wavUploadData = WavUploadData(
             meetingId = meetingId,
             wavFile = wavFile,
@@ -349,27 +415,28 @@ class MainViewModel @Inject constructor(
         repository.uploadMeetingWavFile(wavUploadData).collect { uploadResult ->
             when (uploadResult) {
                 is NetworkResult.Success -> {
-                    // 5. STT 변환 API
+                    Logger.e("[파일업로드] WAV 파일 업로드 성공")
                     repository.convertWavToStt(meetingId).collect { sttResult ->
                         when (sttResult) {
                             is NetworkResult.Success -> {
-                                // 성공 시 UI 업데이트 없음
-                                Logger.i("STT 변환 완료")
+                                Logger.e("[STT변환] STT 변환 완료")
                             }
                             is NetworkResult.Error -> {
+                                Logger.e("[STT변환] STT 변환 실패: ${sttResult.message}")
                                 _errorMessage.value = "STT 변환 실패: ${sttResult.message}"
                             }
                             is NetworkResult.Loading -> {
-                                _isLoading.value = true
+                                Logger.e("[STT변환] STT 변환 중")
                             }
                         }
                     }
                 }
                 is NetworkResult.Error -> {
+                    Logger.e("[파일업로드] WAV 파일 업로드 실패: ${uploadResult.message}")
                     _errorMessage.value = "WAV 파일 업로드 실패: ${uploadResult.message}"
                 }
                 is NetworkResult.Loading -> {
-                    _isLoading.value = true
+                    Logger.e("[파일업로드] WAV 파일 업로드 중")
                 }
             }
         }
@@ -378,6 +445,8 @@ class MainViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         cleanupRecording()
+        mediaPlayer?.release()
+        mediaPlayer = null
     }
 
     private fun writeWavHeader(output: java.io.OutputStream, audioLength: Long) {
@@ -471,6 +540,110 @@ class MainViewModel @Inject constructor(
         Intent(context, AudioRecordService::class.java).apply {
             action = AudioRecordService.ACTION_STOP
             context.startService(this)
+        }
+    }
+
+    // Recording 상태 정보를 저장하기 위한 데이터 클래스
+    private data class RecordingStateInfo(
+        val meetingId: Long,
+        val startTime: String,
+        val duration: Long
+    )
+
+    fun playAudioFile(fileName: String) {
+        viewModelScope.launch {
+            try {
+                // 기존 MediaPlayer 해제
+                mediaPlayer?.release()
+                
+                // 다운로드 디렉토리에서 파일 찾기
+                val downloadDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                val audioFile = if (fileName.contains("/")) {
+                    // 서브디렉토리가 포함된 경우
+                    File(downloadDir, fileName)
+                } else {
+                    // 다운로드 디렉토리 직접 접근
+                    File(downloadDir, fileName)
+                }
+                
+                if (!audioFile.exists()) {
+                    _errorMessage.value = "파일을 찾을 수 없습니다: $fileName"
+                    return@launch
+                }
+
+                // 새로운 MediaPlayer 생성 및 재생
+                mediaPlayer = MediaPlayer().apply {
+                    setDataSource(audioFile.path)
+                    setOnPreparedListener {
+                        start()
+                        _isPlaying.value = true
+                        _duration.value = duration.toFloat()
+                        _currentFileName.value = fileName
+                        _showPlayer.value = true
+                    }
+                    setOnCompletionListener {
+                        _isPlaying.value = false
+                    }
+                    setOnErrorListener { _, what, extra ->
+                        _errorMessage.value = "재생 중 오류 발생: $what, $extra"
+                        _isPlaying.value = false
+                        true
+                    }
+                    prepareAsync()
+                }
+            } catch (e: Exception) {
+                _errorMessage.value = "음성 파일 재생 중 오류가 발생했습니다: ${e.message}"
+                _isPlaying.value = false
+            }
+        }
+    }
+
+    fun seekTo(position: Float) {
+        mediaPlayer?.seekTo(position.toInt())
+    }
+
+    fun forward10Seconds() {
+        mediaPlayer?.let { player ->
+            val newPosition = minOf(player.currentPosition + 10000, player.duration)
+            player.seekTo(newPosition)
+        }
+    }
+
+    fun rewind10Seconds() {
+        mediaPlayer?.let { player ->
+            val newPosition = maxOf(player.currentPosition - 10000, 0)
+            player.seekTo(newPosition)
+        }
+    }
+
+    fun togglePlayPause() {
+        mediaPlayer?.let { player ->
+            if (player.isPlaying) {
+                player.pause()
+                _isPlaying.value = false
+            } else {
+                player.start()
+                _isPlaying.value = true
+            }
+        }
+    }
+
+    fun hidePlayer() {
+        _showPlayer.value = false
+        mediaPlayer?.stop()
+        mediaPlayer?.release()
+        mediaPlayer = null
+        _isPlaying.value = false
+    }
+
+    fun setPendingAudioFile(fileName: String) {
+        pendingAudioFile = fileName
+    }
+
+    fun playPendingAudio() {
+        pendingAudioFile?.let { fileName ->
+            playAudioFile(fileName)
+            pendingAudioFile = null
         }
     }
 }

@@ -51,12 +51,6 @@ export default function MainContent() {
     setPageState('chat');
   };
 
-  const handleReset = () => {
-    setCurrentService("general-chat");
-    setIsChatting(false);
-    setChatInput("");
-  };
-
   return (
     <div className={styles.container}>
       {pageState === 'admin' ? (
@@ -82,7 +76,16 @@ export default function MainContent() {
             serviceName={currentConfig.title}
             showReset={false}
           />
-        )
+          <FAQSection faqs={faqs} onFAQClick={handleFAQClick} />
+        </>
+      ) : (
+        <ChatBox
+          sendApiRequest={sendApiRequest}
+          initialInput={chatInput}
+          onReset={handleReset}
+          serviceName={currentConfig.title}
+          showReset={false}
+        />
       )}
     </div>
   );

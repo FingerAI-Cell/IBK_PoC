@@ -6,6 +6,9 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.*
+import retrofit2.http.GET
+import retrofit2.http.Query
+import okhttp3.ResponseBody
 
 interface ApiService {
     @POST("/meeting/start")
@@ -29,6 +32,14 @@ interface ApiService {
         @Part file: MultipartBody.Part
     ): Response<CommonResponse<Unit>>
 
-    @POST("/meeting/convert-stt")
+    @POST("/meeting/stt-request")
     suspend fun convertWavToStt(@Body request: SttRequest): Response<CommonResponse<Unit>>
+
+    @GET("/meeting/list")
+    suspend fun getMeetingList(): Response<CommonResponse<List<MeetingListResponse>>>
+
+    @GET("stt/")
+    suspend fun getAudioFile(
+        @Query("audio_file_name") fileName: String
+    ): ResponseBody
 }

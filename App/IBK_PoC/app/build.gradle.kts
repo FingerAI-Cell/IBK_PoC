@@ -94,6 +94,8 @@ dependencies {
     implementation("androidx.compose.material3:material3:1.2.0")
     implementation("androidx.compose.material3:material3-window-size-class:1.2.0")
 
+    //음성처리
+
     // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

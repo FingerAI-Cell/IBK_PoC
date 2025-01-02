@@ -11,5 +11,5 @@ interface MeetingRepository {
     suspend fun endMeeting(meetingId: Long): Flow<NetworkResult<Unit>>
     suspend fun uploadMeetingWavFile(wavUploadData: WavUploadData): Flow<NetworkResult<Unit>>
     suspend fun convertWavToStt(meetingId: Long): Flow<NetworkResult<Unit>>
-
+    suspend fun getMeetingList(): Flow<NetworkResult<List<MeetingListResponse>>>
 }

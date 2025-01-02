@@ -3,22 +3,28 @@ package com.ibkpoc.amn.service;
 import com.ibkpoc.amn.dto.*;
 import com.ibkpoc.amn.entity.*;
 import com.ibkpoc.amn.repository.*;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class MeetingService {
     private final MeetingRepository meetingRepository;
+    @PersistenceContext
+    private EntityManager entityManager; // EntityManager 주입
+
 
     // 회의 시작
     public StartMeetingResponse startMeeting(Integer participants,String startTimeStr) {
@@ -67,10 +73,13 @@ public class MeetingService {
         meetingRepository.save(meeting);
     }
 
+    @Transactional
     public void processSttRequest(Long meetingId) {
         // DB에서 회의 정보 조회
         Meeting meeting = meetingRepository.findById(meetingId)
                 .orElseThrow(() -> new IllegalArgumentException("회의 정보를 찾을 수 없습니다: meetingId=" + meetingId));
+
+        entityManager.refresh(meeting);
 
         // 필요한 정보 로그
         log.info("STT 파라미터 조회: meetingId={}, participants={}, wavSrc={}",
@@ -80,35 +89,46 @@ public class MeetingService {
             throw new IllegalStateException("WAV 파일 경로가 존재하지 않습니다: meetingId=" + meetingId);
         }
 
-        // 파이썬 코드 실행
-        String pythonScriptPath = "/path/to/stt_script.py"; // 파이썬 스크립트 경로 설정
-        ProcessBuilder processBuilder = new ProcessBuilder(
-                "python", pythonScriptPath,
-                "--file_name", meeting.getWavSrc(),
-                "--participant", meeting.getParticipants().toString()
+        // API URL 설정
+        String apiUrl = "http://localhost:8081/run";
+
+        // 요청 데이터 생성
+        Map<String, Object> requestData = Map.of(
+                "data", Map.of(
+                        "file_name", meeting.getWavSrc(),
+                        "participant", meeting.getParticipants()
+                )
         );
 
         try {
-            log.info("STT 파이썬 스크립트 실행 시작: {}", pythonScriptPath);
-            Process process = processBuilder.start();
+            // 파이썬 코드의 data 파라미터 구조에 맞춤
+            String requestJson = String.format(
+                    "{\"file_name\": \"%s\", \"participant\": %d}",
+                    meeting.getWavSrc(),
+                    meeting.getParticipants()
+            );
 
-            // 결과 출력 로그
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                log.info("STT 스크립트 결과: {}", line);
-            }
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(apiUrl))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(requestJson))
+                    .build();
 
-            int exitCode = process.waitFor();
-            log.info("STT 파이썬 스크립트 종료: exitCode={}", exitCode);
+            log.info("STT API 호출 시작: {}, 요청 데이터: {}", apiUrl, requestJson);
 
-            if (exitCode != 0) {
-                throw new RuntimeException("STT 스크립트 실행 중 오류 발생");
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 200) {
+                log.info("STT API 호출 성공: 응답={}", response.body());
+            } else {
+                log.error("STT API 호출 실패: 상태 코드={}", response.statusCode());
+                throw new RuntimeException("STT API 호출 실패");
             }
 
         } catch (Exception e) {
-            log.error("STT 스크립트 실행 실패: {}", e.getMessage(), e);
-            throw new RuntimeException("STT 처리 실패", e);
+            log.error("STT API 호출 중 예외 발생: {}", e.getMessage(), e);
+            throw new RuntimeException("STT API 처리 실패", e);
         }
     }
 }
