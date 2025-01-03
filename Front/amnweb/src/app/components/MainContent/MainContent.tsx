@@ -13,7 +13,7 @@ import { serviceConfig } from "../../config/serviceConfig";
 import InvestmentReport from "../InvestmentReport/InvestmentReport";
 
 export default function MainContent() {
-  const { currentService, pageState, setPageState, setCurrentService } = useService();
+  const { currentService, pageState, setPageState} = useService();
   const [isChatting, setIsChatting] = useState(false);
   const [chatInput, setChatInput] = useState("");
 
@@ -76,7 +76,6 @@ export default function MainContent() {
             sendApiRequest={sendApiRequest}
             initialInput={chatInput}
             serviceName={currentConfig.title}
-            showReset={false}
           />
           <FAQSection faqs={faqs} onFAQClick={handleFAQClick} />
         </>

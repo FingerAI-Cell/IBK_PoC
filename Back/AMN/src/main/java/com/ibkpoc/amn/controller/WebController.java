@@ -28,38 +28,6 @@ public class WebController {
         return ResponseEntity.ok(meetings);
     }
 
-    @PostMapping("/stt")
-    public ResponseEntity<ApiResponse<List<SttContentDto>>> getSttContent(@RequestBody SttRequestDto request) {
-        try {
-            List<SttContentDto> content = webService.readSttContent(request.getSttSrc());
-            return ResponseEntity.ok(ApiResponse.success(content));
-        } catch (FileNotFoundException e) {
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body(ApiResponse.error("파일을 찾을 수 없습니다."));
-        } catch (Exception e) {
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(ApiResponse.error("파일 처리 중 오류가 발생했습니다."));
-        }
-    }
-
-    @PostMapping("/summarize")
-    public ResponseEntity<ApiResponse<String>> summarizeMeeting(@RequestParam Long confId) {
-        try {
-            String summary = webService.generateSummary(confId);
-            return ResponseEntity.ok(ApiResponse.success(summary));
-        } catch (FileNotFoundException e) {
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body(ApiResponse.error("STT 파일을 찾을 수 없습니다."));
-        } catch (Exception e) {
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(ApiResponse.error("요약 생성 중 오류가 발생했습니다."));
-        }
-    }
-
     @PostMapping("/speakers")
     public ResponseEntity<ApiResponse<List<SpeakerResponseDto>>> getSpeakers(@RequestBody SttRequest request) {
         try {
@@ -86,5 +54,20 @@ public class WebController {
         }
     }
 
+    @PostMapping("/summarize")
+    public ResponseEntity<ApiResponse<Void>> summarize(@RequestBody SummarizeRequest request) {
+        try {
+            webService.generateSummary(request.getConfId());
+            return ResponseEntity.ok(ApiResponse.success(null));
+        } catch (FileNotFoundException e) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.error("STT 파일을 찾을 수 없습니다."));
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error("요약 생성 중 오류가 발생했습니다."));
+        }
+    }
 
 }

@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import styles from './SttModal.module.css';
+import { apiConfig } from '../../config/serviceConfig';
 
 interface Speaker {
   speakerId: string;  // "SPEAKER_00" 형식의 문자열
@@ -21,6 +22,7 @@ interface SttModalProps {
   contents: LogContent[];
   title: string;
   onSummarize?: () => void;
+  confId?: number;
 }
 
 export default function SttModal({ 
@@ -29,7 +31,8 @@ export default function SttModal({
   speakers, 
   contents, 
   title = "회의 원문", 
-  onSummarize 
+  onSummarize,
+  confId
 }: SttModalProps) {
   const [speakerNames, setSpeakerNames] = useState<Record<string, string>>({});
   const [selectedSpeakers, setSelectedSpeakers] = useState<Set<string>>(new Set());
@@ -72,23 +75,23 @@ export default function SttModal({
     });
   };
 
-  // 필터링 및 검색이 적용된 내용
-  const processedContents = useMemo(() => {
-    return contents.filter(content => {
-      // 스피커 필터링
-      if (selectedSpeakers.size > 0) {
-        const speaker = speakers.find(s => s.cuserId === content.cuserId);
-        if (!speaker || !selectedSpeakers.has(speaker.speakerId)) {
-          return false;
-        }
-      }
-      // 텍스트 검색
-      if (searchText && !content.content.toLowerCase().includes(searchText.toLowerCase())) {
-        return false;
-      }
-      return true;
-    });
-  }, [contents, speakers, selectedSpeakers, searchText]);
+  // // 필터링 및 검색이 적용된 내용
+  // const processedContents = useMemo(() => {
+  //   return contents.filter(content => {
+  //     // 스피커 필터링
+  //     if (selectedSpeakers.size > 0) {
+  //       const speaker = speakers.find(s => s.cuserId === content.cuserId);
+  //       if (!speaker || !selectedSpeakers.has(speaker.speakerId)) {
+  //         return false;
+  //       }
+  //     }
+  //     // 텍스트 검색
+  //     if (searchText && !content.content.toLowerCase().includes(searchText.toLowerCase())) {
+  //       return false;
+  //     }
+  //     return true;
+  //   });
+  // }, [contents, speakers, selectedSpeakers, searchText]);
 
   // 시간 기준으로 정렬된 contents
   const sortedContents = useMemo(() => {
@@ -100,6 +103,25 @@ export default function SttModal({
     });
   }, [contents]);
 
+  const handleSummarize = async () => {
+    try {
+      const response = await fetch(`${apiConfig.baseURL}/api/meetings/summarize`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ confId }),
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        onSummarize?.();
+      }
+    } catch (error) {
+      console.error('요약 생성 실패:', error);
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -110,7 +132,7 @@ export default function SttModal({
           <div className={styles.headerButtons}>
             <button 
               className={styles.summarizeButton}
-              onClick={onSummarize}
+              onClick={handleSummarize}
             >
               요약하기
             </button>

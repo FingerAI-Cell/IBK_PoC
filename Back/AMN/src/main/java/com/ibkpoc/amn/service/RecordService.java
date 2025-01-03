@@ -167,7 +167,7 @@ public class RecordService implements DisposableBean {
             } catch (IOException e) {
                 log.error("강제 종료 중 오류", e);
             }
-        }, 30, TimeUnit.SECONDS);
+        }, 60, TimeUnit.SECONDS);
 
         info.setTimeoutFuture(timeoutFuture);
     }

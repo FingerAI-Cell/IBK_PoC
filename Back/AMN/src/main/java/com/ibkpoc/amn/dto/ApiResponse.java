@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class ApiResponse<T> {
+public class ApiResponse<T> { // 웹의 요청에 대한 응답
     private boolean success;
     private String message;
     private T data;

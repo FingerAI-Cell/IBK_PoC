@@ -4,7 +4,7 @@ import { useState } from 'react';
 import styles from './AdminDashboard.module.css';
 
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState('financial');
+  const [activeTab, setActiveTab] = useState<'financial' | 'manual'>('financial');
   const [searchTerm, setSearchTerm] = useState('');
 
   // 재무제표 샘플 데이터

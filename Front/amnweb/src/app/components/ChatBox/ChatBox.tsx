@@ -8,7 +8,7 @@ interface ChatBoxProps {
   sendApiRequest: (message: string) => Promise<string>;
   initialInput: string;
   serviceName: string;
-  showReset?: boolean;
+  onReset?: () => void;
 }
 
 // 메시지 컴포넌트 분리

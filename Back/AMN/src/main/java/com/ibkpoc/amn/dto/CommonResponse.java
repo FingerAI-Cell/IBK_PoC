@@ -8,7 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @Setter
 @Getter
-public class CommonResponse<T> {
+public class CommonResponse<T> { // 앱의 요청에 대한 응답
     private String status;
     private String message;
     private T data;

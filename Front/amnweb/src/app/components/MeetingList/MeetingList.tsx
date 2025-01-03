@@ -17,11 +17,6 @@ interface Meeting {
   sttSign: boolean;
 }
 
-interface SttContent {
-  speaker: string;
-  text: string;
-}
-
 interface Speaker {
   speakerId: string;
   cuserId: number;
@@ -38,7 +33,6 @@ export default function MeetingList() {
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSummaryModalOpen, setIsSummaryModalOpen] = useState(false);
-  const [currentMeeting, setCurrentMeeting] = useState<Meeting | null>(null);
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const [speakers, setSpeakers] = useState<Speaker[]>([]);
@@ -157,22 +151,6 @@ export default function MeetingList() {
     fetchMeetings();
   }, []);
 
-  // 샘플 데이터
-  const sampleSummary = {
-    title: "생성형AI POC 프로젝트",
-    date: "2024-11-19 AM10:00~11:00",
-    participants: [
-      "김지수 차장, 이승환 선임주임",
-      "김종환 상무, 김태완 과장",
-      "정한열 대표, 전현준 CTO"
-    ],
-    content: `[회의 내용]
-- 당사와 평가와 계약완료. 금일로부터 1개월 이내(12월19일) 개발완료 예정
-- 개발 완료 후 서버 당사로 이관하여 테스트 진행 가능
-- LLM은 IBKS 서버에 탑재, LLM 학습 서버는 원라인에이아이 서버에 있음
-...`
-  };
-
   const handleSummaryClick = async (meeting: Meeting) => {
     try {
       // 1. speakers 데이터 가져오기
@@ -268,6 +246,10 @@ export default function MeetingList() {
         speakers={speakers}
         contents={logContents}
         title={meetings.find(m => m.confId === currentMeetingId)?.title || "회의 원문"}
+        confId={currentMeetingId!}
+        onSummarize={() => {
+          // 요약 완료 후 처리
+        }}
       />
       <SummaryModal 
         isOpen={isSummaryModalOpen}

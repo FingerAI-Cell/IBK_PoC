@@ -7,10 +7,11 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Service
 public class AISummarizer {
 
     private static final String API_URL = "https://api.openai.com/v1/chat/completions";
-    private static final String API_KEY = "YOUR_API_KEY"; // OpenAI API 키
+    private static final String API_KEY = "sk-W7P1CoFn9-XYoLz24tl-4KpYWLKZI86vRKDK_XjM8zT3BlbkFJFeX_os_6LZbywZdhpDY4TQp3hvh6BiRrJqSs89H9wA"; // OpenAI API 키
     private static final int MAX_TOKENS_PER_CHUNK = 1500;
     private static final int MAX_RESPONSE_TOKENS = 300;
 

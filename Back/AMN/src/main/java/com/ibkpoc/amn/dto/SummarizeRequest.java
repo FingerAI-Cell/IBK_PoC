@@ -5,10 +5,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Setter
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SttRequestDto {
-    private String sttSrc;  // 파일 경로
+public class SummarizeRequest {
+    private Long confId;
 }

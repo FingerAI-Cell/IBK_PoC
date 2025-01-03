@@ -3,6 +3,26 @@
 
 import { createContext, useState, useContext, useEffect } from "react";
 
+interface ReportData {
+  totalAmount: number;
+  investedAmount: number;
+  portfolioData: {
+    stocks: number;
+    bondsFunds: number;
+    derivatives: number;
+    trust: number;
+    others: number;
+  };
+  investmentDetails: {
+    name: string;
+    value: string;
+    amount: string;
+    dayBefore: string;
+  }[];
+  date: string;
+  content: string;
+}
+
 interface ServiceContextType {
   currentService: string;
   setCurrentService: (service: string) => void;
@@ -10,8 +30,8 @@ interface ServiceContextType {
   setPageState: (state: 'select' | 'chat' | 'admin') => void;
   handleMyServices: () => void;
   reportDate: string | null;
-  reportData: any | null;
-  setReportDate: (date: string, data?: any) => void;
+  reportData: ReportData | null;
+  setReportDate: (date: string, data?: ReportData) => void;
 }
 
 const defaultValue: ServiceContextType = {
@@ -31,7 +51,7 @@ export function ServiceProvider({ children }: { children: React.ReactNode }) {
   const [currentService, setCurrentService] = useState("general-chat");
   const [pageState, setPageState] = useState<'select' | 'chat' | 'admin'>('select');
   const [reportDate, setReportDate] = useState<string | null>(null);
-  const [reportData, setReportData] = useState<any | null>(null);
+  const [reportData, setReportData] = useState<ReportData | null>(null);
 
   const handleServiceChange = (service: string) => {
     console.log('Service Change:', {
@@ -56,7 +76,7 @@ export function ServiceProvider({ children }: { children: React.ReactNode }) {
     setPageState('select');
   };
 
-  const handleSetReportDate = (date: string, data?: any) => {
+  const handleSetReportDate = (date: string, data?: ReportData) => {
     setReportDate(date);
     setReportData(data || null);
   };

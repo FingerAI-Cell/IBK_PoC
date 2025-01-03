@@ -35,7 +35,6 @@ function LayoutContent() {
             return data.reply;
           }}
           initialInput=""
-          onReset={() => setCurrentService("default")}
         />;
       default:
         return <MainContent />;

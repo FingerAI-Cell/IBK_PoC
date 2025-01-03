@@ -3,8 +3,7 @@
 import styles from "./InvestmentReport.module.css";
 import { Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
-import { useService } from "../../context/ServiceContext";
-import { sampleInvestmentReport, InvestmentReport as InvestmentReportType } from "../../data/investmentReportData";
+import { useService } from "@/app/context/ServiceContext";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -15,10 +14,42 @@ interface InvestmentDetail {
   dayBefore: string;
 }
 
+interface InvestmentReportType {
+  totalAmount: number;
+  investedAmount: number;
+  portfolioData: {
+    stocks: number;
+    bondsFunds: number;
+    derivatives: number;
+    trust: number;
+    others: number;
+  };
+  investmentDetails: InvestmentDetail[];
+  date: string;
+  content: string;
+}
+
+const sampleInvestmentReport: InvestmentReportType = {
+  totalAmount: 100000000,
+  investedAmount: 80000000,
+  portfolioData: {
+    stocks: 40000000,
+    bondsFunds: 20000000,
+    derivatives: 8000000,
+    trust: 8000000,
+    others: 4000000
+  },
+  investmentDetails: [
+    { name: '삼성전자', value: '77,800원', amount: '+1,000', dayBefore: '+1.3%' },
+    { name: 'KODEX 200', value: '35,565원', amount: '-235', dayBefore: '-0.7%' }
+  ],
+  date: '2024-03-20',
+  content: '투자 현황 보고서'
+};
+
 export default function InvestmentReport() {
   const { reportDate, reportData } = useService();
-  
-  const currentData: InvestmentReportType = reportData || sampleInvestmentReport;
+  const currentData = reportData || sampleInvestmentReport;
 
   const chartData = {
     labels: ['주식', '채권/펀드', '선물/옵션', '신탁', '기타'],
@@ -105,7 +136,7 @@ export default function InvestmentReport() {
               <span>평가금액</span>
               <span>전일대비</span>
             </div>
-            {currentData.investmentDetails.map((item: InvestmentDetail, index: number) => (
+            {currentData.investmentDetails.map((item, index) => (
               <div key={index} className={styles.investmentItem}>
                 <span>{item.name}</span>
                 <span className={styles.value}>{item.value}</span>
