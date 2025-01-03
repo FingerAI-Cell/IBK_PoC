@@ -49,16 +49,30 @@ public class MeetingService {
         meeting = meetingRepository.save(meeting);
 
         // 5. 참가자 수만큼 MeetingUser 생성
+        System.out.println("MeetingUser 생성 시작, 참가자 수: " + participants);
+
         for (int i = 0; i < participants; i++) {
             MeetingUser meetingUser = new MeetingUser();
             meetingUser.setConfId(meeting.getConfId()); // 회의 ID 설정
             meetingUser.setSpeakerId(String.format("SPEAKER_%02d", i)); // SPEAKER_00, SPEAKER_01, ...
             meetingUser.setName(null); // name은 비워둠
             meetingUser.setCompany(null); // company는 비워둠
+            // 각 참가자 정보 출력
+            System.out.println("생성된 MeetingUser 정보: confId=" + meetingUser.getConfId() + ", speakerId=" + meetingUser.getSpeakerId());
 
-            // 저장
-            meetingUserRepository.save(meetingUser);
+            try {
+                // 저장
+                meetingUserRepository.save(meetingUser);
+                System.out.println("MeetingUser 저장 성공: speakerId=" + meetingUser.getSpeakerId());
+            } catch (Exception e) {
+                System.out.println("MeetingUser 저장 실패: confId=" + meetingUser.getConfId() +
+                        ", speakerId=" + meetingUser.getSpeakerId() +
+                        ", 에러=" + e.getMessage());
+                e.printStackTrace(); // 에러 전체 스택 트레이스 출력
+            }
         }
+
+        System.out.println("모든 MeetingUser 저장 완료");
 
         // 응답 생성
         return new StartMeetingResponse(
