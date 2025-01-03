@@ -70,4 +70,16 @@ public class WebController {
         }
     }
 
+    @PostMapping("/speakers/update")
+    public ResponseEntity<ApiResponse<Void>> updateSpeakers(@RequestBody SpeakerUpdateRequest request) {
+        try {
+            webService.updateSpeakers(request);
+            return ResponseEntity.ok(ApiResponse.success(null));
+        } catch (Exception e) {
+            log.error("발화자 업데이트 중 오류 발생: {}", e.getMessage(), e);
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error("발화자 업데이트 중 오류가 발생했습니다."));
+        }
+    }
 }

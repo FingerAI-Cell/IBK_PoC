@@ -15,6 +15,12 @@ interface LogContent {
   startTime?: string;  // optional로 추가
 }
 
+interface SpeakerUpdate {
+  speakerId: string;
+  cuserId: number;
+  name: string;
+}
+
 interface SttModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -121,6 +127,41 @@ export default function SttModal({
     }
   };
 
+  // 발화자 이름 저장 처리
+  const handleSaveSpeakerNames = async () => {
+    try {
+      const speakerUpdates: SpeakerUpdate[] = speakers.map(speaker => ({
+        speakerId: speaker.speakerId,
+        cuserId: speaker.cuserId,
+        name: speakerNames[speaker.speakerId] || ''
+      }));
+
+      const response = await fetch(`${apiConfig.baseURL}/api/meetings/speakers/update`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          confId,
+          speakers: speakerUpdates
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('발화자 이름 저장 실패');
+      }
+
+      const result = await response.json();
+      if (result.success) {
+        // 성공 시 처리 (예: 알림 표시)
+        alert('발화자 이름이 저장되었습니다.');
+      }
+    } catch (error) {
+      console.error('발화자 이름 저장 오류:', error);
+      alert('발화자 이름 저장에 실패했습니다.');
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -144,7 +185,15 @@ export default function SttModal({
           </div>
         </div>
         <div className={styles.speakerFilter}>
-          <div className={styles.filterTitle}>발화자 설정</div>
+          <div className={styles.filterHeader}>
+            <div className={styles.filterTitle}>발화자 설정</div>
+            <button 
+              className={styles.saveSpeakersButton}
+              onClick={handleSaveSpeakerNames}
+            >
+              저장
+            </button>
+          </div>
           <div className={styles.speakerList}>
             {uniqueSpeakers.map(speaker => (
               <div key={speaker.speakerId} className={styles.speakerItem}>

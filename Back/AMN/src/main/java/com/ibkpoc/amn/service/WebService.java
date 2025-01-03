@@ -4,10 +4,7 @@ import aj.org.objectweb.asm.TypeReference;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ibkpoc.amn.dto.LogResponseDto;
-import com.ibkpoc.amn.dto.MeetingResponseDto;
-import com.ibkpoc.amn.dto.SpeakerResponseDto;
-import com.ibkpoc.amn.dto.SttContentDto;
+import com.ibkpoc.amn.dto.*;
 import com.ibkpoc.amn.entity.Meeting;
 import com.ibkpoc.amn.entity.MeetingLog;
 import com.ibkpoc.amn.entity.MeetingUser;
@@ -127,5 +124,32 @@ public class WebService {
 
         meetingRepository.save(meeting);
         logger.info("Meeting saved to database: {}", meeting);
+    }
+
+    @Transactional
+    public void updateSpeakers(SpeakerUpdateRequest request) {
+        Long confId = request.getConfId();
+        List<SpeakerUpdateDto> speakers = request.getSpeakers();
+
+        logger.info("Updating speakers for confId: {}", confId);
+
+        // 요청받은 각 Speaker에 대해 처리
+        for (SpeakerUpdateDto speaker : speakers) {
+            Long cuserId = speaker.getCuserId();
+            String newName = speaker.getName();
+
+            // MeetingUser 가져오기
+            MeetingUser meetingUser = meetingUserRepository.findById(cuserId)
+                    .orElseThrow(() -> new IllegalArgumentException("cuserId " + cuserId + "에 해당하는 발화자를 찾을 수 없습니다."));
+
+            // 이름 업데이트
+            meetingUser.setName(newName);
+            logger.info("Updated cuserId {} with new name: {}", cuserId, newName);
+
+            // 저장
+            meetingUserRepository.save(meetingUser);
+        }
+
+        logger.info("Speaker updates completed for confId: {}", confId);
     }
 }
