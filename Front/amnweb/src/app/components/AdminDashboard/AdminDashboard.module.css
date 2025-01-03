@@ -109,4 +109,129 @@
 
 .downloadButton:hover {
   background: #1976D2;
+}
+
+/* 모니터링 섹션 스타일 */
+.monitoringContainer {
+  padding: 16px;
+}
+
+.monitoringGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.monitoringCard {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  height: 100%;
+  border: 1px solid #e2e8f0;
+}
+
+.cardTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #f1f5f9;
+}
+
+.monitoringList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.monitoringItem {
+  padding: 8px 12px;
+  margin-bottom: 4px;
+  background: #f8fafc;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  color: #4a5568;
+  transition: all 0.2s;
+  cursor: pointer;
+  border: 1px solid #e2e8f0;
+}
+
+.monitoringItem:hover {
+  background: #e2e8f0;
+  transform: translateY(-1px);
+}
+
+.monitoringItem:focus {
+  outline: 2px solid #2196F3;
+  outline-offset: 1px;
+}
+
+.resultsList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.resultItem {
+  padding: 16px;
+  margin-bottom: 12px;
+  background: #f8fafc;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #e2e8f0;
+}
+
+.resultContent {
+  flex-grow: 1;
+}
+
+.resultDate {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin-bottom: 4px;
+}
+
+.resultText {
+  font-size: 0.9rem;
+  color: #1a1a1a;
+}
+
+.iconButton {
+  background: transparent;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  color: #64748b;
+  border-radius: 4px;
+  transition: all 0.2s;
+  margin-left: 12px;
+}
+
+.iconButton:hover {
+  background: #e2e8f0;
+  color: #1a1a1a;
+}
+
+/* 반응형 디자인을 위한 미디어 쿼리 */
+@media (max-width: 1024px) {
+  .monitoringGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .monitoringGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.monitoringItem.selected {
+  background: #e2e8f0;
+  border-color: #2196F3;
+  color: #1a1a1a;
+  font-weight: 500;
 } 

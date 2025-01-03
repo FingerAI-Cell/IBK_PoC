@@ -2,10 +2,12 @@
 
 import { useState } from 'react';
 import styles from './AdminDashboard.module.css';
+import { BiDownload } from 'react-icons/bi';
 
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState<'financial' | 'manual'>('financial');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [activeTab, setActiveTab] = useState<'financial' | 'monitoring'>('financial');
+  const [selectedStock, setSelectedStock] = useState<string | null>(null);
+  const [selectedKeyword, setSelectedKeyword] = useState<string | null>(null);
 
   // 재무제표 샘플 데이터
   const financialStatements = [
@@ -14,12 +16,28 @@ export default function AdminDashboard() {
     { id: 3, fileName: '2023년 3분기 재무제표.xlsx', author: '박회계', createdAt: '2023-10-05 11:45' },
   ];
 
-  // 영업점 메뉴얼 샘플 데이터
-  const branchManuals = [
-    { id: 1, name: '신규 계좌 개설 가이드', version: '2.1', updatedAt: '2024-03-20' },
-    { id: 2, name: '고객 상담 매뉴얼', version: '1.5', updatedAt: '2024-02-15' },
-    { id: 3, name: '금융 상품 안내서', version: '3.0', updatedAt: '2024-01-30' },
+  // 모니터링 데이터
+  const monitoringStocks = [
+    '애플', '엔비디아', '아마존닷컴', '알파벳A', '버크셔 해서웨이'
   ];
+
+  const monitoringKeywords = [
+    '파산', '상장폐지', '합병', '회사분할', '주식분할', '티커변경'
+  ];
+
+  const monitoringResults = [
+    { id: 1, date: '2024-01-03', content: '엔비디아 주식분할 논의 중', status: '주의' },
+    { id: 2, date: '2024-01-02', content: '아마존 실적 발표', status: '정상' },
+    { id: 3, date: '2024-01-01', content: '알파벳A 티커변경 예정', status: '주의' },
+  ];
+
+  const handleItemClick = (type: 'stock' | 'keyword', item: string) => {
+    if (type === 'stock') {
+      setSelectedStock(selectedStock === item ? null : item);
+    } else {
+      setSelectedKeyword(selectedKeyword === item ? null : item);
+    }
+  };
 
   return (
     <div className={styles.container}>
@@ -34,10 +52,10 @@ export default function AdminDashboard() {
             증권사 재무제표
           </button>
           <button 
-            className={`${styles.tab} ${activeTab === 'manual' ? styles.active : ''}`}
-            onClick={() => setActiveTab('manual')}
+            className={`${styles.tab} ${activeTab === 'monitoring' ? styles.active : ''}`}
+            onClick={() => setActiveTab('monitoring')}
           >
-            영업점 메뉴얼 정보 조회
+            해외주식 담보대출 모니터링
           </button>
         </div>
 
@@ -73,47 +91,63 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {activeTab === 'manual' && (
-            <div className={styles.tableContainer}>
-              <div className={styles.searchContainer}>
-                <input
-                  type="text"
-                  placeholder="메뉴얼 검색..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className={styles.searchInput}
-                />
-              </div>
-              <table className={styles.table}>
-                <thead>
-                  <tr>
-                    <th>번호</th>
-                    <th>메뉴얼명</th>
-                    <th>버전</th>
-                    <th>최근 수정일</th>
-                    <th>다운로드</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {branchManuals
-                    .filter(manual => 
-                      manual.name.toLowerCase().includes(searchTerm.toLowerCase())
-                    )
-                    .map((manual) => (
-                      <tr key={manual.id}>
-                        <td>{manual.id}</td>
-                        <td>{manual.name}</td>
-                        <td>{manual.version}</td>
-                        <td>{manual.updatedAt}</td>
-                        <td>
-                          <button className={styles.downloadButton}>
-                            다운로드
-                          </button>
-                        </td>
-                      </tr>
+          {activeTab === 'monitoring' && (
+            <div className={styles.monitoringContainer}>
+              <div className={styles.monitoringGrid}>
+                {/* 모니터링 종목 */}
+                <div className={styles.monitoringCard}>
+                  <h3 className={styles.cardTitle}>모니터링 종목</h3>
+                  <ul className={styles.monitoringList}>
+                    {monitoringStocks.map((stock, index) => (
+                      <li 
+                        key={index} 
+                        className={`${styles.monitoringItem} ${selectedStock === stock ? styles.selected : ''}`}
+                        onClick={() => handleItemClick('stock', stock)}
+                        role="button"
+                        tabIndex={0}
+                      >
+                        {stock}
+                      </li>
                     ))}
-                </tbody>
-              </table>
+                  </ul>
+                </div>
+
+                {/* 모니터링 키워드 */}
+                <div className={styles.monitoringCard}>
+                  <h3 className={styles.cardTitle}>모니터링 키워드</h3>
+                  <ul className={styles.monitoringList}>
+                    {monitoringKeywords.map((keyword, index) => (
+                      <li 
+                        key={index} 
+                        className={`${styles.monitoringItem} ${selectedKeyword === keyword ? styles.selected : ''}`}
+                        onClick={() => handleItemClick('keyword', keyword)}
+                        role="button"
+                        tabIndex={0}
+                      >
+                        {keyword}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* 모니터링 결과 */}
+                <div className={styles.monitoringCard}>
+                  <h3 className={styles.cardTitle}>모니터링 결과</h3>
+                  <ul className={styles.resultsList}>
+                    {monitoringResults.map((result) => (
+                      <li key={result.id} className={styles.resultItem}>
+                        <div className={styles.resultContent}>
+                          <div className={styles.resultDate}>{result.date}</div>
+                          <div className={styles.resultText}>{result.content}</div>
+                        </div>
+                        <button className={styles.iconButton} aria-label="다운로드">
+                          <BiDownload size={18} />
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
             </div>
           )}
         </div>

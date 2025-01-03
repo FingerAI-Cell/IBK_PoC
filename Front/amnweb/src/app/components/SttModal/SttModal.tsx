@@ -75,33 +75,32 @@ export default function SttModal({
     });
   };
 
-  // // 필터링 및 검색이 적용된 내용
-  // const processedContents = useMemo(() => {
-  //   return contents.filter(content => {
-  //     // 스피커 필터링
-  //     if (selectedSpeakers.size > 0) {
-  //       const speaker = speakers.find(s => s.cuserId === content.cuserId);
-  //       if (!speaker || !selectedSpeakers.has(speaker.speakerId)) {
-  //         return false;
-  //       }
-  //     }
-  //     // 텍스트 검색
-  //     if (searchText && !content.content.toLowerCase().includes(searchText.toLowerCase())) {
-  //       return false;
-  //     }
-  //     return true;
-  //   });
-  // }, [contents, speakers, selectedSpeakers, searchText]);
+  // 필터링 및 검색이 적용된 내용 (주석 해제)
+  const processedContents = useMemo(() => {
+    return contents.filter(content => {
+      // 스피커 필터링
+      if (selectedSpeakers.size > 0) {
+        const speaker = speakers.find(s => s.cuserId === content.cuserId);
+        if (!speaker || !selectedSpeakers.has(speaker.speakerId)) {
+          return false;
+        }
+      }
+      // 텍스트 검색
+      if (searchText && !content.content.toLowerCase().includes(searchText.toLowerCase())) {
+        return false;
+      }
+      return true;
+    });
+  }, [contents, speakers, selectedSpeakers, searchText]);
 
-  // 시간 기준으로 정렬된 contents
+  // sortedContents를 processedContents로 변경
   const sortedContents = useMemo(() => {
-    return [...contents].sort((a, b) => {
-      // startTime이 없는 경우 맨 뒤로
+    return [...processedContents].sort((a, b) => {
       if (!a.startTime) return 1;
       if (!b.startTime) return -1;
       return new Date(a.startTime).getTime() - new Date(b.startTime).getTime();
     });
-  }, [contents]);
+  }, [processedContents]);
 
   const handleSummarize = async () => {
     try {
@@ -181,7 +180,7 @@ export default function SttModal({
         <div className={styles.modalContent}>
           {sortedContents.map((content, index) => {
             const speaker = speakers.find(s => s.cuserId === content.cuserId);
-            const displayName = speaker?.speakerId  // speakerId가 있을 때만 처리
+            const displayName = speaker?.speakerId
               ? (speakerNames[speaker.speakerId] === undefined 
                   ? speaker.name || speaker.speakerId
                   : speakerNames[speaker.speakerId] || speaker.speakerId)

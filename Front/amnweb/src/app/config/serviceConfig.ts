@@ -7,7 +7,7 @@ interface ServiceConfig {
 }
 
 export const apiConfig = {
-  baseURL: 'http://localhost:8080' //'https://ibkpoc.fingerservice.co.kr'  // 스프링 서버 주소
+  baseURL: 'https://ibkpoc.fingerservice.co.kr'  // 스프링 서버 주소
 };
 
 export const serviceConfig: { [key: string]: ServiceConfig } = {
