@@ -4,6 +4,7 @@ import styles from "./SidebarCategories.module.css";
 import { BsChatDots } from "react-icons/bs";
 import { BiWorld, BiFile, BiStore, BiNotepad, BiUser } from "react-icons/bi";
 import { useService } from "../../context/ServiceContext";
+import { useRouter } from "next/navigation";
 
 interface SidebarCategoriesProps {
   currentService: string;
@@ -15,6 +16,7 @@ export default function SidebarCategories({
   selectService,
 }: SidebarCategoriesProps) {
   const { pageState, setPageState } = useService();
+  const router = useRouter();
   
   const handleServiceSelect = (serviceId: string) => {
     console.log('Category Clicked:', {
@@ -23,8 +25,12 @@ export default function SidebarCategories({
       pageState
     });
     
-    setPageState('select');
-    selectService(serviceId);
+    if (serviceId === "general-chat") {
+      router.push("/chatbot");
+    } else {
+      setPageState('select');
+      selectService(serviceId);
+    }
   };
 
   const categories = [

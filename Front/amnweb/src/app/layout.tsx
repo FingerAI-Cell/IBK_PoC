@@ -7,10 +7,15 @@ import { ServiceProvider, useService } from "./context/ServiceContext";
 import MainContent from "./components/MainContent/MainContent";
 import ChatBox from "./components/ChatBox/ChatBox";
 
-function LayoutContent() {
+function LayoutContent({ children }: { children: React.ReactNode }) {
   const { currentService, pageState, setCurrentService } = useService();
 
   const renderContent = () => {
+    // chatbot 페이지의 경우 children을 렌더링
+    if (currentService === "general-chat") {
+      return children;
+    }
+
     switch(pageState) {
       case 'select':
         return <MainContent />;
@@ -44,25 +49,33 @@ function LayoutContent() {
 
   return (
     <body className="flex min-h-screen bg-gray-100">
-      <Sidebar 
-        currentService={currentService}
-        selectService={setCurrentService}
-      />
-      <div className="flex-grow flex flex-col ml-64">
-        <Header />
-        <main className="p-6 mt-16">
-          {renderContent()}
-        </main>
-      </div>
+      {currentService === "general-chat" ? (
+        <div className="w-full">
+          {children}
+        </div>
+      ) : (
+        <>
+          <Sidebar 
+            currentService={currentService}
+            selectService={setCurrentService}
+          />
+          <div className="flex-grow flex flex-col ml-64">
+            <Header />
+            <main className="p-6 mt-16">
+              {renderContent()}
+            </main>
+          </div>
+        </>
+      )}
     </body>
   );
 }
 
-export default function RootLayout() {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <ServiceProvider>
       <html lang="en">
-        <LayoutContent />
+        <LayoutContent>{children}</LayoutContent>
       </html>
     </ServiceProvider>
   );
