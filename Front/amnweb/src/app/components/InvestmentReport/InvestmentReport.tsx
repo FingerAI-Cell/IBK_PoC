@@ -48,8 +48,8 @@ const sampleInvestmentReport: InvestmentReportType = {
     { name: '현대공업', value: '-2.40%', amount: '1,419,000', dayBefore: '-0.39%' },
     { name: '애플', value: '16%', amount: '801,738', dayBefore: '-3.8%' },
     { name: '유나이티드 항공', value: '5.9%', amount: '1,071,630', dayBefore: '0.16%' },
-    { name: '엔비디아', value: '4.0%', amount: '2,850,000', dayBefore: '1.2%' },
-    { name: 'SK하이닉스', value: '2.8%', amount: '1,250,000', dayBefore: '0.9%' },
+    { name: '엔비디아', value: '12.0%', amount: '2,850,000', dayBefore: '4.0%' },
+    { name: 'SK하이닉스', value: '2.8%', amount: '1,250,000', dayBefore: '9.8%' },
   ],
   date: '2024-03-20',
   content: '투자 현황 보고서'
@@ -239,13 +239,8 @@ export default function InvestmentReport() {
           </div>
 
           <div>
-            <div className="flex mb-3">
-              <div className="text-xl font-bold">
-                보유종목 주요 뉴스
-              </div>
-              <div className="text-sm flex items-end">
-                (평가금액 기준 상위 5개 종목)
-              </div>
+            <div className="flex mb-3 text-xl font-bold">
+              보유종목 주요 뉴스
             </div>
             <div className="space-y-3 text-sm text-gray-700">
               <div className="flex space-x-2">
