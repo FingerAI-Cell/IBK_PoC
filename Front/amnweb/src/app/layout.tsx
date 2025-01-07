@@ -6,11 +6,32 @@ import Sidebar from "./components/Sidebar/Sidebar";
 import { ServiceProvider, useService } from "./context/ServiceContext";
 import MainContent from "./components/MainContent/MainContent";
 import ChatBox from "./components/ChatBox/ChatBox";
+import { CopilotKit } from "@copilotkit/react-core";
+import "@copilotkit/react-ui/styles.css";
+import { Chat } from "./chatbot/chat";
 
-function LayoutContent() {
+function LayoutContent({ children }: { children: React.ReactNode }) {
   const { currentService, pageState, setCurrentService } = useService();
 
   const renderContent = () => {
+    if (currentService === "general-chat") {
+      return (
+        <CopilotKit
+          runtimeUrl="/api/onelineai/olaf"
+          agent="olaf_ibk_poc_agent"
+          showDevConsole={false}
+        >
+          <ChatBox 
+            serviceName="general-chat"
+            initialInput=""
+            agent="olaf_ibk_poc_agent"
+            useCopilot={true}
+            runtimeUrl="/api/onelineai/olaf"
+          />
+        </CopilotKit>
+      );
+    }
+
     switch(pageState) {
       case 'select':
         return <MainContent />;
@@ -57,11 +78,11 @@ function LayoutContent() {
   );
 }
 
-export default function RootLayout() {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <ServiceProvider>
       <html lang="en">
-        <LayoutContent />
+        <LayoutContent>{children}</LayoutContent>
       </html>
     </ServiceProvider>
   );

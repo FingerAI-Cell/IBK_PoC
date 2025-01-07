@@ -1,111 +1,245 @@
 "use client";
 
-import { useChat } from "../../hooks/useChat";
+import { useEffect, memo, useState, useRef } from "react";
+import { useCoAgent } from "@copilotkit/react-core";
+import { CopilotChat } from "@copilotkit/react-ui";
 import styles from "./ChatBox.module.css";
-import { useEffect, memo } from "react";
 
 interface ChatBoxProps {
-  sendApiRequest: (message: string) => Promise<string>;
-  initialInput: string;
-  serviceName: string;
-  onReset?: () => void;
+  initialInput?: string;
+  agent?: string;
+  useCopilot?: boolean;
 }
 
-// 메시지 컴포넌트 분리
+// 문서 메타데이터 타입
+interface DocumentMetadata {
+  page_number: number;
+  page_chunk_number: number;
+  file_name: string;
+  file_url: string;
+  main_topic: string;
+  sub_topic: string;
+  keywords: string[];
+}
+
+// 문서 항목 타입
+interface RetrievedDocument {
+  lc: number;
+  type: string;
+  id: string[];
+  kwargs: {
+    metadata: DocumentMetadata;
+    page_content: string;
+  };
+}
+
+interface Message {
+  id: string;
+  sender: "user" | "bot";
+  text: string;
+  timestamp: Date;
+}
+
+interface CoAgentState {
+  routing_vectordb_collection: string;
+  retrieved_documents: RetrievedDocument[];
+  context: string;
+}
+
+// 메시지 컴포넌트 (메모이제이션으로 렌더링 최적화)
 const ChatMessage = memo(({ sender, text }: { sender: string; text: string }) => (
   <div
     className={`${styles.message} ${
       sender === "user" ? styles.userMessage : styles.botMessage
     }`}
   >
-    {text.split('\n').map((line, i) => (
+    {text.split("\n").map((line, i) => (
       <span key={i}>
         {line}
-        {i !== text.split('\n').length - 1 && <br />}
+        {i !== text.split("\n").length - 1 && <br />}
       </span>
     ))}
   </div>
 ));
+ChatMessage.displayName = "ChatMessage";
 
-ChatMessage.displayName = 'ChatMessage';
+export default function ChatBox({
+  initialInput = "",
+  agent,
+  useCopilot = false,
+}: ChatBoxProps) {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState(initialInput);
+  const messageEndRef = useRef<HTMLDivElement>(null);
 
-export default function ChatBox({ sendApiRequest, initialInput, serviceName }: ChatBoxProps) {
-  const {
-    messages,
-    input,
-    isSending,
-    messageEndRef,
-    inputRef,
-    setInput,
-    sendMessage,
-    cancelRequest,
-  } = useChat(sendApiRequest, `chat-history-${serviceName}`);
+  // 문서 관련 상태 (from useCoAgent)
+  const { nodeName, state } = useCoAgent<CoAgentState>({
+    name: agent || "",
+    initialState: {
+      nodeName: "",
+      running: false,
+      state: {
+        routing_vectordb_collection: "",
+        retrieved_documents: [],
+        context: "",
+      },
+    },
+  });
 
-  // 초기 입력값 설정
   useEffect(() => {
     if (initialInput.trim()) {
-      setInput(initialInput);
+      setInput(initialInput); // 초기 메시지 설정
     }
   }, [initialInput, setInput]);
 
+  const [documents, setDocuments] = useState<RetrievedDocument[]>([]);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+
+  // 문서 상태 업데이트
+  useEffect(() => {
+    if (nodeName === "__end__" && state.retrieved_documents.length > 0) {
+      const uniqueDocs = state.retrieved_documents.filter(
+        (doc, index, self) =>
+          index ===
+          self.findIndex(
+            (d) => d.kwargs.metadata.file_name === doc.kwargs.metadata.file_name
+          )
+      );
+      setDocuments(uniqueDocs);
+    } else {
+      setDocuments([]);
+    }
+  }, [nodeName, state.retrieved_documents]);
+
+  // DOM 변경 시 스크롤 유지
+  useEffect(() => {
+    messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+
+  // DOM 변경 감지 및 문서 추가
+  useEffect(() => {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.addedNodes.length) {
+          const messages = document.querySelectorAll(".copilotKitAssistantMessage");
+          const lastMessage = messages[messages.length - 1] as HTMLDivElement;
+
+          if (lastMessage && !lastMessage.dataset.inserted && documents.length > 0) {
+            const docContainer = document.createElement("div");
+            docContainer.className = "p-4 mt-2 border-l-4 border-blue-500";
+            docContainer.innerHTML = `<h3 class="text-sm font-semibold">📄 관련 문서</h3>`;
+
+            documents.forEach((doc) => {
+              const keywordsHTML = doc.kwargs.metadata.keywords
+                .map((keyword) => `#${keyword}`)
+                .join(" ");
+              const docElement = document.createElement("div");
+              docElement.innerHTML = `
+                <div class="p-2 border rounded shadow-sm mt-2">
+                  <a href="${doc.kwargs.metadata.file_url}" target="_blank" class="text-blue-600 hover:underline">
+                    ${doc.kwargs.metadata.file_name}
+                  </a>
+                  <p class="text-xs">${doc.kwargs.metadata.main_topic}</p>
+                  <p class="text-xs text-gray-500">${keywordsHTML}</p>
+                </div>`;
+              docContainer.appendChild(docElement);
+            });
+
+            lastMessage.appendChild(docContainer);
+            lastMessage.dataset.inserted = "true";
+          }
+        }
+      });
+    });
+
+    if (chatContainerRef.current) {
+      observer.observe(chatContainerRef.current, { childList: true, subtree: true });
+    }
+
+    return () => observer.disconnect();
+  }, [documents]);
+
+  const sendMessage = async () => {
+    if (!input.trim()) return;
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      sender: "user",
+      text: input,
+      timestamp: new Date(),
+    };
+
+    setMessages((prevMessages) => [...prevMessages, userMessage]);
+    setInput("");
+
+    try {
+      const response = await fetch("/api/onelineai/olaf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: [{ content: input, role: "user" }], agent }),
+      });
+
+      if (!response.ok) {
+        throw new Error("API 요청 실패");
+      }
+
+      const data = await response.json();
+
+      const botMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        sender: "bot",
+        text: data.content,
+        timestamp: new Date(),
+      };
+
+      setMessages((prevMessages) => [...prevMessages, botMessage]);
+    } catch (error) {
+      console.error("API 요청 실패:", error);
+    }
+  };
+
   return (
     <div className={styles.container}>
+      {useCopilot && agent && (
+        <CopilotChat
+          className="flex-1"
+          labels={{
+            title: "IBK 투자증권 업무 효율화 챗봇",
+            initial: "안녕하세요. 무엇을 도와드릴까요?",
+          }}
+          renderInput={(props) => (
+            <div className={styles.inputContainer}>
+              <textarea
+                {...props}
+                className={styles.input}
+                placeholder="메시지를 입력하세요..."
+              />
+              <button
+                onClick={props.onSendMessage}
+                className={styles.sendButton}
+                disabled={!props.value.trim()}
+              >
+                전송
+              </button>
+            </div>
+          )}
+        />
+      )}
       <div className={styles.messageList}>
-        {messages.map((msg, idx) => (
+        {messages.map((msg) => (
           <div
-            key={idx}
+            key={msg.id}
             className={`${styles.message} ${
               msg.sender === "user" ? styles.userMessage : styles.botMessage
             }`}
           >
-            {msg.text.split('\n').map((line, i) => (
-              <span key={i}>
-                {line}
-                {i !== msg.text.split('\n').length - 1 && <br />}
-              </span>
-            ))}
+            
+            {msg.text}
           </div>
         ))}
         <div ref={messageEndRef} />
-      </div>
-      <div className={styles.inputContainer}>
-        {isSending ? (
-          <input
-            type="text"
-            value="응답 중..."
-            disabled
-            className={`${styles.input} ${styles.disabledInput}`}
-          />
-        ) : (
-          <textarea
-            value={input}
-            onChange={(e) => {
-              setInput(e.target.value);
-              // 동적 높이 조절
-              e.target.style.height = 'auto';
-              e.target.style.height = e.target.scrollHeight + 'px';
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-              }
-            }}
-            ref={inputRef}
-            className={styles.input}
-            placeholder="메시지를 입력하세요..."
-            rows={1}
-          />
-        )}
-        {isSending ? (
-          <button onClick={cancelRequest} className={`${styles.sendButton} ${styles.cancelButton}`}>
-            취소
-          </button>
-        ) : (
-          <button onClick={sendMessage} className={styles.sendButton} disabled={!input.trim()}>
-            전송
-          </button>
-        )}
+        
       </div>
     </div>
   );

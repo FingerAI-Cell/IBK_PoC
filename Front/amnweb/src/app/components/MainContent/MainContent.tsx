@@ -9,30 +9,12 @@ import MeetingList from "../MeetingList/MeetingList";
 import AdminDashboard from "../AdminDashboard/AdminDashboard";
 import { faqs } from "../../data/faqData";
 import { useService } from "../../context/ServiceContext";
-import { serviceConfig } from "../../config/serviceConfig";
 import InvestmentReport from "../InvestmentReport/InvestmentReport";
 
 export default function MainContent() {
   const { currentService, pageState, setPageState} = useService();
   const [isChatting, setIsChatting] = useState(false);
   const [chatInput, setChatInput] = useState("");
-
-  const currentConfig = serviceConfig[currentService] || serviceConfig["general-chat"];
-
-  const sendApiRequest = async (message: string) => {
-    const response = await fetch(currentConfig.apiEndpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message }),
-    });
-
-    if (!response.ok) {
-      throw new Error("API 요청 실패");
-    }
-
-    const data = await response.json();
-    return data.reply;
-  };
 
   useEffect(() => {
     setIsChatting(false);
@@ -62,6 +44,7 @@ export default function MainContent() {
         <InvestmentReport />
       ) : !isChatting ? (
         <>
+          {/* 인사 및 FAQ 섹션 */}
           <GreetingSection
             chatInput={chatInput}
             onInputChange={setChatInput}
@@ -72,12 +55,12 @@ export default function MainContent() {
         </>
       ) : (
         <>
+          {/* 채팅 박스 및 FAQ */}
           <ChatBox
-            sendApiRequest={sendApiRequest}
             initialInput={chatInput}
-            serviceName={currentConfig.title}
+            agent="olaf_ibk_poc_agent"
+            useCopilot={true}
           />
-          <FAQSection faqs={faqs} onFAQClick={handleFAQClick} />
         </>
       )}
     </div>
