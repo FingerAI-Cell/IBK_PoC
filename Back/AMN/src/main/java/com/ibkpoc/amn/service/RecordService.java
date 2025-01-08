@@ -158,9 +158,8 @@ public class RecordService implements DisposableBean {
         // 섹션 WAV 파일 경로 설정
         log.info("청크 저장 요청 처리 중: meetingId={}, sectionNumber={}, currentChunk={}, totalChunks={}",
                 request.getMeetingId(), request.getSectionNumber(), request.getCurrentChunk(), request.getTotalChunks());
-        LocalDateTime startTime = LocalDateTime.parse(request.getStartTime().replace(" ", "T"));
         Path sectionPath = Paths.get(baseRecordPath, String.format("meeting_%d_%s.wav",
-                request.getMeetingId(), startTime));
+                request.getMeetingId(), request.getStartTime()));
 
         // WAV 청크 데이터를 추가
         appendChunkToWavFile(chunkData, sectionPath);

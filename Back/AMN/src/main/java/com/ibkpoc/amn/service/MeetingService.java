@@ -23,6 +23,8 @@ import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
+import java.time.format.DateTimeFormatter;
+
 
 @Slf4j
 @Service
@@ -155,7 +157,12 @@ public class MeetingService {
     }
 
     public String generateWavPath(Long meetingId, LocalDateTime startTime) {
-        String wavFileName = String.format("meeting_%d_%s.wav", meetingId, startTime);
+        // LocalDateTime을 "YY-MM-DD" 형식으로 포맷팅
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy-MM-dd");
+        String formattedStartTime = startTime.format(formatter);
+
+
+        String wavFileName = String.format("meeting_%d_%s.wav", meetingId, formattedStartTime);
         Path wavPath = Paths.get(baseRecordPath, wavFileName);
 
         // 디렉토리 존재 여부 확인 및 생성
