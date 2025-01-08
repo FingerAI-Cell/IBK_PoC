@@ -165,7 +165,7 @@ public class RecordService implements DisposableBean {
         appendChunkToWavFile(chunkData, sectionPath);
 
         // 모든 청크가 도착했는지 확인
-        if (Objects.equals(request.getCurrentChunk(), request.getTotalChunks())) {
+        if (Objects.equals(request.getCurrentChunk()+1, request.getTotalChunks())) {
             log.info("모든 청크 수신 완료: meetingId={}, sectionNumber={}", request.getMeetingId(), request.getSectionNumber());
 
             // WAV 데이터 읽기
