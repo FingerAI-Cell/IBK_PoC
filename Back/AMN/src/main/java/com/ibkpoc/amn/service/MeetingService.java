@@ -158,7 +158,7 @@ public class MeetingService {
 
     public String generateWavPath(Long meetingId, LocalDateTime startTime) {
         // LocalDateTime을 "YY-MM-DD" 형식으로 포맷팅
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy-MM-dd");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy-MM-dd-HH-mm-ss");
         String formattedStartTime = startTime.format(formatter);
 
 
