@@ -86,6 +86,7 @@ public class MeetingController {
                     .body(new CommonResponse<>("ERROR", "STT 요청 처리 실패: " + e.getMessage(), null));
         }
     }
+
 }
 
 

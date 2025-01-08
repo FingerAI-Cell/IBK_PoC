@@ -123,12 +123,12 @@ class MeetingRepositoryImpl @Inject constructor(
     override suspend fun convertWavToStt(request: SttRequest): Flow<NetworkResult<Unit>> = flow {
         emit(NetworkResult.Loading)
         try {
-            val response = apiService.convertWavToStt(request)
-            if (response.isSuccessful) {
-                emit(NetworkResult.Success(Unit))
-            } else {
-                emit(NetworkResult.Error(response.code(), "STT 변환 실패: ${response.message()}"))
-            }
+//            val response = apiService.convertWavToStt(request)
+//            if (response.isSuccessful) {
+//                emit(NetworkResult.Success(Unit))
+//            } else {
+//                emit(NetworkResult.Error(response.code(), "STT 변환 실패: ${response.message()}"))
+//            }
         } catch (e: Exception) {
             emit(NetworkResult.Error(0, "STT 변환 중 오류 발생: ${e.message}"))
         }

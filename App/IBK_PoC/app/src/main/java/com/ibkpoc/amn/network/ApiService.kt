@@ -31,11 +31,8 @@ interface ApiService {
         @Part("totalChunks") totalChunks: RequestBody,     // 추가
         @Part chunkData: MultipartBody.Part
     ): Response<CommonResponse<Unit>>
-
+    
     @POST("/meeting/stt-request")
-    suspend fun convertWavToStt(@Body request: SttRequest): Response<CommonResponse<Unit>>
-
-    @POST("/meeting/speaker-separation")
     suspend fun requestSpeakerSeparation(
         @Body request: SpeakerSeparationRequest
     ): Response<CommonResponse<Unit>>
