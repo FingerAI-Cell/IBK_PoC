@@ -18,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.*;
 import org.springframework.beans.factory.DisposableBean;
@@ -88,12 +89,13 @@ public class RecordService implements DisposableBean {
     }
 
     public void saveWavFile(WavUploadRequest request) throws IOException {
-        log.info("WAV 청크 저장 시작: meetingId={}, chunk={}/{}, size={}, 파일명={}",
+        log.info("WAV 청크 저장 시작: meetingId={}, sectionNumber={}, 파일 크기={}",
                 request.getMeetingId(),
-                request.getCurrentChunk(),
-                request.getTotalChunks(),
-                request.getFile().getSize(),
-                request.getFile().getOriginalFilename());  // 파일명 로깅 추가
+                request.getSectionNumber(),
+                request.getChunkData().length);
+
+        // 회의 ID 기준 파일 경로 설정
+        Path meetingFilePath = Paths.get(baseRecordPath, String.format("meeting_%d.wav", request.getMeetingId()));
 
         RecordingInfo info = activeRecordings.computeIfAbsent(request.getMeetingId(), k -> {
             try {
@@ -119,7 +121,7 @@ public class RecordService implements DisposableBean {
         try {
             resetTimeout(info);
             info.totalWavChunks = request.getTotalChunks();
-            info.wavChunks.put(request.getCurrentChunk(), request.getFile().getBytes());
+            info.wavChunks.put(request.getCurrentChunk(), request.getChunkData());
             log.info("청크 저장됨: meetingId={}, chunk={}/{}, 현재 청크 수={}",
                     request.getMeetingId(),
                     request.getCurrentChunk(),
@@ -154,6 +156,48 @@ public class RecordService implements DisposableBean {
         }
     }
 
+    public void saveAndProcessChunk(WavUploadRequest request) throws IOException {
+        // 섹션 WAV 파일 경로 설정
+        Path sectionPath = Paths.get(baseRecordPath, String.format("meeting_%d_%s.wav",
+                request.getMeetingId(), request.getStartTime()));
+
+        // 청크 데이터를 WAV 파일에 추가
+        appendChunkToWavFile(request, sectionPath);
+
+        // 모든 청크가 도착했는지 확인
+        if (request.getCurrentChunk().equals(request.getTotalChunks())) {
+            log.info("모든 청크 수신 완료: meetingId={}, sectionNumber={}", request.getMeetingId(), request.getSectionNumber());
+
+            // WAV 데이터 읽기
+            byte[] sectionBytes = Files.readAllBytes(sectionPath);
+
+            // STT 호출
+            meetingService.runStt(request.getMeetingId(), request.getSectionNumber(), sectionBytes);
+
+            log.info("STT 호출 완료: meetingId={}, sectionNumber={}", request.getMeetingId(), request.getSectionNumber());
+        }
+    }
+
+    private void appendChunkToWavFile(WavUploadRequest request, Path sectionPath) throws IOException {
+        boolean append = Files.exists(sectionPath);
+
+        try (FileOutputStream fos = new FileOutputStream(sectionPath.toFile(), append)) {
+            byte[] chunkData = request.getChunkData();
+
+            if (append) {
+                // 기존 파일에 데이터 추가 (헤더 제거)
+                byte[] dataOnly = Arrays.copyOfRange(chunkData, 44, chunkData.length);
+                fos.write(dataOnly);
+            } else {
+                // 새 파일 생성 (헤더 포함)
+                fos.write(chunkData);
+            }
+        }
+
+        log.info("청크 추가 완료: meetingId={}, sectionNumber={}, 파일 크기={}",
+                request.getMeetingId(), request.getSectionNumber(), Files.size(sectionPath));
+    }
+
     private void resetTimeout(RecordingInfo info) {
         if (info.getTimeoutFuture() != null) {
             info.getTimeoutFuture().cancel(false);
@@ -171,6 +215,8 @@ public class RecordService implements DisposableBean {
 
         info.setTimeoutFuture(timeoutFuture);
     }
+
+
 
     private synchronized void finalizeRecording(Long meetingId, boolean forcedEnd) throws IOException {
         log.info("녹음 파일 변환 시작: meetingId={}, forcedEnd={}", meetingId, forcedEnd);
