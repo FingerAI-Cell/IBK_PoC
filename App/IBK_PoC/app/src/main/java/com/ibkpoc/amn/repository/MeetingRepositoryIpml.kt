@@ -75,52 +75,54 @@ class MeetingRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun uploadMeetingWavFile(wavUploadData: WavUploadData): Flow<NetworkResult<Unit>> = flow {
+    override suspend fun uploadMeetingWavFile(uploadData: UploadData): Flow<NetworkResult<Unit>> = flow {
+        Logger.i("파일 업로드 에밋")
         emit(NetworkResult.Loading)
+        Logger.i("파일 업로드 에밋 종료")
         try {
             coroutineScope {
-                val file = wavUploadData.wavFile
-                val totalChunks = (file.length() + CHUNK_SIZE - 1) / CHUNK_SIZE
-                
+                val totalChunks = (uploadData.chunkData.size + CHUNK_SIZE - 1) / CHUNK_SIZE
+                val chunksPerSection = 7
+                val startChunk = (uploadData.sectionNumber - 1) * chunksPerSection
+                val endChunk = (startChunk + chunksPerSection).coerceAtMost(totalChunks)
+
                 Logger.i("파일 업로드 시작: 총 ${totalChunks}개 청크")
-                
-                file.inputStream().use { input ->
-                    val buffer = ByteArray(CHUNK_SIZE)
-                    var chunkNumber = 0
-                    var totalBytesUploaded = 0L
-                    
-                    while (true) {
-                        val bytesRead = input.read(buffer)
-                        if (bytesRead <= 0) break
-                        
-                        val chunkData = if (bytesRead == buffer.size) buffer else buffer.copyOf(bytesRead)
-                        totalBytesUploaded += bytesRead
-                        
-                        val chunkUploadData = wavUploadData.copy(
-                            totalChunks = totalChunks.toInt(),
-                            currentChunk = chunkNumber++,
-                            chunkData = chunkData
-                        )
-                        
-                        uploadChunk(chunkUploadData)
-                        
-                        Logger.i("업로드 진행률: ${(totalBytesUploaded * 100 / file.length())}%")
-                    }
+
+                var totalBytesUploaded = 0L
+
+                for (chunkNumber in startChunk until endChunk) {
+                    val chunkStart = chunkNumber * CHUNK_SIZE
+                    val chunkEnd = (chunkStart + CHUNK_SIZE).coerceAtMost(uploadData.chunkData.size)
+                    val chunkData = uploadData.chunkData.copyOfRange(chunkStart, chunkEnd)
+
+                    totalBytesUploaded += chunkData.size
+
+                    val chunkUploadData = WavUploadData(
+                        meetingId = uploadData.meetingId,
+                        sectionNumber = uploadData.sectionNumber,
+                        startTime = uploadData.startTime,
+                        chunkData = chunkData,
+                        totalChunks = totalChunks, // 포함
+                        currentChunks = chunkNumber
+                    )
+
+                    uploadChunk(chunkUploadData)
+
+                    Logger.i("섹션 진행률: ${(chunkNumber - startChunk + 1) * 100 / (endChunk - startChunk)}%")
                 }
-                
-                Logger.i("파일 업로드 완료")
+
+                Logger.i("섹션 업로드 완료: 섹션 ${uploadData.sectionNumber}")
                 emit(NetworkResult.Success(Unit))
             }
         } catch (e: Exception) {
-            Logger.e("파일 업로드 실패", e)
-            emit(NetworkResult.Error(0, "파일 업로드 중 오류: ${e.message}"))
+            Logger.e("섹션 업로드 실패", e)
+            emit(NetworkResult.Error(0, "섹션 업로드 중 오류: ${e.message}"))
         }
     }
 
-    override suspend fun convertWavToStt(meetingId: Long): Flow<NetworkResult<Unit>> = flow {
+    override suspend fun convertWavToStt(request: SttRequest): Flow<NetworkResult<Unit>> = flow {
         emit(NetworkResult.Loading)
         try {
-            val request = SttRequest(meetingId)
             val response = apiService.convertWavToStt(request)
             if (response.isSuccessful) {
                 emit(NetworkResult.Success(Unit))
@@ -154,36 +156,38 @@ class MeetingRepositoryImpl @Inject constructor(
         uploadMutex.withLock {
             val meetingIdBody = chunkData.meetingId.toString()
                 .toRequestBody("text/plain".toMediaTypeOrNull())
+            val sectionNumberBody = chunkData.sectionNumber.toString()
+                .toRequestBody("text/plain".toMediaTypeOrNull())
             val startTimeBody = chunkData.startTime
                 .toRequestBody("text/plain".toMediaTypeOrNull())
-            val durationBody = chunkData.duration.toString()
-                .toRequestBody("text/plain".toMediaTypeOrNull())
-            val currentChunkBody = chunkData.currentChunk.toString()
+            val currentChunkBody = chunkData.currentChunks.toString()
                 .toRequestBody("text/plain".toMediaTypeOrNull())
             val totalChunksBody = chunkData.totalChunks.toString()
                 .toRequestBody("text/plain".toMediaTypeOrNull())
-            
+
+            // 청크 데이터 생성
             val chunkPart = MultipartBody.Part.createFormData(
-                "file", 
-                "chunk_${chunkData.currentChunk}.wav",
-                chunkData.chunkData.toRequestBody("audio/wav".toMediaTypeOrNull())
+                "chunkData",
+                "chunk_${chunkData.sectionNumber}.bin", // 필요 시 파일 이름
+                chunkData.chunkData.toRequestBody("application/octet-stream".toMediaTypeOrNull())
             )
-            
+
             try {
+                Logger.i("청크 업로드 시작: sectionNumber=${chunkData.sectionNumber}")
                 val response = apiService.uploadWavChunk(
                     meetingId = meetingIdBody,
+                    sectionNumber = sectionNumberBody,
                     startTime = startTimeBody,
-                    duration = durationBody,
-                    currentChunk = currentChunkBody,
-                    totalChunks = totalChunksBody,
-                    file = chunkPart
+                    currentChunk = currentChunkBody, // currentChunk 추가
+                    totalChunks = totalChunksBody,   // totalChunks 추가
+                    chunkData = chunkPart
                 )
-                
+
                 if (!response.isSuccessful) {
                     throw Exception("청크 업로드 실패: ${response.message()}")
                 }
-                
-                Logger.i("청크 업로드 성공: ${chunkData.currentChunk}/${chunkData.totalChunks}")
+
+                Logger.i("청크 업로드 성공: 섹션 ${chunkData.sectionNumber}")
             } catch (e: Exception) {
                 Logger.e("청크 업로드 중 오류", e)
                 throw e
@@ -191,8 +195,26 @@ class MeetingRepositoryImpl @Inject constructor(
         }
     }
 
+
     private fun getCurrentTime(): String {
         return SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
             .format(Date())
     }
+
+    override suspend fun requestSpeakerSeparation(meetingId: Long): Flow<NetworkResult<Unit>> = flow {
+        emit(NetworkResult.Loading)
+        try {
+            val request = SpeakerSeparationRequest(meetingId)
+            val response = apiService.requestSpeakerSeparation(request)
+            if (response.isSuccessful) {
+                emit(NetworkResult.Success(Unit))
+            } else {
+                emit(NetworkResult.Error(response.code(), "화자 구분 요청 실패: ${response.message()}"))
+            }
+        } catch (e: Exception) {
+            Logger.e("화자 구분 요청 중 오류 발생", e)
+            emit(NetworkResult.Error(0, "화자 구분 요청 중 오류: ${e.message}"))
+        }
+    }
+
 }

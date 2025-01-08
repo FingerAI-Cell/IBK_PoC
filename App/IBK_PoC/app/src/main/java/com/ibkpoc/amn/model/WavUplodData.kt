@@ -5,10 +5,9 @@ import java.io.File
 
 data class WavUploadData(
     val meetingId: Long,
-    val wavFile: File,
+    val sectionNumber: Int, // 섹션 번호 추가
     val startTime: String,
-    val duration: Long,
-    val totalChunks: Int,
-    val currentChunk: Int,
-    val chunkData: ByteArray
+    val chunkData: ByteArray,
+    val totalChunks: Int, // 총 청크 수 추가
+    val currentChunks: Int
 )

@@ -141,6 +141,7 @@ fun MainScreen(
                 }
             }
         }
+        is RecordServiceState.AllTasksCompleted->{}
         RecordServiceState.Idle -> {
             // 대기 상태 UI
         }

@@ -18,8 +18,8 @@ public class MeetingLog {
     private Long convId;
 
     private String content;
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
+    private Float startTime;
+    private Float endTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cuser_id")

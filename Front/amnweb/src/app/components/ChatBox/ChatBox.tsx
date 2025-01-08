@@ -72,6 +72,12 @@ export default function ChatBox({
   const [input, setInput] = useState(initialInput);
   const messageEndRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    if (initialInput?.trim()) {
+      setInput(initialInput); // 이전 입력값 반영
+    }
+  }, [initialInput]);
+
   // 문서 관련 상태 (from useCoAgent)
   const { nodeName, state } = useCoAgent<CoAgentState>({
     name: agent || "",
@@ -160,45 +166,6 @@ export default function ChatBox({
     return () => observer.disconnect();
   }, [documents]);
 
-  const sendMessage = async () => {
-    if (!input.trim()) return;
-
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      sender: "user",
-      text: input,
-      timestamp: new Date(),
-    };
-
-    setMessages((prevMessages) => [...prevMessages, userMessage]);
-    setInput("");
-
-    try {
-      const response = await fetch("/api/onelineai/olaf", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: [{ content: input, role: "user" }], agent }),
-      });
-
-      if (!response.ok) {
-        throw new Error("API 요청 실패");
-      }
-
-      const data = await response.json();
-
-      const botMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        sender: "bot",
-        text: data.content,
-        timestamp: new Date(),
-      };
-
-      setMessages((prevMessages) => [...prevMessages, botMessage]);
-    } catch (error) {
-      console.error("API 요청 실패:", error);
-    }
-  };
-
   return (
     <div className={styles.container}>
       {useCopilot && agent && (
@@ -208,39 +175,8 @@ export default function ChatBox({
             title: "IBK 투자증권 업무 효율화 챗봇",
             initial: "안녕하세요. 무엇을 도와드릴까요?",
           }}
-          renderInput={(props) => (
-            <div className={styles.inputContainer}>
-              <textarea
-                {...props}
-                className={styles.input}
-                placeholder="메시지를 입력하세요..."
-              />
-              <button
-                onClick={props.onSendMessage}
-                className={styles.sendButton}
-                disabled={!props.value.trim()}
-              >
-                전송
-              </button>
-            </div>
-          )}
         />
       )}
-      <div className={styles.messageList}>
-        {messages.map((msg) => (
-          <div
-            key={msg.id}
-            className={`${styles.message} ${
-              msg.sender === "user" ? styles.userMessage : styles.botMessage
-            }`}
-          >
-            
-            {msg.text}
-          </div>
-        ))}
-        <div ref={messageEndRef} />
-        
-      </div>
     </div>
   );
 }

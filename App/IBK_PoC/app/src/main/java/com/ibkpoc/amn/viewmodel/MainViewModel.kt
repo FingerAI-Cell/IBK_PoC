@@ -96,8 +96,15 @@ class MainViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             EventBus.subscribe<RecordingStateEvent>().collect { event ->
-                Logger.e("상태 이벤트 수신: ${event.state}")
-                handleRecordServiceState(event.state)
+                when (event.state) {
+                    is RecordServiceState.AllTasksCompleted -> {
+                        Logger.i("모든 작업 완료 이벤트 수신: 화자 구분 요청 시작")
+                        requestSpeakerSeparation(event.state.meetingId)
+                    }
+                    else -> { Logger.e("상태 이벤트 수신: ${event.state}")
+                        handleRecordServiceState(event.state)}
+                }
+
             }
         }
         viewModelScope.launch {
@@ -141,6 +148,12 @@ class MainViewModel @Inject constructor(
                 _recordingState.value = RecordServiceState.Idle
                 _isLoading.value = false
             }
+            is RecordServiceState.AllTasksCompleted -> {
+                Logger.e("[상태처리] 모든 작업 완료 - 회의ID: ${state.meetingId}")
+                viewModelScope.launch {
+                    requestSpeakerSeparation(state.meetingId)
+                }
+            }
             RecordServiceState.Idle -> {
                 Logger.e("[상태처리] 대기 상태로 전환")
                 stopRecordingTimer()
@@ -167,30 +180,6 @@ class MainViewModel @Inject constructor(
         _elapsedTime.value = 0
     }
 
-    fun startRecording(meetingId: Long) {
-        viewModelScope.launch {
-            try {
-                val startTime = getCurrentTime()
-                val filePath = createRecordFile(meetingId, startTime).absolutePath
-                
-                Intent(context, AudioRecordService::class.java).apply {
-                    action = AudioRecordService.ACTION_START
-                    putExtra(AudioRecordService.EXTRA_MEETING_ID, meetingId)
-                    putExtra(AudioRecordService.EXTRA_START_TIME, startTime)
-                    putExtra(AudioRecordService.EXTRA_FILE_PATH, filePath)
-                    
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        context.startForegroundService(this)
-                    } else {
-                        context.startService(this)
-                    }
-                }
-            } catch (e: Exception) {
-                _errorMessage.value = "녹음 시작 실패: ${e.message}"
-            }
-        }
-    }
-
     private suspend fun handleRecordingComplete(pcmFile: File) {
         try {
             val recordingInfo = lastRecordingState
@@ -208,16 +197,6 @@ class MainViewModel @Inject constructor(
             viewModelScope.launch {
                 delay(2000)
             }
-
-            // WAV 변환 및 업로드는 백그라운드에서 계속 진행
-            viewModelScope.launch {
-                uploadWavAndConvertToStt(
-                    recordingInfo.meetingId,
-                    convertPcmToWav(pcmFile),
-                    recordingInfo.startTime,
-                    recordingInfo.duration
-                )
-            }
         } catch (e: Exception) {
             Logger.e("[녹음완료처리] 오류 발생: ${e.message}")
             _errorMessage.value = "녹음 처리 실패: ${e.message}"
@@ -226,12 +205,13 @@ class MainViewModel @Inject constructor(
     }
 
     private suspend fun createRecordFile(meetingId: Long, startTime: String): File {
+        Logger.i("PCM 파일 생성 시작: meetingId=$meetingId, startTime=$startTime")
         return withContext(Dispatchers.IO) {
             File(audioDir, "record_${meetingId}_${startTime}.pcm").apply {
                 parentFile?.mkdirs()
                 createNewFile()
             }
-        }
+        }.also { Logger.i("PCM 파일 생성 완료: ${it.absolutePath}") }
     }
 
     private val audioDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
@@ -280,25 +260,25 @@ class MainViewModel @Inject constructor(
         _recordingState.value = RecordServiceState.Idle
     }
 
-    private suspend fun convertPcmToWav(pcmFile: File): File {
-        val wavFile = File(audioDir, pcmFile.name.replace(".pcm", ".wav"))
-        withContext(Dispatchers.IO) {
-            FileInputStream(pcmFile).use { input ->
-                FileOutputStream(wavFile).use { output ->
-                    // WAV 헤더 작성
-                    writeWavHeader(output, pcmFile.length())
-                    
-                    // PCM 데이터 복사
-                    val buffer = ByteArray(8192)
-                    var bytesRead: Int
-                    while (input.read(buffer).also { bytesRead = it } != -1) {
-                        output.write(buffer, 0, bytesRead)
-                    }
-                }
-            }
-        }
-        return wavFile
-    }
+//    private suspend fun convertPcmToWav(pcmFile: File): File {
+//        val wavFile = File(audioDir, pcmFile.name.replace(".pcm", ".wav"))
+//        withContext(Dispatchers.IO) {
+//            FileInputStream(pcmFile).use { input ->
+//                FileOutputStream(wavFile).use { output ->
+//                    // WAV 헤더 작성
+//                    writeWavHeader(output, pcmFile.length())
+//
+//                    // PCM 데이터 복사
+//                    val buffer = ByteArray(8192)
+//                    var bytesRead: Int
+//                    while (input.read(buffer).also { bytesRead = it } != -1) {
+//                        output.write(buffer, 0, bytesRead)
+//                    }
+//                }
+//            }
+//        }
+//        return wavFile
+//    }
 
     // 백그라운드/포그라운 전환 시에는 아무 작업도 하지 않음
     fun onAppBackgrounded() {}
@@ -388,6 +368,8 @@ class MainViewModel @Inject constructor(
                             action = AudioRecordService.ACTION_STOP
                         }
                         context.startService(serviceIntent)
+
+                        requestSpeakerSeparation(currentState.meetingId)
                     }
                     is NetworkResult.Error -> {
                         _errorMessage.value = "회의 종료 실패: ${result.message}"
@@ -399,48 +381,28 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    private suspend fun uploadWavAndConvertToStt(meetingId: Long, wavFile: File, startTime: String, duration: Long) {
-        Logger.e("[파일업로드] 시작 - 회의ID: $meetingId, WAV파일: ${wavFile.absolutePath}")
-        
-        val wavUploadData = WavUploadData(
-            meetingId = meetingId,
-            wavFile = wavFile,
-            startTime = startTime,
-            duration = duration,
-            totalChunks = 0,
-            currentChunk = 0,
-            chunkData = ByteArray(0)
-        )
-
-        repository.uploadMeetingWavFile(wavUploadData).collect { uploadResult ->
-            when (uploadResult) {
-                is NetworkResult.Success -> {
-                    Logger.e("[파일업로드] WAV 파일 업로드 성공")
-                    repository.convertWavToStt(meetingId).collect { sttResult ->
-                        when (sttResult) {
-                            is NetworkResult.Success -> {
-                                Logger.e("[STT변환] STT 변환 완료")
-                            }
-                            is NetworkResult.Error -> {
-                                Logger.e("[STT변환] STT 변환 실패: ${sttResult.message}")
-                                _errorMessage.value = "STT 변환 실패: ${sttResult.message}"
-                            }
-                            is NetworkResult.Loading -> {
-                                Logger.e("[STT변환] STT 변환 중")
-                            }
-                        }
+    fun requestSpeakerSeparation(meetingId: Long) {
+        viewModelScope.launch {
+            repository.requestSpeakerSeparation(meetingId).collect { result ->
+                when (result) {
+                    is NetworkResult.Success -> {
+                        Logger.i("화자 구분 요청 성공: 회의 ID $meetingId")
+                        _showSuccessMessage.value = true
+                    }
+                    is NetworkResult.Error -> {
+                        Logger.e("화자 구분 요청 실패: ${result.message}")
+                        _errorMessage.value = "화자 구분 요청 실패: ${result.message}"
+                    }
+                    is NetworkResult.Loading -> {
+                        Logger.i("화자 구분 요청 진행 중...")
+                        _isLoading.value = true
                     }
                 }
-                is NetworkResult.Error -> {
-                    Logger.e("[파일업로드] WAV 파일 업로드 실패: ${uploadResult.message}")
-                    _errorMessage.value = "WAV 파일 업로드 실패: ${uploadResult.message}"
-                }
-                is NetworkResult.Loading -> {
-                    Logger.e("[파일업로드] WAV 파일 업로드 중")
-                }
+                _isLoading.value = false
             }
         }
     }
+
 
     override fun onCleared() {
         super.onCleared()
@@ -454,7 +416,7 @@ class MainViewModel @Inject constructor(
         val bitsPerSample = 16
         val byteRate = sampleRate * channels * bitsPerSample / 8
         val totalDataLen = audioLength + 36
-        
+
         output.write(ByteArray(44).apply {
             // RIFF 헤더
             this[0] = 'R'.code.toByte()
@@ -534,13 +496,6 @@ class MainViewModel @Inject constructor(
     private fun ByteArray.putLittleEndianShort(offset: Int, value: Short) {
         this[offset] = value.toByte()
         this[offset + 1] = (value.toInt() shr 8).toByte()
-    }
-
-    fun stopRecording() {
-        Intent(context, AudioRecordService::class.java).apply {
-            action = AudioRecordService.ACTION_STOP
-            context.startService(this)
-        }
     }
 
     // Recording 상태 정보를 저장하기 위한 데이터 클래스

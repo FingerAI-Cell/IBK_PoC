@@ -9,102 +9,138 @@
     display: flex;
     flex-direction: column; /* 메시지는 아래로 쌓임 */
     z-index: 5; /* 헤더 아래 배치 */
-  }
-  
-  .messageList {
-    flex-grow: 1; /* 남은 공간을 메시지 리스트가 채움 */
-    overflow-y: auto; /* 스크롤 가능 */
-    display: flex;
-    flex-direction: column; /* 상단부터 아래로 쌓임 */
-    padding: 1rem;
-    gap: 0.8rem; /* 메시지 간격 */
-  }
-  
-  .message {
-    max-width: 70%; /* 메시지 최대 너비 */
-    word-wrap: break-word; /* 메시지가 길면 줄바꿈 */
-    margin: 0.5rem;
-    padding: 0.8rem 1.2rem;
-    border-radius: 1.5rem; /* 둥근 모서리 */
-    background-color: #ffffff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 메시지 박스 그림자 */
-    position: relative;
-  }
-  
-  /* 사용자 메시지 */
-  .userMessage {
-    align-self: flex-end; /* 우측 정렬 */
-    background-color: #4299e1; /* Tailwind: bg-blue-500 */
-    color: white;
-    border-top-right-radius: 0; /* 우측 상단 직선 */
-  }
-  
-  /* 챗봇 메시지 */
-  .botMessage {
-    align-self: flex-start; /* 좌측 정렬 */
-    background-color: #edf2f7; /* Tailwind: bg-gray-200 */
-    color: black;
-    border-top-left-radius: 0; /* 좌측 상단 직선 */
-  }
-  
-  .inputContainer {
-    display: flex;
-    padding: 1rem;
-    gap: 0.75rem; /* 입력창과 버튼 사이 간격 */
-    border-top: 1px solid #e2e8f0;
-    background-color: white;
-  }
-  
-  .input {
-    flex-grow: 1;
-    padding: 0.75rem 1rem;
-    border: 1px solid #e2e8f0;
-    border-radius: 0.5rem;
-    resize: none;
-    min-height: 40px;
-    max-height: 150px;
-    overflow-y: auto;
-    font-size: 0.95rem;
-    transition: border-color 0.2s;
-  }
-  
-  .input:focus {
-    outline: none;
-    border-color: #4299e1;
-  }
-  
-  .disabledInput {
-    background-color: #f0f0f0;
-    color: #888;
-    cursor: not-allowed;
-  }
-  
-  .sendButton {
-    padding: 0.5rem 1.25rem;
-    background-color: #4299e1;
-    color: white;
-    border-radius: 0.5rem;
-    font-weight: 500;
-    transition: all 0.2s;
-    min-width: 80px;
-  }
-  
-  .sendButton:hover:not(:disabled) {
-    background-color: #3182ce;
-    transform: translateY(-1px);
-  }
-  
-  .sendButton:disabled {
-    background-color: #a0aec0;
-    cursor: not-allowed;
-  }
-  
-  .cancelButton {
-    background-color: #e53e3e; /* Tailwind: bg-red-500 */
-    color: white;
-  }
-  
-  .cancelButton:hover {
-    background-color: #c53030; /* Tailwind: bg-red-600 */
-  }
+}
+.messageList {
+  flex-grow: 1; /* 남은 공간을 메시지 리스트가 채움 */
+  overflow-y: auto; /* 스크롤 가능 */
+  display: flex;
+  flex-direction: column; /* 상단부터 아래로 쌓임 */
+  padding: 1rem;
+  gap: 0.8rem; /* 메시지 간격 */
+}
+
+.message {
+  max-width: 70%; /* 메시지 최대 너비 */
+  word-wrap: break-word; /* 메시지가 길면 줄바꿈 */
+  margin: 0.5rem;
+  padding: 0.8rem 1.2rem;
+  border-radius: 1.5rem; /* 둥근 모서리 */
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 메시지 박스 그림자 */
+  position: relative;
+}
+
+/* 사용자 메시지 */
+.userMessage {
+  align-self: flex-end; /* 우측 정렬 */
+  background-color: #4299e1; /* Tailwind: bg-blue-500 */
+  color: white;
+  border-top-right-radius: 0; /* 우측 상단 직선 */
+}
+
+/* 챗봇 메시지 */
+.botMessage {
+  align-self: flex-start; /* 좌측 정렬 */
+  background-color: #edf2f7; /* Tailwind: bg-gray-200 */
+  color: black;
+  border-top-left-radius: 0; /* 좌측 상단 직선 */
+}
+
+.inputContainer {
+  display: flex;
+  padding: 1rem;
+  gap: 0.75rem; /* 입력창과 버튼 사이 간격 */
+  border-top: 1px solid #e2e8f0;
+  background-color: white;
+}
+
+.input {
+  flex-grow: 1;
+  padding: 0.75rem 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  resize: none;
+  min-height: 40px;
+  max-height: 150px;
+  overflow-y: auto;
+  font-size: 0.95rem;
+  transition: border-color 0.2s;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #4299e1;
+}
+
+.disabledInput {
+  background-color: #f0f0f0;
+  color: #888;
+  cursor: not-allowed;
+}
+
+.sendButton {
+  padding: 0.5rem 1.25rem;
+  background-color: #4299e1;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  min-width: 80px;
+}
+
+.sendButton:hover:not(:disabled) {
+  background-color: #3182ce;
+  transform: translateY(-1px);
+}
+
+.sendButton:disabled {
+  background-color: #a0aec0;
+  cursor: not-allowed;
+}
+
+.cancelButton {
+  background-color: #e53e3e; /* Tailwind: bg-red-500 */
+  color: white;
+}
+
+.cancelButton:hover {
+  background-color: #c53030; /* Tailwind: bg-red-600 */
+}
+
+
+.copilotKitAssistantMessage {
+  font-size: 16px !important; /* 메시지 폰트 크기 */
+  color: #333 !important; /* 텍스트 색상 */
+}
+
+/* ChatBox.module.css */
+.copilotKitInput {
+  position: fixed; /* 화면 하단에 고정 */
+  bottom: 0; /* 하단에 완전히 붙임 */
+  width: calc(100% - 40px); /* 화면 너비에서 좌우 여백 제외 */
+  max-width: 600px; /* 최대 너비 제한 */
+  left: 50%; /* 중앙 정렬 */
+  transform: translateX(-50%);
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  z-index: 10; /* 다른 요소 위에 렌더링 */
+}
+
+.copilotKitInputContainer {
+  position: relative; /* 자식 요소 위치 기준 */
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* 부모 높이 설정 */
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.copilotKitMessages {
+  flex-grow: 1; /* 메시지 리스트가 남은 공간을 채움 */
+  overflow-y: auto; /* 스크롤 가능 */
+  padding-bottom: 80px; /* 입력창 높이만큼 하단 여백 추가 */
+}
   

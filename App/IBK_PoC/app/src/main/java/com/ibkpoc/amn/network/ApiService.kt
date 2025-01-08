@@ -25,15 +25,21 @@ interface ApiService {
     @POST("/meeting/upload/chunk")
     suspend fun uploadWavChunk(
         @Part("meetingId") meetingId: RequestBody,
+        @Part("sectionNumber") sectionNumber: RequestBody,
         @Part("startTime") startTime: RequestBody,
-        @Part("duration") duration: RequestBody,
-        @Part("currentChunk") currentChunk: RequestBody,
-        @Part("totalChunks") totalChunks: RequestBody,
-        @Part file: MultipartBody.Part
+        @Part("currentChunk") currentChunk: RequestBody,   // 추가
+        @Part("totalChunks") totalChunks: RequestBody,     // 추가
+        @Part chunkData: MultipartBody.Part
     ): Response<CommonResponse<Unit>>
 
     @POST("/meeting/stt-request")
     suspend fun convertWavToStt(@Body request: SttRequest): Response<CommonResponse<Unit>>
+
+    @POST("/meeting/speaker-separation")
+    suspend fun requestSpeakerSeparation(
+        @Body request: SpeakerSeparationRequest
+    ): Response<CommonResponse<Unit>>
+
 
     @GET("/meeting/list")
     suspend fun getMeetingList(): Response<CommonResponse<List<MeetingListResponse>>>
