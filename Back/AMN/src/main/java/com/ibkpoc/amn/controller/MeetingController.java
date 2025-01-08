@@ -43,16 +43,24 @@ public class MeetingController {
 
     @PostMapping("/upload/chunk")
     public ResponseEntity<CommonResponse<?>> uploadWavChunk(@ModelAttribute WavUploadRequest request) {
+        log.info("청크 업로드 요청 수신: meetingId={}, sectionNumber={}, currentChunk={}, totalChunks={}",
+                request.getMeetingId(), request.getSectionNumber(), request.getCurrentChunk(), request.getTotalChunks());
         try {
-            log.info("청크 업로드 요청: meetingId={}, sectionNumber={}, currentChunk={}/{}, chunkSize={}",
+            byte[] chunkBytes = request.getChunkDataBytes(); // MultipartFile을 byte[]로 변환
+            if (chunkBytes == null) {
+                throw new IllegalArgumentException("청크 데이터가 비어 있습니다.");
+            }
+            // WavUploadRequest를 새로운 객체로 생성해 RecordService에 전달
+            WavUploadRequest processedRequest = new WavUploadRequest(
                     request.getMeetingId(),
                     request.getSectionNumber(),
-                    request.getCurrentChunk(),
+                    request.getStartTime(),
+                    null, // chunkData는 이미 변환되었으므로 null 처리
                     request.getTotalChunks(),
-                    request.getChunkData().length);
-
+                    request.getCurrentChunk()
+            );
             // 청크 처리
-            recordService.saveAndProcessChunk(request);
+            recordService.saveAndProcessChunk(processedRequest, chunkBytes); // byte[] 전달
 
             return ResponseEntity.ok(new CommonResponse<>("SUCCESS", "청크 처리 완료", null));
         } catch (Exception e) {

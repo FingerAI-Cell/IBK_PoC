@@ -89,10 +89,9 @@ public class RecordService implements DisposableBean {
     }
 
     public void saveWavFile(WavUploadRequest request) throws IOException {
-        log.info("WAV 청크 저장 시작: meetingId={}, sectionNumber={}, 파일 크기={}",
+        log.info("WAV 청크 저장 시작: meetingId={}, sectionNumber={}",
                 request.getMeetingId(),
-                request.getSectionNumber(),
-                request.getChunkData().length);
+                request.getSectionNumber());
 
         // 회의 ID 기준 파일 경로 설정
         Path meetingFilePath = Paths.get(baseRecordPath, String.format("meeting_%d.wav", request.getMeetingId()));
@@ -121,7 +120,6 @@ public class RecordService implements DisposableBean {
         try {
             resetTimeout(info);
             info.totalWavChunks = request.getTotalChunks();
-            info.wavChunks.put(request.getCurrentChunk(), request.getChunkData());
             log.info("청크 저장됨: meetingId={}, chunk={}/{}, 현재 청크 수={}",
                     request.getMeetingId(),
                     request.getCurrentChunk(),
@@ -156,15 +154,15 @@ public class RecordService implements DisposableBean {
         }
     }
 
-    public void saveAndProcessChunk(WavUploadRequest request) throws IOException {
+    public void saveAndProcessChunk(WavUploadRequest request, byte[] chunkData) throws IOException {
         // 섹션 WAV 파일 경로 설정
         log.info("청크 저장 요청 처리 중: meetingId={}, sectionNumber={}, currentChunk={}, totalChunks={}",
                 request.getMeetingId(), request.getSectionNumber(), request.getCurrentChunk(), request.getTotalChunks());
         Path sectionPath = Paths.get(baseRecordPath, String.format("meeting_%d_%s.wav",
                 request.getMeetingId(), request.getStartTime()));
 
-        // 청크 데이터를 WAV 파일에 추가
-        appendChunkToWavFile(request, sectionPath);
+        // WAV 청크 데이터를 추가
+        appendChunkToWavFile(chunkData, sectionPath);
 
         // 모든 청크가 도착했는지 확인
         if (Objects.equals(request.getCurrentChunk(), request.getTotalChunks())) {
@@ -180,12 +178,10 @@ public class RecordService implements DisposableBean {
         }
     }
 
-    private void appendChunkToWavFile(WavUploadRequest request, Path sectionPath) throws IOException {
+    private void appendChunkToWavFile(byte[] chunkData, Path sectionPath) throws IOException {
         boolean append = Files.exists(sectionPath);
 
         try (FileOutputStream fos = new FileOutputStream(sectionPath.toFile(), append)) {
-            byte[] chunkData = request.getChunkData();
-
             if (append) {
                 // 기존 파일에 데이터 추가 (헤더 제거)
                 byte[] dataOnly = Arrays.copyOfRange(chunkData, 44, chunkData.length);
@@ -196,8 +192,8 @@ public class RecordService implements DisposableBean {
             }
         }
 
-        log.info("청크 추가 완료: meetingId={}, sectionNumber={}, 파일 크기={}",
-                request.getMeetingId(), request.getSectionNumber(), Files.size(sectionPath));
+        log.info("청크 추가 완료: meetingId={}, sectionNumber={}, 파일 크기={} bytes",
+                sectionPath.getFileName(), chunkData.length, Files.size(sectionPath));
     }
 
     private void resetTimeout(RecordingInfo info) {
