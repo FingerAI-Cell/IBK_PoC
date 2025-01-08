@@ -12,5 +12,5 @@ import java.time.LocalDateTime;
 public class LogResponseDto {
     private String content;   // 발화 내용
     private Long cuserId;     // 사용자 ID
-    private LocalDateTime startTime;
+    private Float startTime;
 }
