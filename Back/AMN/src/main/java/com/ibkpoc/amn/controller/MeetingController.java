@@ -42,7 +42,7 @@ public class MeetingController {
     }
 
     @PostMapping("/upload/chunk")
-    public ResponseEntity<CommonResponse<?>> uploadWavChunk(@RequestBody WavUploadRequest request) {
+    public ResponseEntity<CommonResponse<?>> uploadWavChunk(@ModelAttribute WavUploadRequest request) {
         try {
             log.info("청크 업로드 요청: meetingId={}, sectionNumber={}, currentChunk={}/{}, chunkSize={}",
                     request.getMeetingId(),

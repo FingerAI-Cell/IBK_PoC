@@ -158,6 +158,8 @@ public class RecordService implements DisposableBean {
 
     public void saveAndProcessChunk(WavUploadRequest request) throws IOException {
         // 섹션 WAV 파일 경로 설정
+        log.info("청크 저장 요청 처리 중: meetingId={}, sectionNumber={}, currentChunk={}, totalChunks={}",
+                request.getMeetingId(), request.getSectionNumber(), request.getCurrentChunk(), request.getTotalChunks());
         Path sectionPath = Paths.get(baseRecordPath, String.format("meeting_%d_%s.wav",
                 request.getMeetingId(), request.getStartTime()));
 
@@ -165,7 +167,7 @@ public class RecordService implements DisposableBean {
         appendChunkToWavFile(request, sectionPath);
 
         // 모든 청크가 도착했는지 확인
-        if (request.getCurrentChunk().equals(request.getTotalChunks())) {
+        if (Objects.equals(request.getCurrentChunk(), request.getTotalChunks())) {
             log.info("모든 청크 수신 완료: meetingId={}, sectionNumber={}", request.getMeetingId(), request.getSectionNumber());
 
             // WAV 데이터 읽기
