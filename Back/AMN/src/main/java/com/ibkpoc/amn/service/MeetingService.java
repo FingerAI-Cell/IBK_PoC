@@ -120,14 +120,6 @@ public class MeetingService {
         // API URL 설정
         String apiUrl = "http://localhost:8081/run";
 
-        // 요청 데이터 생성
-        Map<String, Object> requestData = Map.of(
-                "data", Map.of(
-                        "file_name", meeting.getWavSrc(),
-                        "participant", meeting.getParticipants()
-                )
-        );
-
         try {
             // 파이썬 코드의 data 파라미터 구조에 맞춤
             String requestJson = String.format(

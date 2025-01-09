@@ -17,7 +17,7 @@ COPY . .
 RUN npm run build
 
 # 7. 컨테이너 실행 시 사용될 포트 노출
-EXPOSE 3000
+EXPOSE 3001
 
 # 8. 실행 명령어 (Next.js 애플리케이션 시작)
 CMD ["npm", "start"]
