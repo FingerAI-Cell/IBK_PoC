@@ -1,6 +1,6 @@
 import React from 'react';
 
-interface DocumentMetadata {
+export interface DocumentMetadata {
   page_number: number;
   page_chunk_number: number;
   file_name: string;

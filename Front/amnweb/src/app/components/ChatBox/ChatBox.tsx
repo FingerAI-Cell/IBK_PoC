@@ -8,7 +8,6 @@ import styles from "./ChatBox.module.css";
 interface ChatBoxProps {
   initialInput?: string;
   agent?: string;
-  /* eslint-disable-next-line @typescript-eslint/no-unused-vars -- 향후 직접 API 호출 구현 시 사용 예정 */
   runtimeUrl?: string; // CopilotKit 대신 직접 API 호출 시 사용될 endpoint URL
   serviceName?: string;
   useCopilot?: boolean;

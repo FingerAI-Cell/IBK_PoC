@@ -1,9 +1,20 @@
 "use client";
+import { DocumentMetadata } from "./DocumentCard"; // DocumentMetadata 임포트
 
-export default function DocumentList({ data }: { data: any }) {
-    console.log("data", data);
+interface RetrievedDocument {
+    kwargs: {
+      metadata: DocumentMetadata;
+      page_content: string;
+    };
+  }
+
+export default function DocumentList({ data }: { data: RetrievedDocument[] | null }) {
     if (data) {
-        return data.map((document: any) => <div key={document.kwargs.metadata._id}>{document.kwargs.page_content}</div>);
-    }
-    return null;
+        return data.map((document) => (
+          <div key={document.kwargs.metadata.file_name}>
+            {document.kwargs.page_content}
+          </div>
+        ));
+      }
+      return null;
 }
