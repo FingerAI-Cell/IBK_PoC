@@ -21,3 +21,8 @@ val ButtonBlack = Color(0xFF000000)
 val ButtonGray = Color(0xFFCCCCCC)
 val ButtonRed = Color(0xFFFF0000)
 val ButtonLightRed = Color(0xFFFFE4E4)
+
+val PrimaryLight = Color(0xFF2196F3)
+val PrimaryDark = Color(0xFF1565C0)
+val BackgroundLight = Color(0xFFFFFFFF)
+val BackgroundDark = Color(0xFF121212)

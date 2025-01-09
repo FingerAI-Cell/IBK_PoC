@@ -202,7 +202,7 @@ fun MainScreen(
                     Spacer(modifier = Modifier.height(24.dp))  // 상단 여백 추가
                     Text(
                         text = "회의 관리",
-                        style = MaterialTheme.typography.headlineMedium,  // 더 큰 글씨
+                        style = MaterialTheme.typography.headlineMedium.copy(color = Color.Black),  // 더 큰 글씨
                         fontWeight = FontWeight.Bold,  // 굵은 글씨
                         modifier = Modifier
                             .fillMaxWidth()
@@ -264,8 +264,9 @@ fun MainScreen(
                             onClick = { showDialog = true },
                             enabled = recordingState !is RecordServiceState.Recording && !isLoading,
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = if (recordingState !is RecordServiceState.Recording) 
-                                    ButtonBlack else ButtonGray
+                                containerColor = if (recordingState !is RecordServiceState.Recording)
+                                    ButtonBlack else ButtonGray,
+                                contentColor = Color.White // 텍스트 색상
                             )
                         )
 
@@ -352,8 +353,15 @@ fun MainScreen(
                             onClick = { showRecordDialog = true },
                             modifier = Modifier.fillMaxWidth(),
                             enabled = recordingState !is RecordServiceState.Recording,
-                            border = BorderStroke(1.dp, Color.Gray),
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                contentColor = if (recordingState !is RecordServiceState.Recording) Color.Black else Color.Gray, // 텍스트 색상
+                                disabledContentColor = Color.LightGray // 비활성화 상태 텍스트 색상
+                            ),border = BorderStroke(
+                                width = 1.dp,
+                                color = if (recordingState !is RecordServiceState.Recording) Color.Gray else Color.LightGray // 테두리 색상 조정
+                            ),
                             shape = RoundedCornerShape(8.dp)
+
                         ) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Rounded.List,
