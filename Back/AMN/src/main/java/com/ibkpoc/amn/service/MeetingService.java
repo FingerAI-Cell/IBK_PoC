@@ -137,28 +137,43 @@ public class MeetingService {
         String apiUrl2 = "http://localhost:8081/run-stt";
         String apiUrl3 = "http://localhost:8081/map-result";
 
-        // CompletableFuture를 사용하여 비동기 API 호출
-        CompletableFuture<HttpResponse<String>> future1 = CompletableFuture.supplyAsync(() -> callApi(apiUrl1, requestJson1));
-        CompletableFuture<HttpResponse<String>> future2 = CompletableFuture.supplyAsync(() -> callApi(apiUrl2, requestJson2));
-
-        // 두 API가 완료된 후 세 번째 API 호출
-        future1.thenCombine(future2, (response1, response2) -> {
-            if (response1.statusCode() == 200 && response2.statusCode() == 200) {
-                log.info("두 API 호출 성공, 세 번째 API 호출 시작");
-                return callApi(apiUrl3, requestJson3);
-            } else {
-                throw new RuntimeException("두 API 중 하나 이상 호출 실패");
+        // CompletableFuture를 사용한 비동기 작업
+        CompletableFuture<String> future1 = CompletableFuture.supplyAsync(() -> {
+            HttpResponse<String> response = callApi(apiUrl1, requestJson1);
+            if (response.body() == null) {
+                throw new RuntimeException("첫 번째 API 응답이 null입니다.");
             }
-        }).thenAccept(response3 -> {
-            if (response3.statusCode() == 200) {
-                log.info("세 번째 API 호출 성공: 응답={}", response3.body());
+            return response.body();
+        });
+
+        CompletableFuture<String> future2 = CompletableFuture.supplyAsync(() -> {
+            HttpResponse<String> response = callApi(apiUrl2, requestJson2);
+            if (response.body() == null) {
+                throw new RuntimeException("두 번째 API 응답이 null입니다.");
+            }
+            return response.body();
+        });
+
+        // 두 API의 결과를 결합하여 세 번째 API 호출
+        future1.thenCombine(future2, (result1, result2) -> {
+            if (result1 != null && result2 != null) {
+                log.info("두 API 호출 성공: result1={}, result2={}", result1, result2);
+
+                // 세 번째 API 호출
+                HttpResponse<String> response3 = callApi(apiUrl3, requestJson3);
+                if (response3.body() != null) {
+                    log.info("세 번째 API 호출 성공: 응답={}", response3.body());
+                } else {
+                    throw new RuntimeException("세 번째 API 응답이 null입니다.");
+                }
+                return response3.body();
             } else {
-                log.error("세 번째 API 호출 실패: 상태 코드={}", response3.statusCode());
+                throw new RuntimeException("두 API 중 하나 이상 응답이 null입니다.");
             }
         }).exceptionally(e -> {
             log.error("API 호출 중 예외 발생: {}", e.getMessage(), e);
             return null;
-        });
+        }).join(); // 마지막 작업까지 대기
     }
 
     private HttpResponse<String> callApi(String apiUrl, String requestJson) {

@@ -26,7 +26,7 @@ class MeetingRepositoryImpl @Inject constructor(
     private val uploadMutex = Mutex()
     
     companion object {
-        private const val CHUNK_SIZE = 4 * 1024 * 1024  // 4MB
+        private const val CHUNK_SIZE = 1 * 1024 * 1024  // 4MB
     }
 
     override suspend fun startMeeting(participantCount: Int): Flow<NetworkResult<MeetingSession>> = flow {
