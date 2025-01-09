@@ -3,6 +3,7 @@
 import styles from "./Sidebar.module.css";
 import SidebarCategories from "./SidebarCategories";
 import { RecentHistory } from "./RecentHistory";
+import { useService } from "../../context/ServiceContext";
 
 interface SidebarProps {
   currentService: string;
@@ -13,6 +14,8 @@ export default function Sidebar({
   currentService,
   selectService,
 }: SidebarProps) {
+  const { pageState } = useService();
+
   return (
     <aside className={styles.sidebar}>
       <div className={styles.categories}>
@@ -23,9 +26,11 @@ export default function Sidebar({
         />
       </div>
 
-      <div className={styles.recentHistory}>
-        <RecentHistory />
-      </div>
+      {currentService === 'investment-report' && pageState !== 'admin' && (
+        <div className={styles.recentHistory}>
+          <RecentHistory />
+        </div>
+      )}
     </aside>
   );
 }

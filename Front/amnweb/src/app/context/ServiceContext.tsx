@@ -5,6 +5,8 @@ import { createContext, useState, useContext, useEffect } from "react";
 
 interface ReportData {
   totalAmount: number;
+  totalAmountDifference: number;
+  totalAmountDifferencePercentage: number;
   investedAmount: number;
   portfolioData: {
     stocks: number;

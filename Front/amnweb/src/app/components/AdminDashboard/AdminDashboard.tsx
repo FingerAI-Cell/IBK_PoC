@@ -3,9 +3,10 @@
 import { useState } from 'react';
 import styles from './AdminDashboard.module.css';
 import { BiDownload } from 'react-icons/bi';
+import ChatHistory from './ChatHistory/ChatHistory';
 
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState<'financial' | 'monitoring'>('financial');
+  const [activeTab, setActiveTab] = useState<'financial' | 'monitoring' | 'chat-history'>('financial');
   const [selectedStock, setSelectedStock] = useState<string | null>(null);
   const [selectedKeyword, setSelectedKeyword] = useState<string | null>(null);
 
@@ -56,6 +57,12 @@ export default function AdminDashboard() {
             onClick={() => setActiveTab('monitoring')}
           >
             해외주식 담보대출 모니터링
+          </button>
+          <button 
+            className={`${styles.tab} ${activeTab === 'chat-history' ? styles.active : ''}`}
+            onClick={() => setActiveTab('chat-history')}
+          >
+            채팅 이력 관리
           </button>
         </div>
 
@@ -149,6 +156,10 @@ export default function AdminDashboard() {
                 </div>
               </div>
             </div>
+          )}
+
+          {activeTab === 'chat-history' && (
+            <ChatHistory />
           )}
         </div>
       </div>

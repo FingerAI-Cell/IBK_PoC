@@ -14,7 +14,7 @@ interface InvestmentDetail {
   dayBefore: string;
 }
 
-interface InvestmentReportType {
+interface ReportData {
   totalAmount: number;
   totalAmountDifference: number;
   totalAmountDifferencePercentage: number;
@@ -31,7 +31,7 @@ interface InvestmentReportType {
   content: string;
 }
 
-const sampleInvestmentReport: InvestmentReportType = {
+const sampleInvestmentReport: ReportData = {
   totalAmount: 32803200,
   totalAmountDifference: 1503200,
   totalAmountDifferencePercentage: 5.2,
@@ -179,7 +179,7 @@ export default function InvestmentReport() {
                       <span className={`${getValueColor(parseFloat(item.value))} font-bold`}>
                         {formatPercentage(parseFloat(item.value))}
                       </span>
-                      <span>{formatNumber(parseInt(item.amount.replace(/,/g, '')))}원</span>
+                      <span>{formatNumber(parseInt(item.amount.replace(/,/g, '')))}</span>
                       <span className={`${getValueColor(parseFloat(item.dayBefore))} font-bold`}>
                         {formatPercentage(parseFloat(item.dayBefore))}
                       </span>
@@ -274,7 +274,7 @@ export default function InvestmentReport() {
                 <div className="flex space-x-2">
                   <span className="text-gray-400">•</span>
                   <span>
-                    <span className="font-bold">유나이티드 항공:</span> 시가총액 <span className="font-bold">315억 달러</span>를 보유한 UAL은 4분기 실적에서 주당 <span className="font-bold">2.97달러</span>의 이익을 예상하고 있으며, 이는 전년 대비 <span className="text-red-500 font-bold">+48.5%</span> 증가한 수치입니다. 2024 회계연도 EPS는 <span className="font-bold">10.31달러</span>, 2025 회계연도는 <span className="font-bold">11.88달러</span>로 예측됩니다. 21명의 분석가 중 20명이 "강력 매수" 등급을 부여했으며, 평균 목표가는 <span className="font-bold">113.14달러</span>로 <span className="text-red-500 font-bold">+18.3%</span>의 상승 가능성을 시사하고 있습니다.
+                    <span className="font-bold">유나이티드 항공:</span> 시가총액 <span className="font-bold">315억 달러</span>를 보유한 UAL은 4분기 실적에서 주당 <span className="font-bold">2.97달러</span>의 이익을 예상하고 있으며, 이는 전년 대비 <span className="text-red-500 font-bold">+48.5%</span> 증가한 수치입니다. 2024 회계연도 EPS는 <span className="font-bold">10.31달러</span>, 2025 회계연도는 <span className="font-bold">11.88달러</span>로 예측됩니다. 21명의 분석가 중 20명이 &quot;강력 매수&quot; 등급을 부여했으며, 평균 목표가는 <span className="font-bold">113.14달러</span>로 <span className="text-red-500 font-bold">+18.3%</span>의 상승 가능성을 시사하고 있습니다.
                   </span>
                 </div>
               </div>
