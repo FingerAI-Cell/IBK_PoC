@@ -31,6 +31,12 @@ export default function GreetingSection({
             value={chatInput}
             onChange={(e) => onInputChange(e.target.value)}
             className={styles.input}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                onSubmit();
+              }
+            }}
           />
           <button onClick={onSubmit} className={styles.sendButton}>
             →

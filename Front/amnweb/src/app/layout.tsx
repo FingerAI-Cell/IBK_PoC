@@ -8,57 +8,54 @@ import MainContent from "./components/MainContent/MainContent";
 import ChatBox from "./components/ChatBox/ChatBox";
 import { CopilotKit } from "@copilotkit/react-core";
 import "@copilotkit/react-ui/styles.css";
-import { Chat } from "./chatbot/chat";
+import { serviceConfig } from "./config/serviceConfig";
+import MeetingList from "./components/MeetingList/MeetingList";
+import InvestmentReport from "./components/InvestmentReport/InvestmentReport";
+import AdminDashboard from "./components/AdminDashboard/AdminDashboard";
 
 function LayoutContent({ children }: { children: React.ReactNode }) {
   const { currentService, pageState, setCurrentService } = useService();
 
   const renderContent = () => {
-    if (currentService === "general-chat") {
-      return (
-        <CopilotKit
-          runtimeUrl="/api/onelineai/olaf"
-          agent="olaf_ibk_poc_agent"
-          showDevConsole={false}
-        >
-          <ChatBox 
-            serviceName="general-chat"
-            initialInput=""
-            agent="olaf_ibk_poc_agent"
-            useCopilot={true}
-            runtimeUrl="/api/onelineai/olaf"
-          />
-        </CopilotKit>
-      );
+    // 관리자 페이지 처리
+    if (pageState === 'admin') {
+      return <AdminDashboard />;
     }
 
-    switch(pageState) {
-      case 'select':
+    // 채팅 서비스 설정
+    const chatServices = ["general-chat", "branch-manual", "overseas-loan", "financial-statements"];
+    
+    if (chatServices.includes(currentService)) {
+      if (pageState === 'select') {
         return <MainContent />;
-      case 'chat':
-        return <ChatBox 
-          serviceName={currentService}
-          sendApiRequest={async (message) => {
-            const response = await fetch("/api/chat", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ 
-                message,
-                service: currentService 
-              }),
-            });
+      } else if (pageState === 'chat') {
+        const config = serviceConfig[currentService];
+        return (
+          <CopilotKit
+            runtimeUrl={config.apiEndpoint}
+            agent="olaf_ibk_poc_agent"
+            showDevConsole={false}
+          >
+            <ChatBox 
+              serviceName={currentService}
+              initialInput=""
+              agent="olaf_ibk_poc_agent"
+              useCopilot={true}
+              runtimeUrl={config.apiEndpoint}
+            />
+          </CopilotKit>
+        );
+      }
+    }
 
-            if (!response.ok) {
-              throw new Error("API 요청 실패");
-            }
-
-            const data = await response.json();
-            return data.reply;
-          }}
-          initialInput=""
-        />;
+    // 다른 서비스들 처리
+    switch(currentService) {
+      case 'meeting-minutes':
+        return <MeetingList />;
+      case 'investment-report':
+        return <InvestmentReport />;
       default:
-        return <MainContent />;
+        return children; // 기본적으로 children을 렌더링
     }
   };
 

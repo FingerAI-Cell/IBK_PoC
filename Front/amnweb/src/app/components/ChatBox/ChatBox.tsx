@@ -8,6 +8,9 @@ import styles from "./ChatBox.module.css";
 interface ChatBoxProps {
   initialInput?: string;
   agent?: string;
+  /* eslint-disable-next-line @typescript-eslint/no-unused-vars -- 향후 직접 API 호출 구현 시 사용 예정 */
+  runtimeUrl?: string; // CopilotKit 대신 직접 API 호출 시 사용될 endpoint URL
+  serviceName?: string;
   useCopilot?: boolean;
 }
 
@@ -66,11 +69,26 @@ ChatMessage.displayName = "ChatMessage";
 export default function ChatBox({
   initialInput = "",
   agent,
+  /* eslint-disable-next-line @typescript-eslint/no-unused-vars -- 향후 직접 API 호출 구현 시 사용 예정 */
+  runtimeUrl, // CopilotKit 대신 직접 API 호출 시 사용될 endpoint URL
+  serviceName,
   useCopilot = false,
 }: ChatBoxProps) {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState(initialInput);
+  const [messages] = useState<Message[]>([]);
+  const input = useRef(initialInput);
   const messageEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (initialInput?.trim()) {
+      input.current = initialInput;
+    }
+  }, [initialInput]);
+
+  // 서비스 로깅 (히스토리 추적용)
+  useEffect(() => {
+    console.log(`현재 서비스: ${serviceName}`);
+  }, [serviceName]);
 
   // 문서 관련 상태 (from useCoAgent)
   const { nodeName, state } = useCoAgent<CoAgentState>({
@@ -86,14 +104,7 @@ export default function ChatBox({
     },
   });
 
-  useEffect(() => {
-    if (initialInput.trim()) {
-      setInput(initialInput); // 초기 메시지 설정
-    }
-  }, [initialInput, setInput]);
-
   const [documents, setDocuments] = useState<RetrievedDocument[]>([]);
-  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   // 문서 상태 업데이트
   useEffect(() => {
@@ -115,7 +126,6 @@ export default function ChatBox({
   useEffect(() => {
     messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
-
 
   // DOM 변경 감지 및 문서 추가
   useEffect(() => {
@@ -160,47 +170,8 @@ export default function ChatBox({
     return () => observer.disconnect();
   }, [documents]);
 
-  const sendMessage = async () => {
-    if (!input.trim()) return;
-
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      sender: "user",
-      text: input,
-      timestamp: new Date(),
-    };
-
-    setMessages((prevMessages) => [...prevMessages, userMessage]);
-    setInput("");
-
-    try {
-      const response = await fetch("/api/onelineai/olaf", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: [{ content: input, role: "user" }], agent }),
-      });
-
-      if (!response.ok) {
-        throw new Error("API 요청 실패");
-      }
-
-      const data = await response.json();
-
-      const botMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        sender: "bot",
-        text: data.content,
-        timestamp: new Date(),
-      };
-
-      setMessages((prevMessages) => [...prevMessages, botMessage]);
-    } catch (error) {
-      console.error("API 요청 실패:", error);
-    }
-  };
-
   return (
-    <div className={styles.container}>
+    <div className={styles.container} ref={chatContainerRef}>
       {useCopilot && agent && (
         <CopilotChat
           className="flex-1"
@@ -208,39 +179,9 @@ export default function ChatBox({
             title: "IBK 투자증권 업무 효율화 챗봇",
             initial: "안녕하세요. 무엇을 도와드릴까요?",
           }}
-          renderInput={(props) => (
-            <div className={styles.inputContainer}>
-              <textarea
-                {...props}
-                className={styles.input}
-                placeholder="메시지를 입력하세요..."
-              />
-              <button
-                onClick={props.onSendMessage}
-                className={styles.sendButton}
-                disabled={!props.value.trim()}
-              >
-                전송
-              </button>
-            </div>
-          )}
         />
       )}
-      <div className={styles.messageList}>
-        {messages.map((msg) => (
-          <div
-            key={msg.id}
-            className={`${styles.message} ${
-              msg.sender === "user" ? styles.userMessage : styles.botMessage
-            }`}
-          >
-            
-            {msg.text}
-          </div>
-        ))}
-        <div ref={messageEndRef} />
-        
-      </div>
+      <div ref={messageEndRef} />
     </div>
   );
 }

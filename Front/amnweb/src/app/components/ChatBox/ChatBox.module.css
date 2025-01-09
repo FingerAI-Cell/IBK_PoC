@@ -10,7 +10,6 @@
     flex-direction: column; /* 메시지는 아래로 쌓임 */
     z-index: 5; /* 헤더 아래 배치 */
   }
-  
   .messageList {
     flex-grow: 1; /* 남은 공간을 메시지 리스트가 채움 */
     overflow-y: auto; /* 스크롤 가능 */
@@ -108,3 +107,39 @@
     background-color: #c53030; /* Tailwind: bg-red-600 */
   }
   
+  
+  .copilotKitAssistantMessage {
+    font-size: 16px !important; /* 메시지 폰트 크기 */
+    color: #333 !important; /* 텍스트 색상 */
+  }
+  
+  /* ChatBox.module.css */
+  .copilotKitInput {
+    position: fixed; /* 화면 하단에 고정 */
+    bottom: 0; /* 하단에 완전히 붙임 */
+    width: calc(100% - 40px); /* 화면 너비에서 좌우 여백 제외 */
+    max-width: 600px; /* 최대 너비 제한 */
+    left: 50%; /* 중앙 정렬 */
+    transform: translateX(-50%);
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    z-index: 10; /* 다른 요소 위에 렌더링 */
+  }
+  
+  .copilotKitInputContainer {
+    position: relative; /* 자식 요소 위치 기준 */
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* 부모 높이 설정 */
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  .copilotKitMessages {
+    flex-grow: 1; /* 메시지 리스트가 남은 공간을 채움 */
+    overflow-y: auto; /* 스크롤 가능 */
+    padding-bottom: 80px; /* 입력창 높이만큼 하단 여백 추가 */
+  }

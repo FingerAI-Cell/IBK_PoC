@@ -1,7 +1,11 @@
 .container {
-  padding: 24px;
+  padding: 24px 48px;
   background: #f8f9fa;
   min-height: calc(100vh - 60px);
+  width: calc(100% - 320px);
+  position: fixed;
+  right: 0;
+  top: 60px;
 }
 
 .title {
@@ -15,6 +19,9 @@
   background: white;
   border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  max-width: 1000px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .tabs {
@@ -54,6 +61,10 @@
 
 .tableContainer {
   overflow-x: auto;
+  width: 100%;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .searchContainer {
@@ -120,6 +131,7 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 24px;
+  width: 100%;
 }
 
 .monitoringCard {
@@ -217,13 +229,13 @@
 }
 
 /* 반응형 디자인을 위한 미디어 쿼리 */
-@media (max-width: 1024px) {
+@media (max-width: 1400px) {
   .monitoringGrid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1000px) {
   .monitoringGrid {
     grid-template-columns: 1fr;
   }
@@ -234,4 +246,27 @@
   border-color: #2196F3;
   color: #1a1a1a;
   font-weight: 500;
+}
+
+/* 스크롤바 스타일링 (선택사항) */
+.tableContainer::-webkit-scrollbar,
+.container::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.tableContainer::-webkit-scrollbar-track,
+.container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.tableContainer::-webkit-scrollbar-thumb,
+.container::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.tableContainer::-webkit-scrollbar-thumb:hover,
+.container::-webkit-scrollbar-thumb:hover {
+  background: #555;
 } 

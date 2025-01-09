@@ -1,16 +1,28 @@
 .container {
-  padding: 24px;
+  padding: 24px 48px;
+  background: #f8f9fa;
+  height: calc(100vh - 60px);
+  width: calc(100% - 320px);
+  position: fixed;
+  right: 0;
+  top: 60px;
+  overflow-y: auto;
+}
+
+.tabContainer {
   background: white;
   border-radius: 12px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   max-width: 1200px;
   margin: 0 auto;
+  width: 95%;
+  padding: 32px;
 }
 
 .title {
   font-size: 24px;
   font-weight: bold;
-  margin-bottom: 24px;
+  margin: 12px 0 32px 0;
   color: #333;
 }
 

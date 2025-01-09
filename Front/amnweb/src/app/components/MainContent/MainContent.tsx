@@ -10,28 +10,61 @@ import AdminDashboard from "../AdminDashboard/AdminDashboard";
 import { faqs } from "../../data/faqData";
 import { useService } from "../../context/ServiceContext";
 import InvestmentReport from "../InvestmentReport/InvestmentReport";
+import { serviceConfig } from "../../config/serviceConfig";
+import { CopilotKit } from "@copilotkit/react-core";
 
 export default function MainContent() {
-  const { currentService, pageState, setPageState} = useService();
-  const [isChatting, setIsChatting] = useState(false);
+  const { currentService, pageState, setPageState } = useService();
   const [chatInput, setChatInput] = useState("");
 
   useEffect(() => {
-    setIsChatting(false);
     setChatInput("");
   }, [currentService]);
 
   const handleQuestionSubmit = () => {
     if (chatInput.trim()) {
-      setIsChatting(true);
       setPageState('chat');
     }
   };
 
   const handleFAQClick = (question: string) => {
     setChatInput(question);
-    setIsChatting(true);
     setPageState('chat');
+  };
+
+  const renderChatService = () => {
+    const config = serviceConfig[currentService];
+    
+    if (pageState === 'select') {
+      return (
+        <>
+          <GreetingSection
+            chatInput={chatInput}
+            onInputChange={setChatInput}
+            onSubmit={handleQuestionSubmit}
+            serviceType={currentService}
+          />
+          <FAQSection faqs={faqs} onFAQClick={handleFAQClick} />
+        </>
+      );
+    }
+
+    // pageState가 'chat'일 때
+    return (
+      <CopilotKit
+        runtimeUrl={config.apiEndpoint}
+        agent={config.agent}
+        showDevConsole={false}
+      >
+        <ChatBox 
+          initialInput={chatInput}
+          serviceName={currentService}
+          agent={config.agent}
+          useCopilot={config.useCopilot}
+          runtimeUrl={config.apiEndpoint}
+        />
+      </CopilotKit>
+    );
   };
 
   return (
@@ -42,26 +75,9 @@ export default function MainContent() {
         <MeetingList />
       ) : currentService === "investment-report" ? (
         <InvestmentReport />
-      ) : !isChatting ? (
-        <>
-          {/* 인사 및 FAQ 섹션 */}
-          <GreetingSection
-            chatInput={chatInput}
-            onInputChange={setChatInput}
-            onSubmit={handleQuestionSubmit}
-            serviceType={currentService}
-          />
-          <FAQSection faqs={faqs} onFAQClick={handleFAQClick} />
-        </>
       ) : (
-        <>
-          {/* 채팅 박스 및 FAQ */}
-          <ChatBox
-            initialInput={chatInput}
-            agent="olaf_ibk_poc_agent"
-            useCopilot={true}
-          />
-        </>
+        // 채팅 서비스 렌더링 (general-chat, branch-manual, overseas-loan, financial-statements)
+        renderChatService()
       )}
     </div>
   );

@@ -4,6 +4,8 @@ interface ServiceConfig {
   defaultMessage: string;
   historyKey: string;
   greeting: string;
+  agent?: string;
+  useCopilot?: boolean;
 }
 
 export const apiConfig = {
@@ -12,11 +14,13 @@ export const apiConfig = {
 
 export const serviceConfig: { [key: string]: ServiceConfig } = {
   'general-chat': {
-    apiEndpoint: `${apiConfig.baseURL}/api/chat/general`,
+    apiEndpoint: '/api/onelineai/olaf',
     title: '일반 채팅',
     defaultMessage: '궁금하신 내용을 입력해주세요.',
     historyKey: 'chat-history-general',
-    greeting: '금융 도우미에 오신 것을 환영합니다!'
+    greeting: '금융 도우미에 오신 것을 환영합니다!',
+    agent: 'olaf_ibk_poc_agent',
+    useCopilot: true
   },
   'overseas-loan': {
     apiEndpoint: '/api/chat/overseas',
@@ -33,11 +37,13 @@ export const serviceConfig: { [key: string]: ServiceConfig } = {
     greeting: '재무제표 도우미입니다.'
   },
   'branch-manual': {
-    apiEndpoint: '/api/chat/branch',
+    apiEndpoint: '/api/onelineai/olaf',
     title: '영업점 매뉴얼',
     defaultMessage: '영업점 매뉴얼에 대해 질문해주세요.',
     historyKey: 'chat-history-branch',
-    greeting: '영업점 매뉴얼 도우미입니다.'
+    greeting: '영업점 매뉴얼 도우미입니다.',
+    agent: 'olaf_ibk_poc_agent',
+    useCopilot: true
   },
   'meeting-minutes': {
     apiEndpoint: `${apiConfig.baseURL}/api/meetings`,
