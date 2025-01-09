@@ -16,6 +16,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Service
@@ -116,18 +117,52 @@ public class MeetingService {
         if (meeting.getWavSrc() == null) {
             throw new IllegalStateException("WAV 파일 경로가 존재하지 않습니다: meetingId=" + meetingId);
         }
+        // 파이썬 코드의 data 파라미터 구조에 맞춤
+        String requestJson1 = String.format(
+                "{\"file_name\": \"%s\", \"participant\": %d}",
+                meeting.getWavSrc(),
+                meeting.getParticipants()
+        );
+        // 파이썬 코드의 data 파라미터 구조에 맞춤
+        String requestJson2 = String.format(
+                "{\"file_name\": \"%s\"}",
+                meeting.getWavSrc()
+        );
+        String requestJson3 = String.format(
+                "{\"meetingId\": \"%d\"}",
+                meeting.getConfId()
+        );
+        // API URLs
+        String apiUrl1 = "http://localhost:8081/run";
+        String apiUrl2 = "http://localhost:8081/run-stt";
+        String apiUrl3 = "http://localhost:8081/map-result";
 
-        // API URL 설정
-        String apiUrl = "http://localhost:8081/run";
+        // CompletableFuture를 사용하여 비동기 API 호출
+        CompletableFuture<HttpResponse<String>> future1 = CompletableFuture.supplyAsync(() -> callApi(apiUrl1, requestJson1));
+        CompletableFuture<HttpResponse<String>> future2 = CompletableFuture.supplyAsync(() -> callApi(apiUrl2, requestJson2));
 
+        // 두 API가 완료된 후 세 번째 API 호출
+        future1.thenCombine(future2, (response1, response2) -> {
+            if (response1.statusCode() == 200 && response2.statusCode() == 200) {
+                log.info("두 API 호출 성공, 세 번째 API 호출 시작");
+                return callApi(apiUrl3, requestJson3);
+            } else {
+                throw new RuntimeException("두 API 중 하나 이상 호출 실패");
+            }
+        }).thenAccept(response3 -> {
+            if (response3.statusCode() == 200) {
+                log.info("세 번째 API 호출 성공: 응답={}", response3.body());
+            } else {
+                log.error("세 번째 API 호출 실패: 상태 코드={}", response3.statusCode());
+            }
+        }).exceptionally(e -> {
+            log.error("API 호출 중 예외 발생: {}", e.getMessage(), e);
+            return null;
+        });
+    }
+
+    private HttpResponse<String> callApi(String apiUrl, String requestJson) {
         try {
-            // 파이썬 코드의 data 파라미터 구조에 맞춤
-            String requestJson = String.format(
-                    "{\"file_name\": \"%s\", \"participant\": %d}",
-                    meeting.getWavSrc(),
-                    meeting.getParticipants()
-            );
-
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(apiUrl))
@@ -135,20 +170,12 @@ public class MeetingService {
                     .POST(HttpRequest.BodyPublishers.ofString(requestJson))
                     .build();
 
-            log.info("STT API 호출 시작: {}, 요청 데이터: {}", apiUrl, requestJson);
+            log.info("API 호출: {}, 요청 데이터: {}", apiUrl, requestJson);
 
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-            if (response.statusCode() == 200) {
-                log.info("STT API 호출 성공: 응답={}", response.body());
-            } else {
-                log.error("STT API 호출 실패: 상태 코드={}", response.statusCode());
-                throw new RuntimeException("STT API 호출 실패");
-            }
-
+            return client.send(request, HttpResponse.BodyHandlers.ofString());
         } catch (Exception e) {
-            log.error("STT API 호출 중 예외 발생: {}", e.getMessage(), e);
-            throw new RuntimeException("STT API 처리 실패", e);
+            log.error("API 호출 중 예외 발생: {}", e.getMessage(), e);
+            throw new RuntimeException("API 호출 실패", e);
         }
     }
 }
