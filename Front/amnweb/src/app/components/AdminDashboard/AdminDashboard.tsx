@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import styles from './AdminDashboard.module.css';
-import { BiDownload } from 'react-icons/bi';
 import ChatHistory from './ChatHistory/ChatHistory';
 
 export default function AdminDashboard() {
@@ -15,21 +14,6 @@ export default function AdminDashboard() {
     { id: 1, fileName: '2024년 1분기 재무제표.xlsx', author: '김재무', createdAt: '2024-03-15 14:30' },
     { id: 2, fileName: '2023년 4분기 재무제표.xlsx', author: '이경제', createdAt: '2024-01-10 09:15' },
     { id: 3, fileName: '2023년 3분기 재무제표.xlsx', author: '박회계', createdAt: '2023-10-05 11:45' },
-  ];
-
-  // 모니터링 데이터
-  const monitoringStocks = [
-    '애플', '엔비디아', '아마존닷컴', '알파벳A', '버크셔 해서웨이'
-  ];
-
-  const monitoringKeywords = [
-    '파산', '상장폐지', '합병', '회사분할', '주식분할', '티커변경'
-  ];
-
-  const monitoringResults = [
-    { id: 1, date: '2024-01-03', content: '엔비디아 주식분할 논의 중', status: '주의' },
-    { id: 2, date: '2024-01-02', content: '아마존 실적 발표', status: '정상' },
-    { id: 3, date: '2024-01-01', content: '알파벳A 티커변경 예정', status: '주의' },
   ];
 
   const handleItemClick = (type: 'stock' | 'keyword', item: string) => {
@@ -100,59 +84,49 @@ export default function AdminDashboard() {
 
           {activeTab === 'monitoring' && (
             <div className={styles.monitoringContainer}>
-              <div className={styles.monitoringGrid}>
-                {/* 모니터링 종목 */}
-                <div className={styles.monitoringCard}>
-                  <h3 className={styles.cardTitle}>모니터링 종목</h3>
-                  <ul className={styles.monitoringList}>
-                    {monitoringStocks.map((stock, index) => (
-                      <li 
-                        key={index} 
-                        className={`${styles.monitoringItem} ${selectedStock === stock ? styles.selected : ''}`}
-                        onClick={() => handleItemClick('stock', stock)}
-                        role="button"
-                        tabIndex={0}
-                      >
-                        {stock}
-                      </li>
-                    ))}
-                  </ul>
+              <div className={styles.dateFilterSection}>
+                <input 
+                  type="date" 
+                  className={styles.dateInput}
+                  defaultValue={new Date().toISOString().split('T')[0]}
+                  onChange={(e) => console.log(e.target.value)}
+                />
+              </div>
+
+              <div className={styles.contentLayout}>
+                <div className={styles.tableWrapper}>
+                  <div className={styles.tableContainer}>
+                    <table className={styles.monitoringTable}>
+                      <thead>
+                        <tr>
+                          <th>종목명</th>
+                          <th>10-K</th>
+                          <th>10-Q</th>
+                          <th>8-K</th>
+                          <th>뉴스</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr><td>엔비디아</td><td>X</td><td>X</td><td>X</td><td>X</td></tr>
+                        <tr><td>아마존닷컴</td><td>X</td><td>X</td><td>X</td><td>X</td></tr>
+                        <tr><td>알파벳 A</td><td>X</td><td>X</td><td>X</td><td>X</td></tr>
+                        <tr><td>알파벳 C</td><td>X</td><td>X</td><td>X</td><td>X</td></tr>
+                        <tr><td>메타 플랫폼스</td><td>X</td><td>X</td><td>X</td><td>X</td></tr>
+                        <tr><td>버크셔 해서웨이</td><td>X</td><td>X</td><td>X</td><td>X</td></tr>
+                        <tr><td>일라이 릴리</td><td>X</td><td>X</td><td>X</td><td>X</td></tr>
+                        <tr><td>프록터앤드</td><td>X</td><td>X</td><td>X</td><td>X</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
 
-                {/* 모니터링 키워드 */}
-                <div className={styles.monitoringCard}>
-                  <h3 className={styles.cardTitle}>모니터링 키워드</h3>
-                  <ul className={styles.monitoringList}>
-                    {monitoringKeywords.map((keyword, index) => (
-                      <li 
-                        key={index} 
-                        className={`${styles.monitoringItem} ${selectedKeyword === keyword ? styles.selected : ''}`}
-                        onClick={() => handleItemClick('keyword', keyword)}
-                        role="button"
-                        tabIndex={0}
-                      >
-                        {keyword}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {/* 모니터링 결과 */}
-                <div className={styles.monitoringCard}>
-                  <h3 className={styles.cardTitle}>모니터링 결과</h3>
-                  <ul className={styles.resultsList}>
-                    {monitoringResults.map((result) => (
-                      <li key={result.id} className={styles.resultItem}>
-                        <div className={styles.resultContent}>
-                          <div className={styles.resultDate}>{result.date}</div>
-                          <div className={styles.resultText}>{result.content}</div>
-                        </div>
-                        <button className={styles.iconButton} aria-label="다운로드">
-                          <BiDownload size={18} />
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
+                <div className={styles.summarySection}>
+                  <p className={styles.summaryText}>
+                    - 마크로 인수합병과 분사를 통해 사업을 확장하고 재편하고 있습니다. 2024년에는 아이데이아도, 하트 이어로 인수하였습니다. 2023년에는 피오니어스, 바이오사이언스, 이러고 바이오사이언스 등을 인수하였습니다. 2021년에는 요가를 분사하였습니다.
+                  </p>
+                  <p className={styles.summaryText}>
+                    - ExxonMobile은 2024년 5월 3일 Pioneer Natural Resources를 인수하였습니다. 이 인수를 통해 ExxonMobile은 Permian 지역의 생산량을 두 배로 늘릴 수 있게 되었고 시너지 효과를 기대할 수 있게 되었습니다. 특히 Advantaged Volume Growth 부문에서 Permian 지역 생산 증가와 Pioneer 인수 효과로 우위가 크게 높아졌습니다. 현재 Pioneer 인수 관련 세부도 잘 진행되고 있어서 이 인수를 통해 ExxonMobile의 Upstream 부문 전망이 개선되었습니다. 앞으로도 ExxonMobile은 Pioneer 인수를 통해 성장할 것으로 전망됩니다.
+                  </p>
                 </div>
               </div>
             </div>

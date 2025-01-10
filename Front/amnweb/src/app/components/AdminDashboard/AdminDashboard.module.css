@@ -1,5 +1,5 @@
 .container {
-  padding: 24px 48px;
+  padding: 24px 32px;
   background: #f8f9fa;
   min-height: calc(100vh - 60px);
   width: calc(100% - 320px);
@@ -19,7 +19,7 @@
   background: white;
   border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 0 auto;
   width: 100%;
 }
@@ -124,7 +124,7 @@
 
 /* 모니터링 섹션 스타일 */
 .monitoringContainer {
-  padding: 16px;
+  padding: 20px 0;
 }
 
 .monitoringGrid {
@@ -139,8 +139,10 @@
   border-radius: 8px;
   padding: 20px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  height: 100%;
+  height: 400px;
   border: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
 }
 
 .cardTitle {
@@ -150,12 +152,15 @@
   margin-bottom: 16px;
   padding-bottom: 8px;
   border-bottom: 2px solid #f1f5f9;
+  flex-shrink: 0;
 }
 
 .monitoringList {
   list-style: none;
   padding: 0;
   margin: 0;
+  max-height: 200px;
+  overflow-y: auto;
 }
 
 .monitoringItem {
@@ -269,4 +274,301 @@
 .tableContainer::-webkit-scrollbar-thumb:hover,
 .container::-webkit-scrollbar-thumb:hover {
   background: #555;
-} 
+}
+
+.monitoringTopGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.searchButtonContainer {
+  display: flex;
+  justify-content: center;
+  margin: 24px 0;
+}
+
+.searchButton {
+  padding: 12px 32px;
+  background: #2196F3;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.searchButton:hover {
+  background: #1976D2;
+}
+
+.resultsSection {
+  margin-top: 24px;
+  max-height: calc(100vh - 600px);
+  overflow-y: auto;
+}
+
+.resultCard {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.resultHeader {
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8fafc;
+}
+
+.resultInfo {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.resultDate {
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.resultText {
+  color: #1a1a1a;
+  font-weight: 500;
+}
+
+.detailButton {
+  padding: 8px 16px;
+  background: transparent;
+  border: 1px solid #2196F3;
+  color: #2196F3;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.detailButton:hover {
+  background: #2196F3;
+  color: white;
+}
+
+.resultDetail {
+  padding: 16px;
+  border-top: 1px solid #e2e8f0;
+  display: none;
+}
+
+.resultCard.expanded .resultDetail {
+  display: block;
+}
+
+/* 스크롤바 스타일링 */
+.monitoringList::-webkit-scrollbar {
+  width: 8px;
+}
+
+.monitoringList::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.monitoringList::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.monitoringList::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* 스크롤바 스타일링 */
+.monitoringContainer::-webkit-scrollbar,
+.monitoringList::-webkit-scrollbar {
+  width: 8px;
+}
+
+.monitoringContainer::-webkit-scrollbar-track,
+.monitoringList::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.monitoringContainer::-webkit-scrollbar-thumb,
+.monitoringList::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.monitoringContainer::-webkit-scrollbar-thumb:hover,
+.monitoringList::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.monitoringLayout {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 24px;
+}
+
+.monitoringMain {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  height: 100%;
+}
+
+.dateFilterSection {
+  margin-bottom: 16px;
+}
+
+.dateInput {
+  padding: 8px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.contentLayout {
+  display: flex;
+  gap: 24px;
+  height: 450px;
+  padding: 20px 0 0 0;
+}
+
+.tableWrapper {
+  flex: 6;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: 600px;
+}
+
+.summarySection {
+  flex: 4;
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+  overflow-y: auto;
+  max-height: 600px;
+}
+
+.monitoringTable {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.monitoringTable thead tr {
+  position: sticky;
+  top: 0;
+  background: white;
+  z-index: 1;
+}
+
+.monitoringTable tbody {
+  overflow-y: auto;
+}
+
+.monitoringTable th,
+.monitoringTable td {
+  padding: 8px 12px;
+  text-align: center;
+  border: 1px solid #e2e8f0;
+}
+
+.monitoringTable th {
+  background: #f8fafc;
+  font-weight: 600;
+  color: #4a5568;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.summaryText {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: #1a1a1a;
+  margin-bottom: 16px;
+}
+
+.dateFilterSection {
+  margin-bottom: 16px;
+}
+
+.dateInput {
+  padding: 8px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+/* 스크롤바 스타일링 */
+.tableContainer::-webkit-scrollbar,
+.summarySection::-webkit-scrollbar {
+  width: 6px;
+}
+
+.tableContainer::-webkit-scrollbar-track,
+.summarySection::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.tableContainer::-webkit-scrollbar-thumb,
+.summarySection::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+}
+
+.tableContainer::-webkit-scrollbar-thumb:hover,
+.summarySection::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.monitoringTable td {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 12px 16px;
+}
+
+.monitoringTable th {
+  white-space: nowrap;
+  padding: 12px 16px;
+  background: #f8fafc;
+  font-weight: 600;
+  color: #4a5568;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+/* 종목명 컬럼 스타일 수정 */
+.monitoringTable td:first-child,
+.monitoringTable th:first-child {
+  width: 40%;
+  white-space: normal;
+  word-break: break-word;
+}
+
+/* 나머지 컬럼 스타일 수정 */
+.monitoringTable td:not(:first-child),
+.monitoringTable th:not(:first-child) {
+  width: 15%;
+  white-space: nowrap;
+  text-align: center;
+}
+
+/* 나머지 스타일은 동일 */ 

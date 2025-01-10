@@ -34,7 +34,9 @@ export const POST = async (req: NextRequest) => {
     endpoint: "/api/onelineai/olaf",
     // @ts-expect-error - copilotkit의 타입 정의에는 없지만 실제로 지원되는 옵션
     preprocessRequest: async (request: Request) => {
+      console.log("preprocessRequest triggered");
       const body = await request.json();
+      console.log("Request Body:", body);
       const serviceContext: ServiceContext = {
         service: body.service || 'general-chat',
         agent: body.agent || 'olaf_ibk_poc_agent'
@@ -42,7 +44,8 @@ export const POST = async (req: NextRequest) => {
       
       // 로깅 추가 (필요시)
       console.log('Service Context:', serviceContext);
-      
+      // 현재 요청의 URL 로깅
+      console.log('Incoming Request URL:', request.url);
       // 원본 요청에 서비스 컨텍스트 추가
       return new Request(request.url, {
         method: request.method,

@@ -1,5 +1,5 @@
 .container {
-  padding: 24px 48px;
+  padding: 16px 16px;
   background: #f8f9fa;
   height: calc(100vh - 60px);
   width: calc(100% - 320px);
@@ -13,10 +13,10 @@
   background: white;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  max-width: 1200px;
+  max-width: 1600px;
   margin: 0 auto;
-  width: 95%;
-  padding: 32px;
+  width: 99%;
+  padding: 24px;
 }
 
 .title {
@@ -71,6 +71,8 @@
   border-radius: 8px;
   padding: 20px;
   border: 1px solid #eee;
+  margin-bottom: 20px;
+  min-height: 400px;
 }
 
 .portfolioChart h3 {
@@ -80,7 +82,8 @@
 }
 
 .chartWrapper {
-  height: 300px;
+  height: 360px;
+  width: 100%;
   position: relative;
 }
 
@@ -99,7 +102,7 @@
 
 .listHeader {
   display: grid;
-  grid-template-columns: 2.5fr 1fr 1.8fr 1fr;
+  grid-template-columns: 2.2fr 1fr 1.5fr 1.3fr;
   padding: 12px 16px;
   background: #f8f9fa;
   border-radius: 4px;
@@ -116,7 +119,7 @@
 
 .investmentItem {
   display: grid;
-  grid-template-columns: 2.5fr 1fr 1.8fr 1fr;
+  grid-template-columns: 2.2fr 1fr 1.5fr 1.3fr;
   padding: 12px 16px;
   border-bottom: 1px solid #eee;
   font-size: 13px;
@@ -183,7 +186,8 @@
 }
 
 .investmentItem span:nth-child(4) {
-  padding-left: 8px;
+  padding-left: 4px;
+  text-align: left;
 }
 
 .investmentItem:nth-child(even) {
