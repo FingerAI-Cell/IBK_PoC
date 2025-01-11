@@ -158,8 +158,23 @@ const formatNumericValue = (text: string) => {
   return text;
 };
 
+// 주말인지 확인하는 유틸리티 함수 추가
+const isWeekend = (date: Date): boolean => {
+  const day = date.getDay();
+  return day === 0 || day === 6; // 0은 일요일, 6은 토요일
+};
+
+// 가장 최근 평일을 반환하는 유틸리티 함수 추가
+const getLatestWeekday = (date: Date): Date => {
+  const newDate = new Date(date);
+  while (isWeekend(newDate)) {
+    newDate.setDate(newDate.getDate() - 1);
+  }
+  return newDate;
+};
+
 export default function InvestmentReport() {
-  const today = format(new Date(), 'yyyyMMdd');
+  const today = format(getLatestWeekday(new Date()), 'yyyyMMdd');
   const [selectedUser, setSelectedUser] = useState(DEFAULT_USER);
   const [selectedDate, setSelectedDate] = useState(today);
   const [stockData, setStockData] = useState<StockData[]>([]);
@@ -293,7 +308,14 @@ export default function InvestmentReport() {
   // 날짜 선택 핸들러
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const date = new Date(e.target.value);
-    // API 요청용 날짜 형식 (yyyyMMdd)
+    
+    // 주말인 경우 가장 최근 평일로 설정
+    if (isWeekend(date)) {
+      const dayOfWeek = date.getDay();
+      const daysToSubtract = dayOfWeek === 0 ? 2 : 1; // 일요일이면 2일 전, 토요일이면 1일 전
+      date.setDate(date.getDate() - daysToSubtract);
+    }
+    
     setSelectedDate(format(date, 'yyyyMMdd'));
   };
 
@@ -369,7 +391,8 @@ export default function InvestmentReport() {
               min="2025-01-09"
               max={format(new Date(), 'yyyy-MM-dd')}
               onChange={handleDateChange}
-              className="p-2 border rounded-md"
+              className={styles.dateInput}
+              onKeyDown={(e) => e.preventDefault()}
             />
           </div>
         </div>

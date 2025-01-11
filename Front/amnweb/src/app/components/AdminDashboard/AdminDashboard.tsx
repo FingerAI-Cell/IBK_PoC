@@ -35,7 +35,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchFilingData = async () => {
       try {
-        const response = await fetch(`https://6990-211-218-53-100.ngrok-free.app/admin/filing/${selectedDate}`);
+        const response = await fetch(`/api/admin/filing/${selectedDate}`);
         
         if (!response.ok) {
           throw new Error(`HTTP 상태 오류: ${response.status}`);

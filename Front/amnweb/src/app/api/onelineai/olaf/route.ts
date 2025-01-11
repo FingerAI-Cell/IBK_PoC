@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import {
   CopilotRuntime,
   OpenAIAdapter,
@@ -32,41 +32,41 @@ export const POST = async (req: NextRequest) => {
   console.log("POST handler triggered");
   console.log("Incoming Request:", req);
 
+  // CORS 헤더 설정
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  };
+
+  // OPTIONS 요청 처리
+  if (req.method === 'OPTIONS') {
+    return NextResponse.json({}, { headers: corsHeaders });
+  }
+
   const { handleRequest } = copilotRuntimeNextJSAppRouterEndpoint({
     runtime,
     serviceAdapter,
     endpoint: "/api/onelineai/olaf",
-    // preprocessRequest: async (request: Request) => {
-    //   console.log("preprocessRequest triggered");
-    //   const body = await request.json();
-    //   console.log("Request Body:", body);
-    //   const serviceContext: ServiceContext = {
-    //     service: body.service || 'general-chat',
-    //     agent: body.agent || 'olaf_ibk_poc_agent'
-    //   };
-      
-    //   // 로깅 추가 (필요시)
-    //   console.log('Service Context:', serviceContext);
-    //   // 현재 요청의 URL 로깅
-    //   console.log('Incoming Request URL:', request.url);
-    //   // 원본 요청에 서비스 컨텍스트 추가
-    //   return new Request(request.url, {
-    //     method: request.method,
-    //     headers: request.headers,
-    //     body: JSON.stringify({
-    //       ...body,
-    //       context: {
-    //         ...body.context,
-    //         service: serviceContext.service,
-    //         agent: serviceContext.agent
-    //       }
-    //     })
-    //   });
-    // },
-    // postprocessResponse: async (response: Response) => {
-    //   return response;
-    // }
   });
 
-  return handleRequest(req);
+  const response = await handleRequest(req);
+  
+  // 응답에 CORS 헤더 추가
+  Object.entries(corsHeaders).forEach(([key, value]) => {
+    response.headers.set(key, value);
+  });
+
+  return response;
+};
+
+// OPTIONS 메서드 핸들러 추가
+export const OPTIONS = async (req: NextRequest) => {
+  return NextResponse.json({}, {
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    },
+  });
 };

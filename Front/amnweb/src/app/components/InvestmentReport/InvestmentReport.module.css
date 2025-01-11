@@ -196,4 +196,40 @@
 
 .investmentItem:last-child {
   border-bottom: none;
-} 
+}
+
+.dateInput {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
+  width: 130px;
+}
+
+.dateInput::-webkit-datetime-edit { background: transparent; }
+.dateInput::-webkit-datetime-edit-fields-wrapper { background: transparent; }
+.dateInput::-webkit-datetime-edit-text { background: transparent; }
+.dateInput::-webkit-datetime-edit-month-field { background: transparent; }
+.dateInput::-webkit-datetime-edit-day-field { background: transparent; }
+.dateInput::-webkit-datetime-edit-year-field { background: transparent; }
+.dateInput::-webkit-calendar-picker-indicator { 
+  background: transparent;
+  position: absolute;
+  right: 0;
+  width: 20px;
+  height: 20px;
+  opacity: 1;
+  cursor: pointer;
+}
+
+.dateInput::-webkit-clear-button { 
+  -webkit-appearance: none;
+  display: none !important;
+  width: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  visibility: hidden !important;
+}
+.dateInput::-webkit-inner-spin-button { display: none; } 

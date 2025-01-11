@@ -6,7 +6,7 @@ import Sidebar from "./components/Sidebar/Sidebar";
 import { ServiceProvider, useService } from "./context/ServiceContext";
 import MainContent from "./components/MainContent/MainContent";
 
-function LayoutContent({ children }: { children: React.ReactNode }) {
+function LayoutContent() {
   const { currentService, setCurrentService } = useService();
   
   return (
@@ -15,11 +15,10 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
         currentService={currentService}
         selectService={setCurrentService}
       />
-      <div className="flex-grow flex flex-col ml-64">
+      <div className="flex-grow flex flex-col ml-64">``
         <Header />
         <main className="p-6 mt-16">
           <MainContent />
-          {children}
         </main>
       </div>
     </div>
@@ -27,7 +26,6 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
 }
 
 export default function RootLayout({
-  children,
 }: {
   children: React.ReactNode;
 }) {
@@ -35,7 +33,7 @@ export default function RootLayout({
     <html lang="en">
       <ServiceProvider>
         <body>
-          <LayoutContent>{children}</LayoutContent>
+          <LayoutContent></LayoutContent>
         </body>
       </ServiceProvider>
     </html>

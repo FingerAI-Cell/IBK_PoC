@@ -3,4 +3,5 @@ crontab -e
 
 # 다음 라인을 추가하여 서버 부팅 시 스크립트 자동 실행
 # 수정 필요 도커환경인 점 반영
-0 1 * * * /usr/bin/python3 /home/fuser01/scripts/FinancialSatementsCall.py >> /home/fuser01/scripts/cron.log 2>&1
+# 매 분기 시작일(1월 1일, 4월 1일, 7월 1일, 10월 1일) 새벽 1시에 실행
+0 1 1 1,4,7,10 * /usr/bin/python3 /home/fuser01/scripts/FinancialStatementsCall.py >> /home/fuser01/scripts/cron.log 2>&1
