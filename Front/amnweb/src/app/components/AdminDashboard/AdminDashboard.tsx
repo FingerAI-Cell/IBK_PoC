@@ -44,6 +44,8 @@ export default function AdminDashboard() {
         setFilingData(data);
       } catch (error) {
         console.error('데이터 불러오기 실패:', error);
+        // 에러 상태를 사용자에게 표시하는 상태 추가 추천
+        // setError(error.message);
       }
     };
 

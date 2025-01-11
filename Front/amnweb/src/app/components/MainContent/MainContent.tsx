@@ -68,6 +68,8 @@ export default function MainContent() {
       >
         <ChatBox 
           agent={config.agent || ''}
+          useCopilotKit={true}
+          runtimeUrl={config.apiEndpoint}
         />
       </CopilotKit>
     );

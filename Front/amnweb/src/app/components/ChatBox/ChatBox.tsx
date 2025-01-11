@@ -52,6 +52,8 @@ ChatMessage.displayName = "ChatMessage";
 
 interface ChatBoxProps {
   agent: string;
+  runtimeUrl: string;
+  useCopilotKit: boolean;
 }
 
 export default function ChatBox({ agent }: ChatBoxProps) {
