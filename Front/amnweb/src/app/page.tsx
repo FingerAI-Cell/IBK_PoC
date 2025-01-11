@@ -9,9 +9,9 @@ export default function Home() {
     <div className="min-h-screen bg-gray-100 p-6">
       <div className="bg-white p-6 rounded shadow">
         {currentService === "default" ? (
-          <p>서비스를 선택해주세요.</p>
+          <p></p>
         ) : (
-          <p>{currentService} 콘텐츠</p>
+          <p>{currentService} </p>
         )}
       </div>
     </div>

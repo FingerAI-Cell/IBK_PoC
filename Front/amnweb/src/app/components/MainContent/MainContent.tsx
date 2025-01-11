@@ -67,11 +67,7 @@ export default function MainContent() {
         showDevConsole={false}
       >
         <ChatBox 
-          initialInput={chatInput}
-          serviceName={currentService}
-          agent={config.agent}
-          useCopilot={config.useCopilot}
-          runtimeUrl={config.apiEndpoint}
+          agent={config.agent || ''}
         />
       </CopilotKit>
     );

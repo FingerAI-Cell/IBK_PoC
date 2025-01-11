@@ -113,14 +113,23 @@ public class WebService {
                 .collect(Collectors.toList());
         logger.info("JSON data prepared for summarization: {}", jsonData);
 
+        // JSON 데이터를 문자열로 변환
+        String jsonString;
+        try {
+            jsonString = new ObjectMapper().writeValueAsString(jsonData);
+            logger.info("JSON string for summarization: {}", jsonString);
+        } catch (Exception e) {
+            logger.error("Failed to convert JSON data to string", e);
+            throw new RuntimeException("JSON 변환 실패");
+        }
+
         // 5. AI 요약 호출
-        List<String> summaryResults = summarizer.summarizeData(jsonData);
+        String summaryResults = summarizer.summarizeData(jsonString);
         logger.info("Summary results received: {}", summaryResults);
 
         // 6. 요약 결과 저장
-        String finalSummary = summaryResults.get(0);
-        meeting.setSummary(finalSummary);
-        logger.info("Final summary set to meeting: {}", finalSummary);
+        meeting.setSummary(summaryResults);
+        logger.info("Final summary set to meeting: {}", summaryResults);
 
         meetingRepository.save(meeting);
         logger.info("Meeting saved to database: {}", meeting);
