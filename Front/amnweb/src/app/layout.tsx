@@ -60,27 +60,34 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <body className="flex min-h-screen bg-gray-100">
+    <div className="flex h-full bg-gray-100">
       <Sidebar 
         currentService={currentService}
         selectService={setCurrentService}
       />
-      <div className="flex-grow flex flex-col ml-64">
+      <div className="flex-grow flex flex-col ml-64 h-full">
         <Header />
-        <main className="p-6 mt-16">
+        <main className="flex-1 p-6 mt-16 overflow-auto">
           {renderContent()}
+          {children}
         </main>
       </div>
-    </body>
+    </div>
   );
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <ServiceProvider>
-      <html lang="en">
-        <LayoutContent>{children}</LayoutContent>
-      </html>
-    </ServiceProvider>
+    <html lang="en" className="h-full">
+      <ServiceProvider>
+        <body className="h-full overflow-hidden">
+          <LayoutContent>{children}</LayoutContent>
+        </body>
+      </ServiceProvider>
+    </html>
   );
 }

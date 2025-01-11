@@ -1,13 +1,66 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styles from './AdminDashboard.module.css';
 import ChatHistory from './ChatHistory/ChatHistory';
+
+interface FilingData {
+  overview: Array<Record<string, {
+    '10-K': string;
+    '10-Q': string;
+    '8-K': string;
+    news: string;
+  }>>;
+  summary: Array<Record<string, Array<{
+    form: string;
+    date: string;
+    matching_sections: {
+      [key: string]: {
+        keywords_found: Record<string, string>;
+        text_ko_summary: string;
+      };
+    };
+  }>>>;
+}
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<'financial' | 'monitoring' | 'chat-history'>('financial');
   const [selectedStock, setSelectedStock] = useState<string | null>(null);
   const [selectedKeyword, setSelectedKeyword] = useState<string | null>(null);
+  const [filingData, setFilingData] = useState<FilingData | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string>(
+    new Date().toISOString().split('T')[0].replace(/-/g, '')
+  );
+
+  useEffect(() => {
+    const fetchFilingData = async () => {
+      try {
+        const response = await fetch(`https://6990-211-218-53-100.ngrok-free.app/admin/filing/${selectedDate}`);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP 상태 오류: ${response.status}`);
+        }
+        const data = await response.json();
+        setFilingData(data);
+      } catch (error) {
+        console.error('데이터 불러오기 실패:', error);
+      }
+    };
+
+    fetchFilingData();
+  }, [selectedDate]);
+
+  // 요약 텍스트 추출 함수
+  const getSummaryTexts = () => {
+    if (!filingData?.summary?.[0]) return [];
+    
+    return Object.values(filingData.summary[0]).flatMap(company => 
+      company.map(item => 
+        Object.values(item.matching_sections)
+          .map(section => section.text_ko_summary)
+      ).flat()
+    ).filter(text => text);
+  };
 
   // 재무제표 샘플 데이터
   const financialStatements = [
@@ -89,7 +142,7 @@ export default function AdminDashboard() {
                   type="date" 
                   className={styles.dateInput}
                   defaultValue={new Date().toISOString().split('T')[0]}
-                  onChange={(e) => console.log(e.target.value)}
+                  onChange={(e) => setSelectedDate(e.target.value.replace(/-/g, ''))}
                 />
               </div>
 
@@ -107,26 +160,26 @@ export default function AdminDashboard() {
                         </tr>
                       </thead>
                       <tbody>
-                        <tr><td>엔비디아</td><td>X</td><td>X</td><td>X</td><td>X</td></tr>
-                        <tr><td>아마존닷컴</td><td>X</td><td>X</td><td>X</td><td>X</td></tr>
-                        <tr><td>알파벳 A</td><td>X</td><td>X</td><td>X</td><td>X</td></tr>
-                        <tr><td>알파벳 C</td><td>X</td><td>X</td><td>X</td><td>X</td></tr>
-                        <tr><td>메타 플랫폼스</td><td>X</td><td>X</td><td>X</td><td>X</td></tr>
-                        <tr><td>버크셔 해서웨이</td><td>X</td><td>X</td><td>X</td><td>X</td></tr>
-                        <tr><td>일라이 릴리</td><td>X</td><td>X</td><td>X</td><td>X</td></tr>
-                        <tr><td>프록터앤드</td><td>X</td><td>X</td><td>X</td><td>X</td></tr>
+                        {filingData?.overview?.[0] && Object.entries(filingData.overview[0]).map(([symbol, data]) => (
+                          <tr key={symbol}>
+                            <td>{symbol}</td>
+                            <td>{data['10-K']}</td>
+                            <td>{data['10-Q']}</td>
+                            <td>{data['8-K']}</td>
+                            <td>{data.news}</td>
+                          </tr>
+                        ))}
                       </tbody>
                     </table>
                   </div>
                 </div>
 
                 <div className={styles.summarySection}>
-                  <p className={styles.summaryText}>
-                    - 마크로 인수합병과 분사를 통해 사업을 확장하고 재편하고 있습니다. 2024년에는 아이데이아도, 하트 이어로 인수하였습니다. 2023년에는 피오니어스, 바이오사이언스, 이러고 바이오사이언스 등을 인수하였습니다. 2021년에는 요가를 분사하였습니다.
-                  </p>
-                  <p className={styles.summaryText}>
-                    - ExxonMobile은 2024년 5월 3일 Pioneer Natural Resources를 인수하였습니다. 이 인수를 통해 ExxonMobile은 Permian 지역의 생산량을 두 배로 늘릴 수 있게 되었고 시너지 효과를 기대할 수 있게 되었습니다. 특히 Advantaged Volume Growth 부문에서 Permian 지역 생산 증가와 Pioneer 인수 효과로 우위가 크게 높아졌습니다. 현재 Pioneer 인수 관련 세부도 잘 진행되고 있어서 이 인수를 통해 ExxonMobile의 Upstream 부문 전망이 개선되었습니다. 앞으로도 ExxonMobile은 Pioneer 인수를 통해 성장할 것으로 전망됩니다.
-                  </p>
+                  {getSummaryTexts().map((text, index) => (
+                    <p key={index} className={styles.summaryText}>
+                      {text}
+                    </p>
+                  ))}
                 </div>
               </div>
             </div>

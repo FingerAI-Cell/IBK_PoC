@@ -8,6 +8,7 @@ interface Message {
 }
 
 export function useChat(
+  
   sendApiRequest: (message: string) => Promise<string>,
   historyKey: string
 ) {
@@ -19,11 +20,17 @@ export function useChat(
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  
+  
   const scrollToBottom = () => {
     if (messageEndRef.current) {
       messageEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   };
+
+  console.log("useChat initialized with historyKey:", historyKey);
+  console.log("Message sent to API:", input);
+
 
   // 메시지가 변경될 때 자동으로 하단으로 스크롤
   useEffect(() => {
@@ -73,7 +80,7 @@ export function useChat(
 
   const sendMessage = async () => {
     if (!input.trim() || isSending) return;
-
+    console.log("Sending API request with message:", input); // API 호출 전 로그
     // 사용자 메시지 추가
     addMessage('user', input);
     setInput("");
@@ -88,8 +95,12 @@ export function useChat(
 
     try {
       // 부모에서 전달된 API 호출
+      console.log("Sending API request with message:", input); // API 호출 전 로그
+
       const reply = await sendApiRequest(input);
 
+      console.log("API reply received:", reply); // API 응답 로그
+      
       addMessage('bot', reply || "응답 없음");
     } catch (err) {
       if (err instanceof Error) {

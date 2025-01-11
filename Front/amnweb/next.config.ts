@@ -1,7 +1,16 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  basePath: '',
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  logging: {
+    fetches: {
+      fullUrl: true,
+    },
+  },
+  crossOrigin: 'anonymous',
 };
 
 export default nextConfig;
