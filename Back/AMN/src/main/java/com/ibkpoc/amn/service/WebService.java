@@ -94,16 +94,16 @@ public class WebService {
         // 1. Meeting 가져오기
         Meeting meeting = meetingRepository.findById(confId)
                 .orElseThrow(() -> new FileNotFoundException("Meeting not found: " + confId));
-
+        logger.info("meeting data prepared for summarization: {}", meeting);
         // 2. 관련 MeetingUser 가져오기
         List<MeetingUser> users = meetingUserRepository.findByConfId(confId);
         Map<Long, String> userNameMapping = users.stream()
                 .collect(Collectors.toMap(MeetingUser::getCuserId, MeetingUser::getName));
-
+        logger.info("user data prepared for summarization: {}", users);
         // 3. 관련 MeetingLog 가져오기
         List<MeetingLog> logs = meetingLogRepository.findByMeetingUserCuserIdInOrderByStartTime(
                 userNameMapping.keySet());
-
+        logger.info("log data prepared for summarization: {}", logs);
         // 4. name과 content 조합
         List<Map<String, Object>> jsonData = logs.stream()
                 .map(log -> Map.of(
