@@ -35,13 +35,6 @@ interface RetrievedDocument {
   };
 }
 
-interface Message {
-  id: string;
-  sender: "user" | "bot";
-  text: string;
-  timestamp: Date;
-}
-
 interface CoAgentState {
   routing_vectordb_collection: string;
   retrieved_documents: RetrievedDocument[];
@@ -71,21 +64,80 @@ export default function ChatBox({
   serviceName,
   useCopilot = false,
 }: ChatBoxProps) {
-  const [shouldSubmitInitial, setShouldSubmitInitial] = useState(true);
+  const [isInitialized, setIsInitialized] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
   const messageEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const chatRef = useRef<any>(null);
 
+  // 실제 메시지 전송을 처리하는 함수
   const handleSubmitMessage = useCallback(async (message: string) => {
-    // 여기에 메시지 전송 관련 로직 추가 가능
-    console.log(`메시지 전송: ${message}`);
+    if (!chatRef.current || !isLoaded) {
+      console.log('Chat not ready:', { ref: !!chatRef.current, isLoaded });
+      return;
+    }
+    
+    const inputElement = chatRef.current.querySelector('[role="textbox"], textarea, input');
+    console.log('Found input element:', inputElement);
+    
+    if (inputElement) {
+      try {
+        // contentEditable div인 경우
+        if (inputElement.getAttribute('role') === 'textbox') {
+          inputElement.textContent = message;
+          inputElement.dispatchEvent(new Event('input', { bubbles: true }));
+        } else {
+          // textarea나 input인 경우
+          const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+            window.HTMLTextAreaElement.prototype,
+            "value"
+          )?.set;
+          nativeInputValueSetter?.call(inputElement, message);
+          inputElement.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+
+        // Enter 키 이벤트 발생
+        const enterEvent = new KeyboardEvent('keydown', {
+          key: 'Enter',
+          code: 'Enter',
+          keyCode: 13,
+          which: 13,
+          bubbles: true,
+          cancelable: true
+        });
+        
+        inputElement.dispatchEvent(enterEvent);
+        console.log('Events dispatched');
+      } catch (error) {
+        console.error('Error sending message:', error);
+      }
+    } else {
+      console.log('No input element found');
+    }
+  }, [isLoaded]);
+
+  // CopilotChat 로드 완료 체크 (더 다양한 선택자 추가)
+  useEffect(() => {
+    const checkLoaded = setInterval(() => {
+      const inputElement = chatRef.current?.querySelector('[role="textbox"], textarea, input');
+      if (inputElement) {
+        console.log('Chat loaded with element:', inputElement.tagName);
+        setIsLoaded(true);
+        clearInterval(checkLoaded);
+      }
+    }, 100);
+
+    return () => clearInterval(checkLoaded);
   }, []);
 
+  // initialInput 처리
   useEffect(() => {
-    if (initialInput?.trim() && shouldSubmitInitial) {
-      handleSubmitMessage(initialInput);
-      setShouldSubmitInitial(false);
+    console.log('Initial Input:', initialInput); // 초기 입력 로그
+    if (initialInput?.trim() && isLoaded) {
+      handleSubmitMessage(initialInput); // 바로 전송
+      setIsInitialized(true);
     }
-  }, [initialInput, handleSubmitMessage, shouldSubmitInitial]);
+  }, [initialInput, handleSubmitMessage, isLoaded]);
 
   // 서비스 로깅 (히스토리 추적용)
   useEffect(() => {
@@ -183,15 +235,16 @@ export default function ChatBox({
   return (
     <div ref={chatContainerRef} className={styles.container}>
       {useCopilot && agent && (
-        <CopilotChat
-          className={styles.copilotChat}
-          onSubmitMessage={handleSubmitMessage}
-          labels={{
-            title: "IBK 투자증권 업무 효율화 챗봇",
-            initial: "안녕하세요. IBK 투자증권 업무 효율화 챗봇입니다. 무엇을 도와드릴까요?",
-            placeholder: "메시지를 입력하세요...",
-          }}
-        />
+        <div ref={chatRef} className={styles.chatWrapper}>
+          <CopilotChat
+            className={styles.copilotChat}
+            labels={{
+              title: "IBK 투자증권 업무 효율화 챗봇",
+              initial: "안녕하세요. IBK 투자증권 업무 효율화 챗봇입니다. 무엇을 도와드릴까요?",
+              placeholder: "메시지를 입력하세요...",
+            }}
+          />
+        </div>
       )}
       <div ref={messageEndRef} />
     </div>

@@ -19,7 +19,7 @@ export default function MainContent() {
 
   useEffect(() => {
     setChatInput("");
-  }, [currentService]);
+  }, [currentService, pageState]);
 
   const handleQuestionSubmit = () => {
     if (chatInput.trim()) {
@@ -29,7 +29,7 @@ export default function MainContent() {
 
   const handleFAQClick = (question: string) => {
     setChatInput(question);
-    setPageState('chat');
+    setTimeout(() => setPageState('chat'), 0); // 상태 전환 보장
   };
 
   const renderChatService = () => {

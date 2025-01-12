@@ -23,8 +23,12 @@ export default function SidebarCategories({
       pageState
     });
     
-    setPageState('select');
-    selectService(serviceId);
+    if (serviceId === currentService) {
+      setPageState('select');
+    } else {
+      setPageState('select');
+      selectService(serviceId);
+    }
   };
 
   const categories = [
