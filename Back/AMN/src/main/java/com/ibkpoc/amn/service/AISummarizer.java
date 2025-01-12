@@ -6,6 +6,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,7 +20,9 @@ public class AISummarizer {
     private final ObjectMapper objectMapper;
 
     public AISummarizer(WebClient.Builder webClientBuilder) {
-        this.webClient = webClientBuilder.build();
+        this.webClient = webClientBuilder
+                .baseUrl(apiUrl)
+                .build();
         this.objectMapper = new ObjectMapper();
     }
 
@@ -31,12 +34,12 @@ public class AISummarizer {
 
         try {
             return webClient.post()
-                    .uri(apiUrl)
+                    .uri("")
                     .bodyValue(requestBody)
                     .retrieve()
                     .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {})
                     .map(response -> (String) response.get("output"))
-                    .block();
+                    .block(Duration.ofMinutes(5)); // 타임아웃 설정
         } catch (Exception e) {
             e.printStackTrace();
             return "요약을 생성하지 못했습니다.";

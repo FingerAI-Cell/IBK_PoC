@@ -20,6 +20,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,12 +98,24 @@ public class WebService {
         logger.info("meeting data prepared for summarization: {}", meeting);
         // 2. 관련 MeetingUser 가져오기
         List<MeetingUser> users = meetingUserRepository.findByConfId(confId);
-        Map<Long, String> userNameMapping = users.stream()
-                .collect(Collectors.toMap(MeetingUser::getCuserId, MeetingUser::getName));
         logger.info("user data prepared for summarization: {}", users);
+
+        // 2. users에서 cuserId 목록 생성
+        Set<Long> cuserIds = users.stream()
+                .map(MeetingUser::getCuserId)
+                .collect(Collectors.toSet());
+
+        // 2. 이름 매핑 로직 추가
+        Map<Long, String> userNameMapping = users.stream()
+                .collect(Collectors.toMap(
+                        MeetingUser::getCuserId,
+                        user -> user.getName() != null ? user.getName() : user.getSpeakerId()
+                ));
+        logger.info("User name mapping prepared: {}", userNameMapping);
+
         // 3. 관련 MeetingLog 가져오기
         List<MeetingLog> logs = meetingLogRepository.findByMeetingUserCuserIdInOrderByStartTime(
-                userNameMapping.keySet());
+                cuserIds);
         logger.info("log data prepared for summarization: {}", logs);
         // 4. name과 content 조합
         List<Map<String, Object>> jsonData = logs.stream()
