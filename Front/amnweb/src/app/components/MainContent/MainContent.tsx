@@ -27,10 +27,6 @@ export default function MainContent() {
     }
   };
 
-  const keyvalue = ["general-chat", "branch-manual"].includes(currentService)
-    ? "olaf"
-    : "summary";
-
   const handleFAQClick = (question: string) => {
     setChatInput(question);
     setPageState('chat');
@@ -38,11 +34,7 @@ export default function MainContent() {
 
   const renderChatService = () => {
     const config = serviceConfig[currentService];
-    console.log("Rendering Chat Service:", {
-      pageState,
-      currentService,
-      config: serviceConfig[currentService],
-    });
+    
     if (pageState === 'select') {
       return (
         <>
@@ -59,17 +51,16 @@ export default function MainContent() {
 
     // pageState가 'chat'일 때
     return (
-    
       <CopilotKit
-        key={keyvalue}
         runtimeUrl={config.apiEndpoint}
         agent={config.agent}
         showDevConsole={false}
       >
         <ChatBox 
-          agent={config.agent || ''}
-          useCopilotKit={true}
-          runtimeUrl={config.apiEndpoint}
+          initialInput={chatInput}
+          serviceName={currentService}
+          agent={config.agent}
+          useCopilot={config.useCopilot}
         />
       </CopilotKit>
     );

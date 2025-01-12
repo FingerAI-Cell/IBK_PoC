@@ -22,7 +22,14 @@ export const DocumentCard: React.FC<DocumentItemProps> = ({ metadata }) => {
 
   // 파일 다운로드 핸들러
   const handleDownload = async () => {
-    const downloadUrl = `/api/onelineai/download?file=${encodeURIComponent(metadata.file_name)}`;
+    // 환경 변수에 따라 URL 생성
+  const baseUrl =
+  process.env.NODE_ENV === "production"
+    ? process.env.NEXT_PUBLIC_LOCAL_API_URL // 프로덕션 환경
+    : process.env.REMOTE_OLAF_URL; // 개발 환경
+
+    // 절대 경로로 요청 URL 생성
+    const downloadUrl = `${baseUrl}/api/onelineai/download?file=${encodeURIComponent(metadata.file_name)}`;
     const link = document.createElement("a");
     link.href = downloadUrl;
     link.download = metadata.file_name; // 다운로드 파일명 설정

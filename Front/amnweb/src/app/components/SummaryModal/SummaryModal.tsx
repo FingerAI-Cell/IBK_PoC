@@ -34,11 +34,6 @@ export default function SummaryModal({ isOpen, onClose, title, date, participant
       console.error('PDF 생성 중 오류:', error);
     }
   };
-
-  interface SpeakerDetails {
-    text?: string;
-    details?: string;
-  }
   
   const renderContent = () => {
     try {

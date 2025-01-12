@@ -23,7 +23,7 @@ const baseUrl = process.env.NODE_ENV === 'production'
 const runtime = new CopilotRuntime({
   remoteActions: [
     {
-      url: baseUrl || "http://localhost:8000/olaf",
+      url: baseUrl+"/olaf" || "http://localhost:8000/olaf",
     },
   ],
 });

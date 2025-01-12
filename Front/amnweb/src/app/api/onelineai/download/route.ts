@@ -2,9 +2,19 @@ import { NextRequest, NextResponse } from "next/server";
 import path from "path";
 import fs from "fs";
 
+// 환경 변수에서 API URL 설정
+const baseUrl =
+  process.env.NODE_ENV === "production"
+    ? process.env.NEXT_PUBLIC_LOCAL_API_URL // 프로덕션 환경
+    : process.env.REMOTE_OLAF_URL; // 개발 환경
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const fileName = searchParams.get("file");
+    
+  console.log("Environment:", process.env.NODE_ENV); // 현재 환경 확인
+  console.log("Base URL:", baseUrl); // URL 확인
+  console.log("Requested file:", fileName); // 요청된 파일명 확인
 
   if (!fileName) {
     return NextResponse.json(
