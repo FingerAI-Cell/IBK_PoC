@@ -1,4 +1,3 @@
-// import { useState } from 'react';
 import styles from './SummaryModal.module.css';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -9,12 +8,14 @@ interface SummaryModalProps {
   title: string;
   date: string;
   participants: string[];
-  content: string;
+  content: string; // summary가 텍스트로 제공
 }
 
 export default function SummaryModal({ isOpen, onClose, title, date, participants, content }: SummaryModalProps) {
+  console.log('isOpen:', isOpen); // 컴포넌트 렌더링 여부 확인
+  console.log('content prop:', content); // 전달된 content 확
   if (!isOpen) return null;
-
+  
   const handleDownload = async () => {
     try {
       const element = document.getElementById('summaryContent');
@@ -34,6 +35,56 @@ export default function SummaryModal({ isOpen, onClose, title, date, participant
     }
   };
 
+  interface SpeakerDetails {
+    text?: string;
+    details?: string;
+  }
+  
+  const renderContent = () => {
+    try {
+      // 1. "topic"과 각 topic에 포함된 "details" 또는 직접 텍스트 추출 정규식
+      const topicRegex = /"topic":\s*"([^"]+)"/g;
+      const topicBlockRegex = /{[^}]*"topic":\s*"([^"]+)"[^}]*}/g;
+      const speakerDetailsRegex = /"(\w+)":\s*(?:{[^}]*"details":\s*"([^"]+)"|"(.*?)")/g;
+  
+      // 2. Topic 추출
+      const topics = [...content.matchAll(topicRegex)].map((match) => match[1]);
+  
+      // 3. Topic 블록 단위로 세분화하여 Speaker 및 Details 또는 Text 추출
+      const topicBlocks = [...content.matchAll(topicBlockRegex)].map((match) => match[0]);
+  
+      const topicDetailsMap = topicBlocks.map((block, index) => {
+        const details = [...block.matchAll(speakerDetailsRegex)].map((match) => ({
+          speaker: match[1],
+          details: match[2] || match[3], // "details" 값이 없으면 텍스트 값 사용
+        }));
+        return {
+          topic: topics[index],
+          details,
+        };
+      });
+  
+      // 4. 렌더링 (details에서 topic 제거)
+      return topicDetailsMap.map((entry, index) => (
+        <div key={`topic-${index}`} className={styles.topicSection}>
+          {/* topic 제목만 표시 */}
+          <h4 className={styles.topicTitle}>{entry.topic}</h4>
+          {/* topic과 관련된 details만 표시 */}
+          {entry.details.map((d, i) => (
+            d.details && !d.details.includes(entry.topic) ? ( // topic 중복 제거
+              <p key={`details-${index}-${i}`} className={styles.speakerDetails}>
+                {d.details}
+              </p>
+            ) : null
+          ))}
+        </div>
+      ));
+    } catch (error) {
+      console.error('문자열 처리 오류:', error);
+      return <p>회의 데이터를 처리할 수 없습니다.</p>;
+    }
+  };
+  
   return (
     <div className={styles.modalOverlay}>
       <div className={styles.modal}>
@@ -69,13 +120,11 @@ export default function SummaryModal({ isOpen, onClose, title, date, participant
             <div className={styles.divider} />
             <div className={styles.mainContent}>
               <h3 className={styles.sectionTitle}>회의 내용</h3>
-              <div className={styles.contentText}>
-                {content}
-              </div>
+              <div className={styles.contentText}>{renderContent()}</div>
             </div>
           </div>
         </div>
       </div>
     </div>
   );
-} 
+}

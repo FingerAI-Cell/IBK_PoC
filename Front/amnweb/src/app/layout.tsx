@@ -10,32 +10,27 @@ function LayoutContent() {
   const { currentService, setCurrentService } = useService();
   
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <body className="flex min-h-screen bg-gray-100">
       <Sidebar 
         currentService={currentService}
         selectService={setCurrentService}
       />
-      <div className="flex-grow flex flex-col ml-64">``
+      <div className="flex-grow flex flex-col ml-64">
         <Header />
         <main className="p-6 mt-16">
           <MainContent />
         </main>
       </div>
-    </div>
+    </body>
   );
 }
 
-export default function RootLayout({
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout() {
   return (
-    <html lang="en">
-      <ServiceProvider>
-        <body>
-          <LayoutContent></LayoutContent>
-        </body>
-      </ServiceProvider>
-    </html>
+    <ServiceProvider>
+      <html lang="en">
+        <LayoutContent />
+      </html>
+    </ServiceProvider>
   );
 }
