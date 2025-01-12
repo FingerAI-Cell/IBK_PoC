@@ -60,11 +60,10 @@
 }
 
 .tableContainer {
-  overflow-x: auto;
-  width: 100%;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  max-height: 500px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
 }
 
 .searchContainer {
@@ -90,11 +89,22 @@
   border-collapse: collapse;
 }
 
-.table th,
+.table thead {
+  position: sticky;
+  top: 0;
+  background-color: #f8f9fa;
+  z-index: 1;
+}
+
+.table th {
+  padding: 12px;
+  border-bottom: 2px solid #ddd;
+  text-align: left;
+}
+
 .table td {
   padding: 12px;
-  text-align: left;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid #ddd;
 }
 
 .table th {
@@ -254,25 +264,20 @@
 }
 
 /* 스크롤바 스타일링 (선택사항) */
-.tableContainer::-webkit-scrollbar,
-.container::-webkit-scrollbar {
+.tableContainer::-webkit-scrollbar {
   width: 8px;
-  height: 8px;
 }
 
-.tableContainer::-webkit-scrollbar-track,
-.container::-webkit-scrollbar-track {
+.tableContainer::-webkit-scrollbar-track {
   background: #f1f1f1;
 }
 
-.tableContainer::-webkit-scrollbar-thumb,
-.container::-webkit-scrollbar-thumb {
+.tableContainer::-webkit-scrollbar-thumb {
   background: #888;
   border-radius: 4px;
 }
 
-.tableContainer::-webkit-scrollbar-thumb:hover,
-.container::-webkit-scrollbar-thumb:hover {
+.tableContainer::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
 

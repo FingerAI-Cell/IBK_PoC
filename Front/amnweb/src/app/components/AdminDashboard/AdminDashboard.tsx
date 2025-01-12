@@ -23,6 +23,15 @@ interface FilingData {
   }>>>;
 }
 
+interface FinancialDocument {
+  id: string;
+  fileName: string;
+  updateTime: string;
+  category: string;
+  filePath: string;
+  yearQuarter: string;
+}
+
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<'financial' | 'monitoring' | 'chat-history'>('financial');
   const [selectedStock, setSelectedStock] = useState<string | null>(null);
@@ -31,6 +40,8 @@ export default function AdminDashboard() {
   const [selectedDate, setSelectedDate] = useState<string>(
     new Date().toISOString().split('T')[0].replace(/-/g, '')
   );
+  const [financialDocuments, setFinancialDocuments] = useState<FinancialDocument[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchFilingData = async () => {
@@ -52,6 +63,25 @@ export default function AdminDashboard() {
     fetchFilingData();
   }, [selectedDate]);
 
+  useEffect(() => {
+    const fetchDocuments = async () => {
+      try {
+        const response = await fetch('/api/financial-documents');
+        if (!response.ok) throw new Error('서버 오류');
+        const data = await response.json();
+        setFinancialDocuments(data);
+      } catch (error) {
+        console.error('문서 목록 불러오기 실패:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (activeTab === 'financial') {
+      fetchDocuments();
+    }
+  }, [activeTab]);
+
   // 요약 텍스트 추출 함수
   const getSummaryTexts = () => {
     if (!filingData?.summary?.[0]) return [];
@@ -64,12 +94,14 @@ export default function AdminDashboard() {
     ).filter(text => text);
   };
 
-  // 재무제표 샘플 데이터
-  const financialStatements = [
-    { id: 1, fileName: '2024년 1분기 재무제표.xlsx', author: '김재무', createdAt: '2024-03-15 14:30' },
-    { id: 2, fileName: '2023년 4분기 재무제표.xlsx', author: '이경제', createdAt: '2024-01-10 09:15' },
-    { id: 3, fileName: '2023년 3분기 재무제표.xlsx', author: '박회계', createdAt: '2023-10-05 11:45' },
-  ];
+  const handleDownload = (filePath: string) => {
+    const link = document.createElement('a');
+    link.href = filePath;
+    link.download = filePath.split('/').pop() || '';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const handleItemClick = (type: 'stock' | 'keyword', item: string) => {
     if (type === 'stock') {
@@ -108,32 +140,39 @@ export default function AdminDashboard() {
         <div className={styles.content}>
           {activeTab === 'financial' && (
             <div className={styles.tableContainer}>
-              <table className={styles.table}>
-                <thead>
-                  <tr>
-                    <th>번호</th>
-                    <th>파일명</th>
-                    <th>작성자</th>
-                    <th>작성시간</th>
-                    <th>다운로드</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {financialStatements.map((statement) => (
-                    <tr key={statement.id}>
-                      <td>{statement.id}</td>
-                      <td>{statement.fileName}</td>
-                      <td>{statement.author}</td>
-                      <td>{statement.createdAt}</td>
-                      <td>
-                        <button className={styles.downloadButton}>
-                          다운로드
-                        </button>
-                      </td>
+              {isLoading ? (
+                <div>로딩 중...</div>
+              ) : (
+                <table className={styles.table}>
+                  <thead>
+                    <tr>
+                      <th>분기</th>
+                      <th>파일명</th>
+                      <th>종류</th>
+                      <th>업데이트 시간</th>
+                      <th>다운로드</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {financialDocuments.map((doc) => (
+                      <tr key={doc.id}>
+                        <td>{doc.yearQuarter}</td>
+                        <td>{doc.fileName}</td>
+                        <td>{doc.category}</td>
+                        <td>{doc.updateTime}</td>
+                        <td>
+                          <button 
+                            className={styles.downloadButton}
+                            onClick={() => window.location.href = doc.filePath}
+                          >
+                            다운로드
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
           )}
 
