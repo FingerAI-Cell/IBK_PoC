@@ -67,12 +67,10 @@
 }
 
 .portfolioChart {
-  background: #fff;
-  border-radius: 8px;
-  padding: 20px;
-  border: 1px solid #eee;
-  margin-bottom: 20px;
-  min-height: 400px;
+  width: 100%;
+  height: 300px;
+  position: relative;
+  margin: 20px 0;
 }
 
 .portfolioChart h3 {
@@ -82,8 +80,8 @@
 }
 
 .chartWrapper {
-  height: 360px;
   width: 100%;
+  height: 100%;
   position: relative;
 }
 

@@ -4,6 +4,7 @@ import styles from "./InvestmentReport.module.css";
 import { Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { useEffect, useState, useCallback } from 'react';
+import { format } from 'date-fns';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -25,6 +26,7 @@ interface StockData {
 
 
 interface PortfolioData {
+  client_code: string;
   stocks: number;
   bondsFunds: number;
   derivatives: number;
@@ -52,18 +54,24 @@ const formatPercentage = (value: number): string => {
   return `${roundedValue > 0 ? '+' : ''}${roundedValue}%`;
 };
 
-const ValueWithDiff = ({ amount, percentage, dayOverDayDiff }: { 
+const ValueWithDiff = ({ amount, percentage, dayOverDayDiff, acquisitionAmount }: { 
   amount: number; 
   percentage: number;
   dayOverDayDiff: number;
+  acquisitionAmount: number;
 }) => (
   <div>
-    <p className={`text-sm font-bold ${getValueColor(percentage)}`}>
-      {formatNumber(amount)}원 ({formatPercentage(percentage)})
+    <p className="text-xl font-bold">
+      {formatNumber(amount)}원
     </p>
-    <p className={`text-xs ${getValueColor(dayOverDayDiff)}`}>
-      전일대비 {formatPercentage(dayOverDayDiff)}
-    </p>
+    <div className="flex space-x-2 text-sm">
+      <span className={`${getValueColor(dayOverDayDiff)}`}>
+        {formatNumber(amount - acquisitionAmount)}원
+      </span>
+      <span className={`${getValueColor(percentage)}`}>
+        {formatPercentage(percentage)}
+      </span>
+    </div>
   </div>
 );
 
@@ -97,7 +105,6 @@ const calculations = {
 };
 
 // ... 기존 imports ...
-import { format } from 'date-fns';
 
 const USERS = {
   'C2025BC3F4810': '이지혜',
@@ -115,18 +122,45 @@ const formatDisplayDate = (dateStr: string) => {
   return dateStr.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3');
 };
 
+// 주말인지 확인하는 함수 추가
+const isWeekend = (dateStr: string) => {
+  const date = new Date(dateStr);
+  return date.getDay() === 0 || date.getDay() === 6;  // 0은 일요일, 6은 토요일
+};
+
+// 가장 최근 영업일(금요일)을 찾는 함수
+const getLastBusinessDay = (date: Date): Date => {
+  const day = date.getDay();
+  if (day === 6) { // 토요일이면
+    date.setDate(date.getDate() - 1); // 금요일로
+  } else if (day === 0) { // 일요일이면
+    date.setDate(date.getDate() - 2); // 금요일로
+  }
+  return date;
+};
+
 export default function InvestmentReport() {
-  const today = format(new Date(), 'yyyyMMdd');
+  const today = getLastBusinessDay(new Date());
   const [selectedUser, setSelectedUser] = useState(DEFAULT_USER);
-  const [selectedDate, setSelectedDate] = useState(today);
+  const [selectedDate, setSelectedDate] = useState(format(today, 'yyyyMMdd'));
   const [stockData, setStockData] = useState<StockData[]>([]);
-  const [portfolioData, setPortfolioData] = useState<PortfolioData | null>(null);
+  const [portfolioData, setPortfolioData] = useState<PortfolioData[] | null>(null);
   const [selectedMarket, setSelectedMarket] = useState<'ALL' | 'KR' | 'US'>('ALL');
   const [isLoading, setIsLoading] = useState(true);
 
   const chartOptions = {
     responsive: true,
-    maintainAspectRatio: false
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: true,
+        position: 'top' as const,
+        labels: {
+          padding: 20,
+          usePointStyle: true
+        }
+      }
+    }
   };
 
   // fetchData를 useEffect 전에 정의
@@ -158,7 +192,7 @@ export default function InvestmentReport() {
         throw new Error('API 호출 실패');
 
       const stockData: StockData[] = await stockResponse.json();
-      const portfolioData: PortfolioData = await portfolioResponse.json();
+      const portfolioData: PortfolioData[] = await portfolioResponse.json();
 
       setStockData(stockData);
       setPortfolioData(portfolioData);
@@ -178,20 +212,21 @@ export default function InvestmentReport() {
   const chartData = {
     labels: ['주식', '채권/펀드', '선물/옵션', '신탁', '기타'],
     datasets: [{
-      data: portfolioData ? [
-        portfolioData.stocks,
-        portfolioData.bondsFunds,
-        portfolioData.derivatives,
-        portfolioData.trust,
-        portfolioData.others
-      ] : [],
+      data: portfolioData && portfolioData[0] ? [
+        portfolioData[0].stocks,
+        portfolioData[0].bondsFunds,
+        portfolioData[0].derivatives,
+        portfolioData[0].trust,
+        portfolioData[0].others
+      ] : [0, 0, 0, 0, 0],
       backgroundColor: [
         '#FF6384',
         '#36A2EB',
         '#FFCE56',
         '#4BC0C0',
         '#9966FF'
-      ]
+      ],
+      borderWidth: 1
     }]
   };
 
@@ -200,11 +235,11 @@ export default function InvestmentReport() {
     return stocks.filter(stock => stock.market_type === selectedMarket);
   };
 
-  // 날짜 선택 핸들러
+  // 날짜 선택 핸들러 수정
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const date = new Date(e.target.value);
-    // API 요청용 날짜 형식 (yyyyMMdd)
-    setSelectedDate(format(date, 'yyyyMMdd'));
+    const businessDate = getLastBusinessDay(date);
+    setSelectedDate(format(businessDate, 'yyyyMMdd'));
   };
 
   if (isLoading) return <div>로딩 중...</div>;
@@ -230,9 +265,10 @@ export default function InvestmentReport() {
               type="date"
               value={formatDisplayDate(selectedDate)}
               min="2025-01-09"
-              max={format(new Date(), 'yyyy-MM-dd')}
+              max={format(getLastBusinessDay(new Date()), 'yyyy-MM-dd')}
               onChange={handleDateChange}
               className="p-2 border rounded-md"
+              onKeyDown={(e) => e.preventDefault()} // 키보드 입력 방지
             />
           </div>
         </div>
@@ -258,6 +294,7 @@ export default function InvestmentReport() {
                         calculations.totalAcquisitionAmount(stockData)
                       )}
                       dayOverDayDiff={calculations.totalDayOverDayDiff(stockData)}
+                      acquisitionAmount={calculations.totalAcquisitionAmount(stockData)}
                     />
                   </div>
                   <div className="flex-1 bg-gray-50 p-4 rounded-lg">
@@ -268,7 +305,7 @@ export default function InvestmentReport() {
 
                 <div className={styles.portfolioChart}>
                   <div className={styles.chartWrapper}>
-                    <Doughnut data={chartData} options={chartOptions} />
+                    {portfolioData && <Doughnut data={chartData} options={chartOptions} />}
                   </div>
                 </div>
               </div>
@@ -304,11 +341,6 @@ export default function InvestmentReport() {
                       parseFloat(item.acquisition_amount)
                     );
                     
-                    const dayOverDayChange = calculations.dayOverDayChange(
-                      parseFloat(item.market_value),
-                      parseFloat(item.previous_close_price) * item.holding_quantity
-                    );
-
                     return (
                       <div key={index} className={styles.investmentItem}>
                         <span>{item.stock_name}</span>
@@ -316,8 +348,8 @@ export default function InvestmentReport() {
                           {formatPercentage(profitRate)}
                         </span>
                         <span>{formatNumber(parseFloat(item.market_value))}</span>
-                        <span className={`${getValueColor(dayOverDayChange)} font-bold`}>
-                          {formatPercentage(dayOverDayChange)}
+                        <span className={`${getValueColor(parseFloat(item.market_value_diff))} font-bold`}>
+                          {parseFloat(item.market_value_diff)}%
                         </span>
                       </div>
                     );
