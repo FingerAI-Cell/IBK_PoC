@@ -130,14 +130,27 @@ export default function ChatBox({
     return () => clearInterval(checkLoaded);
   }, []);
 
-  // initialInput 처리
+  // 가장 중요한 부분: initialInput으로 자동 채팅 시작
   useEffect(() => {
-    console.log('Initial Input:', initialInput); // 초기 입력 로그
-    if (initialInput?.trim() && isLoaded) {
-      handleSubmitMessage(initialInput); // 바로 전송
-      setIsInitialized(true);
+    if (initialInput?.trim() && isLoaded && !isInitialized) {
+      const inputElement = chatRef.current.querySelector('[role="textbox"], textarea, input');
+      if (inputElement) {
+        // 1. 입력값 설정
+        inputElement.textContent = initialInput;
+        inputElement.dispatchEvent(new Event('input', { bubbles: true }));
+        
+        // 2. 즉시 전송 (Enter 키 이벤트)
+        inputElement.dispatchEvent(new KeyboardEvent('keydown', {
+          key: 'Enter',
+          code: 'Enter',
+          keyCode: 13,
+          bubbles: true
+        }));
+        
+        setIsInitialized(true);
+      }
     }
-  }, [initialInput, handleSubmitMessage, isLoaded]);
+  }, [initialInput, isLoaded, isInitialized]);
 
   // 서비스 로깅 (히스토리 추적용)
   useEffect(() => {

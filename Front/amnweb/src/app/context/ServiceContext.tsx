@@ -58,7 +58,7 @@ export function ServiceProvider({ children }: { children: React.ReactNode }) {
   const [pageState, setPageState] = useState<'select' | 'chat' | 'admin'>('select');
   const [reportDate, setReportDate] = useState<string | null>(null);
   const [reportData, setReportData] = useState<ReportData | null>(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const handleServiceChange = (service: string) => {
     console.log('Service Change:', {
@@ -88,7 +88,11 @@ export function ServiceProvider({ children }: { children: React.ReactNode }) {
     setReportData(data || null);
   };
 
-  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+  const toggleSidebar = () => {
+    console.log('ServiceContext - Before Toggle:', isSidebarOpen);
+    setIsSidebarOpen(!isSidebarOpen);
+    console.log('ServiceContext - After Toggle:', !isSidebarOpen);
+  };
 
   return (
     <ServiceContext.Provider 

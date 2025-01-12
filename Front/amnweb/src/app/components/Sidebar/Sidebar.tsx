@@ -14,6 +14,8 @@ export default function Sidebar({
   selectService,
 }: SidebarProps) {
   const { isSidebarOpen } = useService();
+  
+  console.log('Sidebar - isSidebarOpen:', isSidebarOpen);
 
   return (
     <aside className={`

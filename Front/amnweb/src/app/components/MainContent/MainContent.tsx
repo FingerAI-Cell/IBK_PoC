@@ -15,20 +15,30 @@ import { CopilotKit } from "@copilotkit/react-core";
 export default function MainContent() {
   const { currentService, pageState, setPageState } = useService();
   const [chatInput, setChatInput] = useState("");
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
     setChatInput("");
+    setIsTransitioning(false);
   }, [currentService, pageState]);
 
   const handleQuestionSubmit = () => {
     if (chatInput.trim()) {
-      setPageState('chat');
+      setIsTransitioning(true);
+      // 약간의 지연 후 페이지 상태 변경
+      setTimeout(() => {
+        setPageState('chat');
+      }, 100);
     }
   };
 
   const handleFAQClick = (question: string) => {
     setChatInput(question);
-    setTimeout(() => setPageState('chat'), 0); // 상태 전환 보장
+    setIsTransitioning(true);
+    // 약간의 지연 후 페이지 상태 변경
+    setTimeout(() => {
+      setPageState('chat');
+    }, 100);
   };
 
   const renderChatService = () => {
@@ -55,7 +65,7 @@ export default function MainContent() {
         showDevConsole={false}
       >
         <ChatBox 
-          initialInput={chatInput}
+          initialInput={isTransitioning ? chatInput : ""}
           serviceName={currentService}
           agent={config.agent}
           useCopilot={config.useCopilot}
