@@ -51,7 +51,7 @@ def get_quarter_dates(test_year=None, test_quarter=None):
     return start_date, end_date
 
 def call_api(option, test_year=None, test_quarter=None, max_retries=3, retry_delay=5):
-    url = "http://211.111.214.248:52167/ScrapService"
+    url = "http://ibkpass.fingerserivce.co.kr/ScrapService"
     start_date, end_date = get_quarter_dates(test_year, test_quarter)
 
     headers = {
@@ -183,9 +183,9 @@ def main(test_year=None, test_quarter=None):
             if excel_data_base64:
                 print(f"Data received for option {option}")
                 save_excel(option, excel_data_base64, test_year, test_quarter)
-                process_excel_files(test_year, test_quarter, db_conn)  # DB 연결 객체 전달
             else:
                 print(f"No data received for option {option}")
+        # process_excel_files(test_year, test_quarter, db_conn)  # DB 연결 객체 전달
     finally:
         db_conn.close()
 

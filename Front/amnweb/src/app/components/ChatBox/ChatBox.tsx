@@ -5,6 +5,7 @@ import { useCoAgent } from "@copilotkit/react-core";
 import { CopilotChat } from "@copilotkit/react-ui";
 import "@copilotkit/react-ui/styles.css";
 import styles from "./ChatBox.module.css";
+import { InputProps, CopilotSidebar } from "@copilotkit/react-ui";
 
 interface ChatBoxProps {
   initialInput?: string;
@@ -58,6 +59,58 @@ const ChatMessage = memo(({ sender, text }: { sender: string; text: string }) =>
 ));
 ChatMessage.displayName = "ChatMessage";
 
+// InputProps 타입 확장
+interface CustomInputProps extends InputProps {
+  initialInput?: string;
+}
+
+function CustomInput({ inProgress, onSend, initialInput }: CustomInputProps) {
+  const [value, setValue] = useState("");
+  const isFirstRender = useRef(true);
+
+  // 초기 메시지 자동 전송
+  useEffect(() => {
+    if (isFirstRender.current && initialInput) {
+      console.log('Auto sending initial message:', initialInput);
+      onSend(initialInput);
+      isFirstRender.current = false;
+    }
+  }, []);
+
+  const handleSubmit = (value: string) => {
+    if (value.trim()) onSend(value);
+  };
+
+  return (
+    <div className="flex gap-2 p-4 border-t">
+      <input 
+        disabled={inProgress}
+        type="text"
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        placeholder="메시지를 입력하세요..."
+        className="flex-1 p-2 rounded-md border border-gray-300 focus:outline-none focus:border-blue-500 disabled:bg-gray-100"
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            handleSubmit(e.currentTarget.value);
+            setValue("");
+          }
+        }}
+      />
+      <button 
+        disabled={inProgress}
+        className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
+        onClick={() => {
+          handleSubmit(value);
+          setValue("");
+        }}
+      >
+        전송
+      </button>
+    </div>
+  );
+}
+
 export default function ChatBox({
   initialInput = "",
   agent,
@@ -70,53 +123,83 @@ export default function ChatBox({
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const chatRef = useRef<any>(null);
 
+  // 디버깅을 위한 로그 추가
+  useEffect(() => {
+    console.log('ChatBox Props:', {
+      initialInput,
+      agent,
+      serviceName,
+      useCopilot
+    });
+  }, [initialInput, agent, serviceName, useCopilot]);
+
   // 실제 메시지 전송을 처리하는 함수
   const handleSubmitMessage = useCallback(async (message: string) => {
+    console.log('handleSubmitMessage called with:', message);
+    
     if (!chatRef.current || !isLoaded) {
-      console.log('Chat not ready:', { ref: !!chatRef.current, isLoaded });
+      console.log('Chat not ready:', { 
+        chatRef: !!chatRef.current, 
+        isLoaded,
+        element: chatRef.current
+      });
       return;
     }
     
     const inputElement = chatRef.current.querySelector('[role="textbox"], textarea, input');
-    console.log('Found input element:', inputElement);
+    console.log('Found input element:', {
+      element: inputElement,
+      type: inputElement?.tagName,
+      role: inputElement?.getAttribute('role')
+    });
     
     if (inputElement) {
       try {
         // contentEditable div인 경우
         if (inputElement.getAttribute('role') === 'textbox') {
           inputElement.textContent = message;
-          inputElement.dispatchEvent(new Event('input', { bubbles: true }));
         } else {
           // textarea나 input인 경우
-          const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-            window.HTMLTextAreaElement.prototype,
-            "value"
-          )?.set;
-          nativeInputValueSetter?.call(inputElement, message);
-          inputElement.dispatchEvent(new Event('input', { bubbles: true }));
+          inputElement.value = message;
         }
-
-        // Enter 키 이벤트 발생
-        const enterEvent = new KeyboardEvent('keydown', {
-          key: 'Enter',
-          code: 'Enter',
-          keyCode: 13,
-          which: 13,
-          bubbles: true,
-          cancelable: true
-        });
         
-        inputElement.dispatchEvent(enterEvent);
-        console.log('Events dispatched');
+        // input 이벤트 발생 전 로그
+        console.log('Before input event dispatch');
+        inputElement.dispatchEvent(new Event('input', { bubbles: true }));
+        console.log('After input event dispatch');
+
+        // 약간의 지연 후 Enter 이벤트 발생
+        setTimeout(() => {
+          console.log('Dispatching Enter event');
+          const enterEvent = new KeyboardEvent('keydown', {
+            key: 'Enter',
+            code: 'Enter',
+            keyCode: 13,
+            which: 13,
+            bubbles: true,
+            cancelable: true
+          });
+          
+          inputElement.dispatchEvent(enterEvent);
+          console.log('Enter event dispatched');
+        }, 100);
+
       } catch (error) {
-        console.error('Error sending message:', error);
+        console.error('Error in handleSubmitMessage:', error);
       }
-    } else {
-      console.log('No input element found');
     }
   }, [isLoaded]);
 
-  // CopilotChat 로드 완료 체크 (더 다양한 선택자 추가)
+  // initialInput 처리 - handleSubmitMessage 사용
+  useEffect(() => {
+    if (initialInput?.trim() && isLoaded && !isInitialized) {
+      console.log('Sending initial message via handleSubmitMessage');
+      handleSubmitMessage(initialInput);
+      setIsInitialized(true);
+    }
+  }, [initialInput, isLoaded, isInitialized, handleSubmitMessage]);
+
+  // CopilotChat 로드 완료 체크
   useEffect(() => {
     const checkLoaded = setInterval(() => {
       const inputElement = chatRef.current?.querySelector('[role="textbox"], textarea, input');
@@ -129,28 +212,6 @@ export default function ChatBox({
 
     return () => clearInterval(checkLoaded);
   }, []);
-
-  // 가장 중요한 부분: initialInput으로 자동 채팅 시작
-  useEffect(() => {
-    if (initialInput?.trim() && isLoaded && !isInitialized) {
-      const inputElement = chatRef.current.querySelector('[role="textbox"], textarea, input');
-      if (inputElement) {
-        // 1. 입력값 설정
-        inputElement.textContent = initialInput;
-        inputElement.dispatchEvent(new Event('input', { bubbles: true }));
-        
-        // 2. 즉시 전송 (Enter 키 이벤트)
-        inputElement.dispatchEvent(new KeyboardEvent('keydown', {
-          key: 'Enter',
-          code: 'Enter',
-          keyCode: 13,
-          bubbles: true
-        }));
-        
-        setIsInitialized(true);
-      }
-    }
-  }, [initialInput, isLoaded, isInitialized]);
 
   // 서비스 로깅 (히스토리 추적용)
   useEffect(() => {
@@ -248,9 +309,10 @@ export default function ChatBox({
   return (
     <div ref={chatContainerRef} className={styles.container}>
       {useCopilot && agent && (
-        <div ref={chatRef} className={styles.chatWrapper}>
+        <div className={styles.chatWrapper}>
           <CopilotChat
             className={styles.copilotChat}
+            Input={(props) => <CustomInput {...props} initialInput={initialInput} />}
             labels={{
               title: "IBK 투자증권 업무 효율화 챗봇",
               initial: "안녕하세요. IBK 투자증권 업무 효율화 챗봇입니다. 무엇을 도와드릴까요?",
@@ -259,7 +321,6 @@ export default function ChatBox({
           />
         </div>
       )}
-      <div ref={messageEndRef} />
     </div>
   );
 }
