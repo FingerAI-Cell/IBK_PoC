@@ -5,6 +5,7 @@ import base64
 import os
 import time
 # 다른 Python 스크립트에서
+from src.database import DBConnection
 from excel_to_db_inserter import process_excel_files
 
 # 옵션별 디렉토리 이름 설정
@@ -160,16 +161,33 @@ def save_excel(option, content, test_year=None, test_quarter=None):
 def main(test_year=None, test_quarter=None):
     print(f"Starting main function with year: {test_year}, quarter: {test_quarter}")
     
-    for option in range(1, 6):
-        print(f"\nProcessing option {option}...")
-        excel_data_base64 = call_api(option, test_year, test_quarter)
+    try:
+        # 먼저 CP949로 시도
+        with open(os.path.join('./config', 'db_config.json'), 'r', encoding='cp949') as f:
+            db_config = json.load(f)
+    except UnicodeDecodeError:
+        # CP949로 실패하면 UTF-8로 시도
+        with open(os.path.join('./config', 'db_config.json'), 'r', encoding='utf-8') as f:
+            db_config = json.load(f)
+    
+    print("DB 설정:", db_config)  # 설정 내용 확인
+    
+    db_conn = DBConnection(db_config)
+    try:
+        db_conn.connect()
         
-        if excel_data_base64:
-            print(f"Data received for option {option}")
-            save_excel(option, excel_data_base64, test_year, test_quarter)
-            process_excel_files(test_year, test_quarter)
-        else:
-            print(f"No data received for option {option}")
+        for option in range(1, 6):
+            print(f"\nProcessing option {option}...")
+            excel_data_base64 = call_api(option, test_year, test_quarter)
+            
+            if excel_data_base64:
+                print(f"Data received for option {option}")
+                save_excel(option, excel_data_base64, test_year, test_quarter)
+                process_excel_files(test_year, test_quarter, db_conn)  # DB 연결 객체 전달
+            else:
+                print(f"No data received for option {option}")
+    finally:
+        db_conn.close()
 
 if __name__ == "__main__":
     import sys

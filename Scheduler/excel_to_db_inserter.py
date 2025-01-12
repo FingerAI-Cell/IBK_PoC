@@ -1,81 +1,12 @@
 import pandas as pd
-import psycopg2
+import jsonify
 from psycopg2.extras import execute_values
 import os
 import datetime
 from sqlalchemy import create_engine
 from abc import abstractmethod
-
-class DB:
-    def __init__(self, config):
-        self.config = config
-
-    @abstractmethod
-    def connect(self):
-        pass
-
-class DBConnection(DB):
-    def __init__(self, config):
-        super().__init__(config)
-        self.conn = None
-        self.cur = None
-    
-    def connect(self):
-        try:
-            dsn = f"host={self.config['host']} dbname={self.config['db_name']} user={self.config['user_id']} password={self.config['user_pw']} port={self.config['port']}"
-            print("DSN:", dsn)  # DSN 확인용 로그 출력
-            self.conn = psycopg2.connect(dsn=dsn)
-
-            self.cur = self.conn.cursor()
-            print("DB 연결 성공")
-        except Exception as e:
-            print(f"DB 연결 실패: {str(e)}")
-            raise
-
-    def close(self):
-        if self.cur:
-            self.cur.close()
-        if self.conn:
-            self.conn.close()
-
-class FinancialDataInserter:
-    def __init__(self, db_connection):
-        self.db_connection = db_connection
-
-    def insert_data(self, table_name, df, column_mapping, report_period):
-        try:
-            print(f"\n--- DB 삽입 시작: {table_name} ---")
-            db_columns = list(column_mapping.values()) + ["report_period"]
-            excel_columns = list(column_mapping.keys())
-            
-            print(f"DB 컬럼: {db_columns}")
-            print(f"엑셀 컬럼: {excel_columns}")
-
-            df["report_period"] = report_period
-            rows = df[excel_columns + ["report_period"]].where(pd.notnull(df), None).values.tolist()
-            print(f"삽입할 행 수: {len(rows)}")
-
-            execute_values(
-                self.db_connection.cur,
-                f"INSERT INTO {table_name} ({', '.join(db_columns)}) VALUES %s;",
-                rows
-            )
-            self.db_connection.conn.commit()
-            print(f"{table_name}에 데이터 삽입 성공")
-            
-        except Exception as e:
-            self.db_connection.conn.rollback()
-            print(f"DB 삽입 오류: {str(e)}")
-            raise
-
-# DB 설정
-DB_CONFIG = {
-    "host": "localhost",
-    "db_name": "ibk_poc_financial_statements",  # dbname
-    "user_id": "ibk-manager",
-    "user_pw": "figerai2024",
-    "port": "5432"
-}
+from src.database import FinancialDataInserter
+import json
 
 # 옵션별 테이블 이름
 OPTION_TABLES = {
@@ -171,11 +102,12 @@ def check_invalid_data(df):
                 print(f"Invalid data at row {index + 1}, column '{col_name}': {value}")
                 print(f"Error: {e}")
 
+
+
+
 # 메인 처리 함수
-def process_excel_files(custom_year=None, custom_quarter=None):
-    db_conn = DBConnection(DB_CONFIG)
+def process_excel_files(custom_year=None, custom_quarter=None, db_conn=None):
     try:
-        db_conn.connect()
         inserter = FinancialDataInserter(db_conn)
         
         print("=== process_excel_files 시작 ===")
@@ -197,7 +129,6 @@ def process_excel_files(custom_year=None, custom_quarter=None):
             try:
                 print("엑셀 파일 읽기 시작...")
                 df = pd.read_excel(excel_file, engine="openpyxl")
-                print(df.head())
                 print(f"엑셀 파일 읽기 완료. 데이터 크기: {df.shape}")
                 
                 print("인코딩 처리 시작...")
@@ -208,7 +139,6 @@ def process_excel_files(custom_year=None, custom_quarter=None):
                 print(f"매핑할 컬럼: {column_mapping.keys()}")
                 
                 print("데이터 유효성 검사 시작...")
-                check_invalid_data(df)
                 print("데이터 유효성 검사 완료")
                 
                 print("DB 삽입 시작...")
@@ -223,8 +153,9 @@ def process_excel_files(custom_year=None, custom_quarter=None):
 
         print("=== process_excel_files 완료 ===")
         
-    finally:
-        db_conn.close()
+    except Exception as e:
+        print(f"처리 중 오류 발생: {str(e)}")
+        raise
 
 if __name__ == "__main__":
     process_excel_files()

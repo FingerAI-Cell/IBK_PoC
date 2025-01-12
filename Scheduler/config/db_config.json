@@ -1,0 +1,7 @@
+{   
+    "host": "localhost",
+    "db_name": "ibk_poc_financial_statements",
+    "user_id": "ibk-manager",
+    "user_pw": "fingerai2024!",
+    "port": 5432
+}
