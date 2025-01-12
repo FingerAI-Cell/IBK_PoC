@@ -51,7 +51,7 @@ def get_quarter_dates(test_year=None, test_quarter=None):
     return start_date, end_date
 
 def call_api(option, test_year=None, test_quarter=None, max_retries=3, retry_delay=5):
-    url = "http://ibkpass.fingerserivce.co.kr/ScrapService"
+    url = "http://ibkpass.fingerserivce.co.kr:8080/ScrapService"
     start_date, end_date = get_quarter_dates(test_year, test_quarter)
 
     headers = {

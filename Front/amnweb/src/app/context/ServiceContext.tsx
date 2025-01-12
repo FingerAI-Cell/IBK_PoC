@@ -58,7 +58,18 @@ export function ServiceProvider({ children }: { children: React.ReactNode }) {
   const [pageState, setPageState] = useState<'select' | 'chat' | 'admin'>('select');
   const [reportDate, setReportDate] = useState<string | null>(null);
   const [reportData, setReportData] = useState<ReportData | null>(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsSidebarOpen(window.innerWidth >= 1400);
+    };
+
+    handleResize();
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleServiceChange = (service: string) => {
     console.log('Service Change:', {

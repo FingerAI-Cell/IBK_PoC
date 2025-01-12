@@ -21,7 +21,7 @@ export async function GET(request: Request) {
 
     const data = await response.json();
     return NextResponse.json(data);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: '데이터 조회 실패' }, { status: 500 });
   }
 } 

@@ -5,7 +5,7 @@ import { useCoAgent } from "@copilotkit/react-core";
 import { CopilotChat } from "@copilotkit/react-ui";
 import "@copilotkit/react-ui/styles.css";
 import styles from "./ChatBox.module.css";
-import { InputProps, CopilotSidebar } from "@copilotkit/react-ui";
+import { InputProps} from "@copilotkit/react-ui";
 
 interface ChatBoxProps {
   initialInput?: string;

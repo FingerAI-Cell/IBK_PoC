@@ -13,7 +13,7 @@ function LayoutContent() {
     <body className="flex min-h-screen bg-gray-100">
       {/* 토글 버튼 */}
       <button 
-        className="fixed top-4 left-4 z-40 xl:hidden"
+        className="fixed top-4 left-4 z-40 block xl:hidden"
         onClick={toggleSidebar}
       >
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -25,6 +25,7 @@ function LayoutContent() {
       <div className={`
         ${isSidebarOpen ? 'block' : 'hidden'} 
         xl:block
+        z-30
       `}>
         <Sidebar 
           currentService={currentService}
