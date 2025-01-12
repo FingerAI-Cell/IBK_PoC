@@ -1,21 +1,36 @@
 .container {
-  padding: 20px 40px;
-  max-width: 1000px;
-  margin: 0 auto;
+  position: fixed;
+  top: var(--header-height);
+  bottom: 0;
+  background-color: #f7fafc;
+  overflow-y: auto;
+  /* 기본 (모바일) 스타일 - 가운데 정렬 */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  padding: 2rem;
+}
+
+/* xl 브레이크포인트에서의 스타일 */
+@media (min-width: 1400px) {
+  .container {
+    left: 20rem;
+    right: 10%;
+    transform: none;
+    width: auto;
+  }
 }
 
 .title {
   font-size: 1.5rem;
-  font-weight: 600;
+  font-weight: bold;
   margin-bottom: 2rem;
-  text-align: center;
 }
 
 .meetingList {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding-left: 16px;
+  gap: 1rem;
 }
 
 .meetingItem {

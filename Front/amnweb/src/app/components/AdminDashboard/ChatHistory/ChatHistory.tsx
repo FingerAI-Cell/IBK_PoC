@@ -4,115 +4,33 @@ import { useState } from 'react';
 import styles from './ChatHistory.module.css';
 import { BiArrowBack } from 'react-icons/bi';
 
+interface MessageData {
+  content: string;
+  type: string;
+  name: null;
+  id: string;
+  example: boolean;
+  additional_kwargs: any;
+  response_metadata?: {
+    finish_reason: string;
+    model_name: string;
+    system_fingerprint: string;
+  };
+}
+
 interface ChatMessage {
+  thread_id: string;
   timestamp: string;
   messages: Array<{
     type: string;
-    data: {
-      content: string;
-    };
+    data: MessageData;
   }>;
 }
 
-const MOCK_CHAT_HISTORY: ChatMessage[] = [
-  {
-    timestamp: "2024-03-19T05:30:00.000Z",
-    messages: [
-      {
-        type: "user",
-        data: {
-          content: "애플 주가가 어떻게 되나요?"
-        }
-      },
-      {
-        type: "assistant",
-        data: {
-          content: "현재 애플(AAPL)의 주가는 $173.72입니다. 전일 대비 0.54% 상승했습니다."
-        }
-      }
-    ]
-  },
-  {
-    timestamp: "2024-03-19T04:15:00.000Z",
-    messages: [
-      {
-        type: "user",
-        data: {
-          content: "테슬라의 최근 실적은 어떤가요?"
-        }
-      },
-      {
-        type: "assistant",
-        data: {
-          content: "테슬라의 2024년 1분기 실적은 다음과 같습니다: 매출액 $21.3B, 영업이익 $1.8B를 기록했습니다."
-        }
-      },
-      {
-        type: "user",
-        data: {
-          content: "테슬라의 주가 전망은 어떤가요?"
-        }
-      },
-      {
-        type: "assistant",
-        data: {
-          content: "현재 월가의 테슬라 주가 전망은 다소 엇갈리고 있습니다. 일부 애널리스트들은 전기차 시장 경쟁 심화로 인한 우려를 제기하고 있으나, 자율주행 기술 발전과 에너지 사업 확장 가능성에 주목하는 의견도 있습니다."
-        }
-      }
-    ]
-  },
-  {
-    timestamp: "2024-03-18T09:20:00.000Z",
-    messages: [
-      {
-        type: "user",
-        data: {
-          content: "마이크로소프트의 AI 투자 현황이 궁금합니다."
-        }
-      },
-      {
-        type: "assistant",
-        data: {
-          content: "마이크로소프트는 OpenAI에 대한 투자를 지속적으로 확대하고 있으며, Copilot 등 AI 서비스를 전사적으로 확장하고 있습니다."
-        }
-      }
-    ]
-  },
-  {
-    timestamp: "2024-03-18T07:45:00.000Z",
-    messages: [
-      {
-        type: "user",
-        data: {
-          content: "엔비디아 주식을 매수하려고 하는데 어떻게 생각하시나요?"
-        }
-      },
-      {
-        type: "assistant",
-        data: {
-          content: "엔비디아는 AI 반도체 시장에서 독보적인 위치를 차지하고 있으며, 데이터센터 부문의 성장세가 지속되고 있습니다. 다만, 현재 주가가 고평가 되어있다는 의견도 있어 신중한 접근이 필요합니다."
-        }
-      }
-    ]
-  },
-  {
-    timestamp: "2024-03-17T10:30:00.000Z",
-    messages: [
-      {
-        type: "user",
-        data: {
-          content: "메타의 최근 동향은 어떤가요?"
-        }
-      },
-      {
-        type: "assistant",
-        data: {
-          content: "메타는 메타버스 투자를 지속하면서도 AI 기술 개발에도 주력하고 있습니다. 최근에는 광고 매출이 회복세를 보이고 있으며, Reality Labs 부문의 손실도 점차 감소하는 추세입니다."
-        }
-      }
-    ]
-  }
-];
+interface ChatHistoryResponse {
+  total_count: number;
+  chat_history: ChatMessage[];
+}
 
 export default function ChatHistory() {
   const [dateFrom, setDateFrom] = useState<string>('');
@@ -131,19 +49,16 @@ export default function ChatHistory() {
     setError(null);
     
     try {
-      // const response = await fetch(
-      //   `/api/chat/history?date_from=${dateFrom.replace(/-/g, '')}&date_to=${dateTo.replace(/-/g, '')}`
-      // );
+      const response = await fetch(
+        `/api/chat/history?date_from=${dateFrom.replace(/-/g, '')}&date_to=${dateTo.replace(/-/g, '')}`
+      );
 
-      // if (!response.ok) {
-      //   throw new Error('데이터 조회에 실패했습니다.');
-      // }
+      if (!response.ok) {
+        throw new Error('데이터 조회에 실패했습니다.');
+      }
 
-      // const data = await response.json();
-      
-      // // 응답이 배열이 아닌 경우 빈 배열로 처리
-      // setChatHistory(Array.isArray(data) ? data : []);
-      setChatHistory(MOCK_CHAT_HISTORY);
+      const data: ChatHistoryResponse = await response.json();
+      setChatHistory(data.chat_history || []);
       setCurrentPage(1);
     } catch (error) {
       console.error('채팅 이력 조회 실패:', error);
@@ -155,7 +70,27 @@ export default function ChatHistory() {
   };
 
   const formatTimestamp = (timestamp: string) => {
-    return new Date(timestamp).toLocaleString('ko-KR');
+    // "225156" -> "22:51:56" 형식으로 변환
+    const hours = timestamp.slice(0, 2).padStart(2, '0');
+    const minutes = timestamp.slice(2, 4).padStart(2, '0');
+    const seconds = timestamp.slice(4, 6).padStart(2, '0');
+    
+    const today = new Date();
+    const date = new Date(
+      today.getFullYear(), 
+      today.getMonth(), 
+      today.getDate(), 
+      parseInt(hours), 
+      parseInt(minutes), 
+      parseInt(seconds)
+    );
+    
+    return date.toLocaleString('ko-KR', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    });
   };
 
   const paginatedHistory = Array.isArray(chatHistory) ? chatHistory.slice(
@@ -206,8 +141,12 @@ export default function ChatHistory() {
                 className={styles.messageItem}
                 data-type={message.type}
               >
-                <div className={styles.messageType}>{message.type}</div>
-                <div className={styles.messageContent}>{message.data.content}</div>
+                <div className={styles.messageType}>
+                  {message.type === 'human' ? '사용자' : 'AI'}
+                </div>
+                <div className={styles.messageContent}>
+                  {message.data.content}
+                </div>
               </div>
             ))}
           </div>

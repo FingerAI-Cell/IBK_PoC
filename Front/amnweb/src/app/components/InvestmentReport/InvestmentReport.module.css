@@ -1,22 +1,31 @@
 .container {
-  padding: 16px 16px;
-  background: #f8f9fa;
-  height: calc(100vh - 60px);
-  width: calc(100% - 320px);
   position: fixed;
-  right: 0;
-  top: 60px;
+  top: var(--header-height);
+  bottom: 0;
+  background: #f8f9fa;
   overflow-y: auto;
+  /* 기본 (모바일) 스타일 */
+  left: 2rem;
+  right: 2rem;
+  padding: 16px;
+}
+
+/* xl 브레이크포인트에서의 스타일 */
+@media (min-width: 1400px) {
+  .container {
+    left: 20rem;  /* 사이드바 너비만큼 */
+    right: 1rem;  /* 오른쪽 더 좁은 여백 */
+  }
 }
 
 .tabContainer {
   background: white;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  max-width: 1600px;
-  margin: 0 auto;
-  width: 99%;
+  width: 100%;
   padding: 24px;
+  height: fit-content;
+  min-width: 0;
 }
 
 .title {
@@ -45,10 +54,12 @@
   display: flex;
   gap: 16px;
   margin-bottom: 24px;
+  flex-wrap: wrap;
 }
 
 .amountItem {
   flex: 1;
+  min-width: 200px;
   padding: 16px;
   background: #f8f9fa;
   border-radius: 8px;
@@ -58,12 +69,16 @@
   font-size: 14px;
   color: #666;
   margin-bottom: 8px;
+  white-space: nowrap;
 }
 
 .amountItem p {
   font-size: 20px;
   font-weight: bold;
   color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .portfolioChart {
@@ -71,6 +86,7 @@
   height: 300px;
   position: relative;
   margin: 20px 0;
+  min-width: 0;
 }
 
 .portfolioChart h3 {
@@ -83,6 +99,7 @@
   width: 100%;
   height: 100%;
   position: relative;
+  min-width: 0;
 }
 
 .investmentList {
@@ -90,6 +107,7 @@
   border-radius: 8px;
   padding: 20px;
   border: 1px solid #eee;
+  min-width: 0;
 }
 
 .investmentList h3 {
@@ -109,10 +127,15 @@
   font-size: 13px;
   align-items: center;
   margin-bottom: 8px;
+  min-width: 0;
 }
 
 .listHeader span {
   text-align: left;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .investmentItem {
@@ -122,10 +145,15 @@
   border-bottom: 1px solid #eee;
   font-size: 13px;
   align-items: center;
+  min-width: 0;
 }
 
 .investmentItem span {
   text-align: left;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .investmentItem:last-child {
@@ -231,3 +259,30 @@
   visibility: hidden !important;
 }
 .dateInput::-webkit-inner-spin-button { display: none; } 
+
+.summaryContainer {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* 화면이 좁아질 때 (예: 768px 미만) */
+@media (max-width: 768px) {
+  .summaryContainer {
+    flex-direction: column;
+  }
+}
+
+.summaryItem {
+  flex: 1;
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  min-width: 0;
+}
+
+.summaryItem h3 {
+  font-size: 0.875rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+} 

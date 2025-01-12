@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import styles from "./MainContent.module.css";
 import ChatBox from "../ChatBox/ChatBox";
 import GreetingSection from "./GreetingSection";
-import FAQSection from "./FAQSection";
 import MeetingList from "../MeetingList/MeetingList";
 import AdminDashboard from "../AdminDashboard/AdminDashboard";
 import { faqs } from "../../data/faqData";
@@ -37,15 +36,14 @@ export default function MainContent() {
     
     if (pageState === 'select') {
       return (
-        <>
-          <GreetingSection
-            chatInput={chatInput}
-            onInputChange={setChatInput}
-            onSubmit={handleQuestionSubmit}
-            serviceType={currentService}
-          />
-          <FAQSection faqs={faqs} onFAQClick={handleFAQClick} />
-        </>
+        <GreetingSection
+          chatInput={chatInput}
+          onInputChange={setChatInput}
+          onSubmit={handleQuestionSubmit}
+          serviceType={currentService}
+          faqs={faqs}
+          onFAQClick={handleFAQClick}
+        />
       );
     }
 

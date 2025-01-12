@@ -34,6 +34,8 @@ interface ServiceContextType {
   reportDate: string | null;
   reportData: ReportData | null;
   setReportDate: (date: string, data?: ReportData) => void;
+  isSidebarOpen: boolean;
+  toggleSidebar: () => void;
 }
 
 const defaultValue: ServiceContextType = {
@@ -45,6 +47,8 @@ const defaultValue: ServiceContextType = {
   reportDate: null,
   reportData: null,
   setReportDate: () => {},
+  isSidebarOpen: true,
+  toggleSidebar: () => {},
 };
 
 const ServiceContext = createContext<ServiceContextType>(defaultValue);
@@ -54,6 +58,7 @@ export function ServiceProvider({ children }: { children: React.ReactNode }) {
   const [pageState, setPageState] = useState<'select' | 'chat' | 'admin'>('select');
   const [reportDate, setReportDate] = useState<string | null>(null);
   const [reportData, setReportData] = useState<ReportData | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const handleServiceChange = (service: string) => {
     console.log('Service Change:', {
@@ -83,6 +88,8 @@ export function ServiceProvider({ children }: { children: React.ReactNode }) {
     setReportData(data || null);
   };
 
+  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+
   return (
     <ServiceContext.Provider 
       value={{ 
@@ -94,6 +101,8 @@ export function ServiceProvider({ children }: { children: React.ReactNode }) {
         reportDate,
         reportData,
         setReportDate: handleSetReportDate,
+        isSidebarOpen,
+        toggleSidebar,
       }}
     >
       {children}

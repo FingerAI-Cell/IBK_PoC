@@ -9,6 +9,7 @@
     overflow-y: auto;
     z-index: 1000;
     margin-top: var(--header-height);
+    transition: transform 0.3s ease;
   }
   
   .categories {
@@ -19,4 +20,22 @@
     font-weight: 700;
     font-size: 1.25rem;
     padding: 1rem;
+  }
+
+  .toggleButton {
+    display: none;
+  }
+
+  .hidden {
+    transform: translateX(-100%);
+  }
+
+  @media (max-width: 1400px) {
+    .sidebar {
+      transform: translateX(-100%);
+    }
+    
+    .sidebar:not(.hidden) {
+      transform: translateX(0);
+    }
   }

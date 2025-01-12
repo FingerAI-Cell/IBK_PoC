@@ -34,6 +34,16 @@ export async function GET(
       }
     );
 
+    console.log(`Response status: ${response.status}`);
+
+    if (response.status === 404) {
+      console.log('404 상태 코드: 요청하신 데이터를 찾을 수 없습니다.');
+      return NextResponse.json(
+        { error: '요청하신 데이터를 찾을 수 없습니다.' },
+        { status: 404 }
+      );
+    }
+
     if (!response.ok) {
       throw new Error(`API 요청 실패: ${response.status}`);
     }

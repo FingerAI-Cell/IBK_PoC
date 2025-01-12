@@ -284,9 +284,9 @@ export default function InvestmentReport() {
           <div className="flex !flex-col w-[40%]">
             <div className={styles.content}>
               <div className={styles.leftSection}>
-                <div className="flex justify-between space-x-4 mb-6">
-                  <div className="flex-1 bg-gray-50 p-4 rounded-lg">
-                    <h3 className="text-gray-600 text-sm mb-2">총 평가금액</h3>
+                <div className={styles.summaryContainer}>
+                  <div className={styles.summaryItem}>
+                    <h3>총 평가금액</h3>
                     <ValueWithDiff 
                       amount={calculations.totalMarketValue(stockData)}
                       percentage={calculations.profitRate(
@@ -297,9 +297,11 @@ export default function InvestmentReport() {
                       acquisitionAmount={calculations.totalAcquisitionAmount(stockData)}
                     />
                   </div>
-                  <div className="flex-1 bg-gray-50 p-4 rounded-lg">
-                    <h3 className="text-gray-600 text-sm mb-2">매입금액</h3>
-                    <p className="text-xl font-bold">{formatNumber(calculations.totalAcquisitionAmount(stockData))}원</p>
+                  <div className={styles.summaryItem}>
+                    <h3>매입금액</h3>
+                    <p className="text-xl font-bold">
+                      {formatNumber(calculations.totalAcquisitionAmount(stockData))}원
+                    </p>
                   </div>
                 </div>
 

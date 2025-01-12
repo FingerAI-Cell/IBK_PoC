@@ -8,6 +8,17 @@
   top: 60px;
 }
 
+/* 사이드바가 사라질 때 (1400px 미만) */
+@media (max-width: 1400px) {
+  .container {
+    width: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    right: auto;
+    padding: 24px 16px;
+  }
+}
+
 .title {
   font-size: 24px;
   font-weight: 600;

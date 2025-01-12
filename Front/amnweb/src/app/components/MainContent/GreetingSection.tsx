@@ -2,19 +2,24 @@
 
 import styles from "./GreetingSection.module.css";
 import { serviceConfig } from "../../config/serviceConfig";
+import FAQSection from "./FAQSection";
 
 interface GreetingSectionProps {
   chatInput: string;
   onInputChange: (value: string) => void;
   onSubmit: () => void;
   serviceType: string;
+  faqs: string[];
+  onFAQClick: (question: string) => void;
 }
 
 export default function GreetingSection({
   chatInput,
   onInputChange,
   onSubmit,
-  serviceType
+  serviceType,
+  faqs,
+  onFAQClick
 }: GreetingSectionProps) {
   const config = serviceConfig[serviceType] || serviceConfig["general-chat"];
 
@@ -43,6 +48,7 @@ export default function GreetingSection({
           </button>
         </div>
       </div>
+      <FAQSection faqs={faqs} onFAQClick={onFAQClick} />
     </div>
   );
 }

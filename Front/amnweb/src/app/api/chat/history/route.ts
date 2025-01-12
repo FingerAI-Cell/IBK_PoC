@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 
 const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? process.env.NEXT_PUBLIC_API_BASE_URL 
-  : process.env.NEXT_PUBLIC_LOCAL_API_URL;
+  ? process.env.NEXT_PUBLIC_LOCAL_API_URL
+  : process.env.NEXT_PUBLIC_API_BASE_URL ;
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);

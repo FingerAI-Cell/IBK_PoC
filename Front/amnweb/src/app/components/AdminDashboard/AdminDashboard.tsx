@@ -42,21 +42,32 @@ export default function AdminDashboard() {
   );
   const [financialDocuments, setFinancialDocuments] = useState<FinancialDocument[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [tempDate, setTempDate] = useState<string>(
+    new Date().toISOString().split('T')[0]
+  );
 
   useEffect(() => {
     const fetchFilingData = async () => {
       try {
+        setFilingData(null);
+        
         const response = await fetch(`/api/admin/filing/${selectedDate}`);
         
         if (!response.ok) {
           throw new Error(`HTTP 상태 오류: ${response.status}`);
         }
+        
         const data = await response.json();
+        
+        if (!data || 
+            (data.overview && data.overview.length === 0) || 
+            (data.summary && data.summary.length === 0)) {
+          return;
+        }
+        
         setFilingData(data);
       } catch (error) {
         console.error('데이터 불러오기 실패:', error);
-        // 에러 상태를 사용자에게 표시하는 상태 추가 추천
-        // setError(error.message);
       }
     };
 
@@ -109,6 +120,29 @@ export default function AdminDashboard() {
     } else {
       setSelectedKeyword(selectedKeyword === item ? null : item);
     }
+  };
+
+  const handleDateSelect = (e: React.MouseEvent<HTMLInputElement>) => {
+    const input = e.currentTarget;
+    const originalOnChange = (e: Event) => {
+      const target = e.target as HTMLInputElement;
+      if (target.value) {
+        setSelectedDate(target.value.replace(/-/g, ''));
+        setTempDate(target.value);
+      }
+    };
+
+    // 기존 change 이벤트 리스너 제거 후 다시 추가
+    input.removeEventListener('change', originalOnChange);
+    input.addEventListener('change', originalOnChange, { once: true });
+  };
+
+  // 텍스트 포맷팅 헬퍼 함수 추가
+  const formatText = (text: string) => {
+    return text
+      .replace(/S_P_500/g, 'S\u0026P500')  // S_P_500을 S&P500으로 먼저 변경
+      .replace(/S_P/g, 'S\u0026P')  // 다른 S_P 케이스 처리
+      .replace(/_/g, ' ');  // 나머지 언더스코어를 띄어쓰기로 변경
   };
 
   return (
@@ -182,8 +216,10 @@ export default function AdminDashboard() {
                 <input 
                   type="date" 
                   className={styles.dateInput}
-                  defaultValue={new Date().toISOString().split('T')[0]}
-                  onChange={(e) => setSelectedDate(e.target.value.replace(/-/g, ''))}
+                  value={tempDate}
+                  onClick={handleDateSelect}
+                  onChange={(e) => setTempDate(e.target.value)}
+                  onKeyDown={(e) => e.preventDefault()}
                 />
               </div>
 
@@ -203,7 +239,7 @@ export default function AdminDashboard() {
                       <tbody>
                         {filingData?.overview?.[0] && Object.entries(filingData.overview[0]).map(([symbol, data]) => (
                           <tr key={symbol}>
-                            <td>{symbol}</td>
+                            <td>{formatText(symbol)}</td>
                             <td>{data['10-K']}</td>
                             <td>{data['10-Q']}</td>
                             <td>{data['8-K']}</td>
