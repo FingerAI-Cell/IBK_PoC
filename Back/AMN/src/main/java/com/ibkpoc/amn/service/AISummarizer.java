@@ -34,7 +34,6 @@ public class AISummarizer {
 
         try {
             return webClient.post()
-                    .uri("")
                     .bodyValue(requestBody)
                     .retrieve()
                     .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {})
