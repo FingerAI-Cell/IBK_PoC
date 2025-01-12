@@ -1,10 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { date: string } }
-) {
+type Params = {
+  params: Promise<{
+    date: string;
+  }>;
+};
+
+export async function GET(request: NextRequest, context: Params) {
   try {
+    const params = await context.params;
+    const { date } = params;
+    
     const isDevelopment = process.env.NODE_ENV === 'development';
     const isProduction = process.env.NODE_ENV === 'production';
     
@@ -26,7 +32,7 @@ export async function GET(
     console.log(`Using API URL: ${baseUrl}`);
 
     const response = await fetch(
-      `${baseUrl}/admin/filing/${params.date}`,
+      `${baseUrl}/admin/filing/${date}`,
       {
         headers: {
           'Content-Type': 'application/json',

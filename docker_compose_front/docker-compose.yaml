@@ -1,0 +1,27 @@
+name: "ibk_poc_front"
+services:
+  frontend:
+    image: ibk-poc-front:latest  # 도커 이미지 지정
+    container_name: ibk-frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - /etc/poc/Scheduler:/app/data/Scheduler
+    environment:
+      - TZ=Asia/Seoul  # 타임존 설정
+      - NODE_ENV=production
+      - SCHEDULER_PATH=/app/data/Scheduler
+      # .env 파일의 환경변수들
+      - NEXT_PUBLIC_API_BASE_URL=http://onelineai2.iptime.org:8080
+      - NEXT_PUBLIC_LOCAL_API_URL=http://localhost:8000
+      - REMOTE_OLAF_URL=http://onelineai2.iptime.org:8080
+      - NEXT_PUBLIC_EC2_URL=http://ec2-54-180-66-126.ap-northeast-2.compute.amazonaws.com:8000
+      - NEXT_PUBLIC_FINGER_URL=http://ibkpass.fingerservice.co.kr:8080
+      - OPENAI_API_KEY=""
+    restart: unless-stopped
+    networks:
+      - poc-service
+
+networks:
+  poc-service:
+    driver: bridge
