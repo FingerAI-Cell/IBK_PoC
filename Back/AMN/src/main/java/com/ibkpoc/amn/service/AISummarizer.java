@@ -1,8 +1,11 @@
 package com.ibkpoc.amn.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -15,7 +18,7 @@ public class AISummarizer {
 
     @Value("${ai.base-url}") // 환경별 URL 주입
     private String apiUrl;
-
+    private static final Logger logger = LoggerFactory.getLogger(WebService.class);
     private final WebClient webClient;
     private final ObjectMapper objectMapper;
 
@@ -33,12 +36,22 @@ public class AISummarizer {
         requestBody.put("kwargs", new HashMap<>());
 
         try {
+            // ObjectMapper로 JSON 요청 바디 로깅
+            ObjectMapper objectMapper = new ObjectMapper();
+            String requestBodyJson = objectMapper.writeValueAsString(requestBody);
+            logger.info("Request Body: {}", requestBodyJson); // 요청 바디 로그 출력
+
+
             return webClient.post()
                     .uri(apiUrl)
+                    .contentType(MediaType.APPLICATION_JSON) // Content-Type 명시
                     .bodyValue(requestBody)
                     .retrieve()
                     .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {})
-                    .map(response -> (String) response.get("output"))
+                    .map(response -> {
+                        logger.info("Response Body: {}", response); // 응답 바디 로그 출력
+                        return (String) response.get("output");
+                    })
                     .block(Duration.ofMinutes(5)); // 타임아웃 설정
         } catch (Exception e) {
             e.printStackTrace();
