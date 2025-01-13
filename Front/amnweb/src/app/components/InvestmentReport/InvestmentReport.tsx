@@ -55,11 +55,16 @@ const formatPercentage = (value: number): string => {
   return `${roundedValue > 0 ? '+' : ''}${roundedValue}%`;
 };
 
-const ValueWithDiff = ({ amount, percentage, dayOverDayDiff, acquisitionAmount }: { 
-  amount: number; 
-  percentage: number;
-  dayOverDayDiff: number;
-  acquisitionAmount: number;
+const ValueWithDiff = ({ 
+  amount = 0, 
+  percentage = 0,
+  dayOverDayDiff = 0,
+  acquisitionAmount = 0 
+}: { 
+  amount?: number; 
+  percentage?: number;
+  dayOverDayDiff?: number;
+  acquisitionAmount?: number;
 }) => (
   <div>
     <p className="text-xl font-bold">
@@ -196,11 +201,11 @@ export default function InvestmentReport() {
     labels: ['주식', '채권/펀드', '선물/옵션', '신탁', '기타'],
     datasets: [{
       data: portfolioData ? [
-        portfolioData.stocks,
-        portfolioData.bondsFunds,
-        portfolioData.derivatives,
-        portfolioData.trust,
-        portfolioData.others
+        portfolioData.stocks || 0,
+        portfolioData.bondsFunds || 0,
+        portfolioData.derivatives || 0,
+        portfolioData.trust || 0,
+        portfolioData.others || 0
       ] : [0, 0, 0, 0, 0],
       backgroundColor: [
         '#FF6384',
@@ -449,25 +454,31 @@ export default function InvestmentReport() {
                     <span>평가금액</span>
                     <span>전일대비</span>
                   </div>
-                  {getFilteredStocks(stockData).map((item, index) => {
-                    const profitRate = calculations.profitRate(
-                      parseFloat(item.market_value), 
-                      parseFloat(item.acquisition_amount)
-                    );
-                    
-                    return (
-                      <div key={index} className={styles.investmentItem}>
-                        <span>{item.stock_name}</span>
-                        <span className={`${getValueColor(profitRate)} font-bold`}>
-                          {formatPercentage(profitRate)}
-                        </span>
-                        <span>{formatNumber(parseFloat(item.market_value))}</span>
-                        <span className={`${getValueColor(parseFloat(item.market_value_diff))} font-bold`}>
-                          {parseFloat(item.market_value_diff)}%
-                        </span>
-                      </div>
-                    );
-                  })}
+                  {getFilteredStocks(stockData).length > 0 ? (
+                    getFilteredStocks(stockData).map((item, index) => {
+                      const profitRate = calculations.profitRate(
+                        parseFloat(item.market_value || '0'), 
+                        parseFloat(item.acquisition_amount || '0')
+                      );
+                      
+                      return (
+                        <div key={index} className={styles.investmentItem}>
+                          <span>{item.stock_name || '-'}</span>
+                          <span className={`${getValueColor(profitRate)} font-bold`}>
+                            {formatPercentage(profitRate)}
+                          </span>
+                          <span>{formatNumber(parseFloat(item.market_value || '0'))}</span>
+                          <span className={`${getValueColor(parseFloat(item.market_value_diff || '0'))} font-bold`}>
+                            {parseFloat(item.market_value_diff || '0')}%
+                          </span>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div className="p-4 text-center text-gray-500">
+                      데이터가 없습니다
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -489,19 +500,25 @@ export default function InvestmentReport() {
                 보유종목 주요 뉴스
               </div>
               <div className="space-y-0.5">
-                {newsSummary.map((news, index) => (
-                  <div key={index} className="flex space-x-2 py-0.5 text-sm">
-                    <span className="text-gray-400">•</span>
-                    <span className="text-gray-700">
-                      <span className="font-bold text-gray-900">
-                        {findStockNameByTicker(news.ticker, stockData)}:
-                      </span>{' '}
-                      <span dangerouslySetInnerHTML={{ 
-                        __html: formatNumericValue(news.content) 
-                      }} />
-                    </span>
+                {newsSummary.length > 0 ? (
+                  newsSummary.map((news, index) => (
+                    <div key={index} className="flex space-x-2 py-0.5 text-sm">
+                      <span className="text-gray-400">•</span>
+                      <span className="text-gray-700">
+                        <span className="font-bold text-gray-900">
+                          {findStockNameByTicker(news.ticker, stockData || [])}:
+                        </span>{' '}
+                        <span dangerouslySetInnerHTML={{ 
+                          __html: formatNumericValue(news.content || '') 
+                        }} />
+                      </span>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center text-gray-500 py-2">
+                    뉴스 데이터가 없습니다
                   </div>
-                ))}
+                )}
               </div>
             </div>
           </div>

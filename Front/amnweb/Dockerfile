@@ -19,6 +19,11 @@ COPY . .
 # Next.js 프로젝트 빌드
 RUN npm run build
 
+# 호스트 설정
+# 환경 변수 설정 (호스트와 포트)
+ENV HOST=0.0.0.0
+ENV PORT=3000
+
 # 포트 설정
 EXPOSE 3000
 

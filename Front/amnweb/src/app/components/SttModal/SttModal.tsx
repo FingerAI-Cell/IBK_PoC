@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import styles from './SttModal.module.css';
 import { apiConfig } from '../../config/serviceConfig';
 
@@ -40,10 +41,16 @@ export default function SttModal({
   onSummarize,
   confId
 }: SttModalProps) {
+  const [mounted, setMounted] = useState(false);
   const [speakerNames, setSpeakerNames] = useState<Record<string, string>>({});
   const [selectedSpeakers, setSelectedSpeakers] = useState<Set<string>>(new Set());
   const [searchText, setSearchText] = useState('');
   
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
+
   // speakers가 변경될 때마다 speakerNames 초기화
   useEffect(() => {
     const initialNames: Record<string, string> = {};
@@ -162,9 +169,9 @@ export default function SttModal({
     }
   };
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
-  return (
+  const modalContent = (
     <div className={styles.modalOverlay}>
       <div className={styles.modal}>
         <div className={styles.modalHeader}>
@@ -246,4 +253,12 @@ export default function SttModal({
       </div>
     </div>
   );
+
+  // document가 있는지 확인 (SSR 대비)
+  if (typeof document === 'undefined') return null;
+
+  const modalRoot = document.getElementById('modal-root');
+  if (!modalRoot) return null;
+
+  return createPortal(modalContent, modalRoot);
 }
