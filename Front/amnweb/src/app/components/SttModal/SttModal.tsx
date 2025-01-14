@@ -1,7 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import styles from './SttModal.module.css';
-import { apiConfig } from '../../config/serviceConfig';
 
 interface Speaker {
   speakerId: string;  // "SPEAKER_00" 형식의 문자열
@@ -117,7 +116,7 @@ export default function SttModal({
 
   const handleSummarize = async () => {
     try {
-      const response = await fetch(`${apiConfig.baseURL}/api/meetings/summarize`, {
+      const response = await fetch('/api/meetings/summarize', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -143,7 +142,7 @@ export default function SttModal({
         name: speakerNames[speaker.speakerId] || ''
       }));
 
-      const response = await fetch(`${apiConfig.baseURL}/api/meetings/speakers/update`, {
+      const response = await fetch('/api/meetings/speakers/update', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -154,14 +153,11 @@ export default function SttModal({
         }),
       });
 
-      if (!response.ok) {
-        throw new Error('발화자 이름 저장 실패');
-      }
-
       const result = await response.json();
       if (result.success) {
-        // 성공 시 처리 (예: 알림 표시)
         alert('발화자 이름이 저장되었습니다.');
+      } else {
+        throw new Error('발화자 이름 저장 실패');
       }
     } catch (error) {
       console.error('발화자 이름 저장 오류:', error);

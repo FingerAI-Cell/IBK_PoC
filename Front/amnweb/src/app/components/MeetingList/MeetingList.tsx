@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import styles from "./MeetingList.module.css";
-import { apiConfig } from '../../config/serviceConfig';
 import SttModal from '../SttModal/SttModal';
 import SummaryModal from '../SummaryModal/SummaryModal';
 import AlertModal from '../AlertModal/AlertModal';
@@ -87,10 +86,11 @@ export default function MeetingList() {
   const fetchSttContent = async (meetingId: number) => {
     try {
       // 1. speakers 데이터 가져오기
-      const speakersResponse = await fetch(`${apiConfig.baseURL}/api/meetings/speakers`, {
+      const speakersResponse = await fetch('/api/meetings/speakers', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
         body: JSON.stringify({ meetingId }),
       });
@@ -98,10 +98,11 @@ export default function MeetingList() {
       const speakersResult = await speakersResponse.json();
       
       // 2. logs 데이터 가져오기
-      const logsResponse = await fetch(`${apiConfig.baseURL}/api/meetings/logs`, {
+      const logsResponse = await fetch('/api/meetings/logs', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
         body: JSON.stringify({ meetingId }),
       });
@@ -128,13 +129,14 @@ export default function MeetingList() {
   useEffect(() => {
     const fetchMeetings = async () => {
       try {
-        const response = await fetch(`${apiConfig.baseURL}/api/meetings/`, {
+        const response = await fetch('/api/meetings', {
           method: 'GET',
           headers: {
+            'Content-Type': 'application/json',
             'Accept': 'application/json'
           }
         });
-        
+
         if (!response.ok) {
           throw new Error('회의록 목록을 불러오는데 실패했습니다.');
         }
@@ -153,11 +155,12 @@ export default function MeetingList() {
 
   const handleSummaryClick = async (meeting: Meeting) => {
     try {
-      // 1. speakers 데이터 가져오기
-      const speakersResponse = await fetch(`${apiConfig.baseURL}/api/meetings/speakers`, {
+      // apiConfig.baseURL 대신 상대 경로 사용
+      const speakersResponse = await fetch('/api/meetings/speakers', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
         body: JSON.stringify({ meetingId: meeting.confId }),
       });

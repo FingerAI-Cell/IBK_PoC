@@ -9,8 +9,9 @@ interface ServiceConfig {
 }
 
 export const apiConfig = {
-  baseURL: 'https://ibkpoc.fingerservice.co.kr'  // 스프링 서버 주소
-  // baseURL: 'http://ibkpass.fingerservice.co.kr:8080'
+  baseURL: process.env.NODE_ENV === 'development' 
+    ? process.env.NEXT_PUBLIC_MEETING_URL_DEV 
+    : process.env.NEXT_PUBLIC_MEETING_URL_PROD
 };
 
 export const serviceConfig: { [key: string]: ServiceConfig } = {

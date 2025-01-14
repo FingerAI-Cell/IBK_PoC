@@ -6,7 +6,7 @@ import ChatBox from "../ChatBox/ChatBox";
 import GreetingSection from "./GreetingSection";
 import MeetingList from "../MeetingList/MeetingList";
 import AdminDashboard from "../AdminDashboard/AdminDashboard";
-import { faqs } from "../../data/faqData";
+import { faqData } from "../../data/faqData";
 import { useService } from "../../context/ServiceContext";
 import InvestmentReport from "../InvestmentReport/InvestmentReport";
 import { serviceConfig } from "../../config/serviceConfig";
@@ -41,6 +41,10 @@ export default function MainContent() {
     }, 100);
   };
 
+  const getServiceFaqs = (serviceType: string) => {
+    return faqData[serviceType as keyof typeof faqData] || faqData['general-chat'];
+  };
+
   const renderChatService = () => {
     const config = serviceConfig[currentService];
     
@@ -51,7 +55,7 @@ export default function MainContent() {
           onInputChange={setChatInput}
           onSubmit={handleQuestionSubmit}
           serviceType={currentService}
-          faqs={faqs}
+          faqs={getServiceFaqs(currentService)}
           onFAQClick={handleFAQClick}
         />
       );

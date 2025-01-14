@@ -5,7 +5,7 @@ import path from 'path';
 export async function GET() {
   try {
     // AMNWEB/Scheduler 경로로 이동 (현재 위치에서 ../../.. 올라가기)
-    const schedulerPath = path.join(process.cwd(), '..', '..', 'Scheduler');
+    const schedulerPath = path.join(process.cwd(), 'data', 'Scheduler');
     // 'data', 'Scheduler'
     // 각 카테고리 디렉토리 읽기
     const categories = [
