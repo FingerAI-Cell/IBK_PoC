@@ -195,6 +195,7 @@ export default function InvestmentReport() {
   const [selectedMarket, setSelectedMarket] = useState<'ALL' | 'KR' | 'US'>('ALL');
   const [marketSummary, setMarketSummary] = useState<MarketSummary[]>([]);
   const [newsSummary, setNewsSummary] = useState<NewsItem[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   // 차트 데이터는 컴포넌트 내부로 이동
   const chartData = {
@@ -222,6 +223,7 @@ export default function InvestmentReport() {
     if (!selectedUser || !selectedDate) return;
     
     try {
+      setError(null); // 에러 상�� 초기화
       const requestBody = {
         client_code: selectedUser,
         trd_dd: selectedDate
@@ -250,6 +252,11 @@ export default function InvestmentReport() {
         })
       ]);
 
+      // 각 응답의 상� 코드 확인
+      if (!stockResponse.ok || !portfolioResponse.ok || !marketResponse.ok || !newsResponse.ok) {
+        throw new Error('서버 응답 ��류');
+      }
+
       const [stockData, portfolioData, marketData, newsData] = await Promise.all([
         stockResponse.json(),
         portfolioResponse.json(),
@@ -257,12 +264,20 @@ export default function InvestmentReport() {
         newsResponse.json()
       ]);
 
-      setStockData(stockData || []);
+      // 데이터 유효성 검사
+      setStockData(Array.isArray(stockData) ? stockData : []);
       setPortfolioData(portfolioData?.[0] || null);
-      setMarketSummary(marketData || []);
-      setNewsSummary(newsData || []);
+      setMarketSummary(Array.isArray(marketData) ? marketData : []);
+      setNewsSummary(Array.isArray(newsData) ? newsData : []);
+
     } catch (error) {
       console.error('데이터 로딩 실패:', error);
+      setError('데이터를 불러오는데 실패했습니다.');
+      // 에러 발생 시 초기값 설정
+      setStockData([]);
+      setPortfolioData(null);
+      setMarketSummary([]);
+      setNewsSummary([]);
     }
   }, [selectedUser, selectedDate]);
 
@@ -363,6 +378,11 @@ export default function InvestmentReport() {
 
   return (
     <div className={styles.container}>
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+          {error}
+        </div>
+      )}
       <div className={styles.tabContainer}>
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center space-x-4">
