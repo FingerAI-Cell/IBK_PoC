@@ -12,6 +12,11 @@ export default function Header() {
     toggleSidebar();
   };
 
+  const handleAdminButtonClick = () => {
+    console.log('Navigating to admin page');
+    setPageState('admin');
+  };
+
   return (
     <header className={styles.header}>
       <button 
@@ -36,7 +41,7 @@ export default function Header() {
       
       <button 
         className={styles.myPageButton}
-        onClick={() => setPageState('admin')}
+        onClick={handleAdminButtonClick}
       >
         관리자
       </button>

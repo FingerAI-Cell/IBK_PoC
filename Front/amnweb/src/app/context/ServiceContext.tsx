@@ -105,6 +105,11 @@ export function ServiceProvider({ children }: { children: React.ReactNode }) {
     console.log('ServiceContext - After Toggle:', !isSidebarOpen);
   };
 
+  const handleAdminPage = () => {
+    setPageState('admin');
+    setCurrentService('');
+  };
+
   return (
     <ServiceContext.Provider 
       value={{ 

@@ -46,7 +46,7 @@ export default function SidebarCategories({
         <li
           key={category.id}
           className={`${styles.categoryItem} ${
-            currentService === category.id ? styles.active : ""
+            pageState !== 'admin' && currentService === category.id ? styles.active : ""
           }`}
           onClick={() => handleServiceSelect(category.id)}
         >
