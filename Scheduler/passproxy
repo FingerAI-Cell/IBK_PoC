@@ -1,87 +1,32 @@
 server {
-   listen 80;
-   server_name ibkpoc.fingerservice.co.kr;
+   listen 8080;
 
-   client_max_body_size 5m;  # 5MB로 설정
+   client_max_body_size 5m;  # 최대 요청 크기 제한 5MB
 
-   # HTTP를 HTTPS로 리디렉션
-   location / {
-       return 301 https://$host$request_uri;
-   }
-}
-
-server {
-   listen 443 ssl;
-   server_name ibkpoc.fingerservice.co.kr;
-
-   # SSL 인증서 설정
-   ssl_certificate /etc/letsencrypt/live/ibkpoc.fingerservice.co.kr/fullchain.pem;
-   ssl_certificate_key /etc/letsencrypt/live/ibkpoc.fingerservice.co.kr/privkey.pem;
-   ssl_protocols TLSv1.2 TLSv1.3;
-   ssl_ciphers HIGH:!aNULL:!MD5;
-
-   client_max_body_size 5m;  # 5MB로 설정
-
-   location /stt/ {
-       proxy_pass http://10.17.10.14:8081/stt/;
+   location /summary {
+       # 프록시 요청 우회 처리
+       proxy_pass http://172.16.204.111:8000;
        proxy_set_header Host $host;
        proxy_set_header X-Real-IP $remote_addr;
        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
        proxy_set_header X-Forwarded-Proto $scheme;
-       proxy_set_header Cache-Control "no-cache, no-store, must-revalidate";
-       proxy_set_header X-NginX-Proxy true;
 
-       # 옵션 및 헤더 설정
+
+       # 1번 서버 (AI 서버)와의 연결 타임아웃
+       proxy_connect_timeout 300s;  # 5분
+
+       # 1번 서버 (AI 서버)로의 데이터 전송 타임아웃
+       proxy_send_timeout 300s;     # 5분
+
+       # 1번 서버 (AI 서버)로부터 응답을 기다리는 시간
+       proxy_read_timeout 300s;     # 5분
+
+       # 캐시 방지 및 헤더 설정
+       add_header Cache-Control "no-cache, no-store, must-revalidate";
+       add_header X-NginX-Proxy true;
        add_header X-Frame-Options "ALLOWALL";
        add_header Access-Control-Allow-Origin *;
        add_header Access-Control-Allow-Methods "GET, POST, OPTIONS";
        add_header Access-Control-Allow-Headers "Authorization, Content-Type";
    }
-
-
- # 백엔드  경로에 대한 기본 설정
-   location /api {
-       proxy_pass http://10.17.10.14:8080/api;
-       proxy_set_header Host $host;
-       proxy_set_header X-Real-IP $remote_addr;
-       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-       proxy_set_header X-Forwarded-Proto $scheme;
-       proxy_set_header Cache-Control "no-cache, no-store, must-revalidate";
-       proxy_set_header X-NginX-Proxy true;
-  }
-
-   location /meeting {
-       proxy_pass http://10.17.10.14:8080/meeting;
-       proxy_set_header Host $host;
-       proxy_set_header X-Real-IP $remote_addr;
-       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-       proxy_set_header X-Forwarded-Proto $scheme;
-       proxy_set_header Cache-Control "no-cache, no-store, must-revalidate";
-       proxy_set_header X-NginX-Proxy true;
-  }
-
-
-
-   # 모든 경로에 대한 기본 설정
-   location / {
-       proxy_pass http://localhost:3287;
-       proxy_set_header Host $host;
-       proxy_set_header X-Real-IP $remote_addr;
-       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-       proxy_set_header X-Forwarded-Proto $scheme;
-       proxy_set_header Cache-Control "no-cache, no-store, must-revalidate";
-       proxy_set_header X-NginX-Proxy true;
-
-       # 옵션 및 헤더 설정
-#       add_header X-Frame-Options "ALLOWALL";
-#       add_header Access-Control-Allow-Origin "*" always;
-#       add_header Access-Control-Allow-Methods "GET, POST, OPTIONS" always;
-#       add_header Access-Control-Allow-Headers "Authorization, Content-Type" always;
-
-       # OPTIONS 요청 처리
-#        if ($request_method = 'OPTIONS') {
-#            return 204;
-#        }
-   }
-
 }
