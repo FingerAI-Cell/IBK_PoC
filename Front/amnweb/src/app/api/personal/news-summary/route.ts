@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
 const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? process.env.NEXT_PUBLIC_FINGER_UR  : "http://localhost:3000"; //process.env.NEXT_PUBLIC_EC2_URL;
+  ? process.env.NEXT_PUBLIC_FINGER_URL  : process.env.NEXT_PUBLIC_EC2_URL;
 
 export async function POST(request: Request) {
   try {
