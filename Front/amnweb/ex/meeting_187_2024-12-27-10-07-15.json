@@ -1,0 +1,3710 @@
+[
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_06",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_06",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_06",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_06",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_06",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_06",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_06",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_06",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_06",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_06",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_06",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_06",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_06",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_06",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_07",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_07",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_07",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_07",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_07",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_07",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_07",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_07",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_07",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_06",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_06",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_06",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_06",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_06",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_05",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_06",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_06",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_06",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_06",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_06",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_06",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_06",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_06",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_06",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_06",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_06",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_06",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_06",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_06",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_07",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_06",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_06",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_06",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_06",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_06",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_06",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_06",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_00",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_02",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_04",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_03",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    },
+    {
+        "speaker": "SPEAKER_01",
+        "text": "Error: 'LLMOpenAI' object has no attribute 'gen_config'"
+    }
+]

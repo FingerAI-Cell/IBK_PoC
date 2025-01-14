@@ -1,6 +1,7 @@
 import styles from './SummaryModal.module.css';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { meetings } from '@/data/meetings';
 
 interface SummaryModalProps {
   isOpen: boolean;
@@ -8,13 +9,52 @@ interface SummaryModalProps {
   title: string;
   date: string;
   participants: string[];
-  content: string; // summary가 텍스트로 제공
+  content: string;
+  confId?: number;
 }
 
-export default function SummaryModal({ isOpen, onClose, title, date, participants, content }: SummaryModalProps) {
-  console.log('isOpen:', isOpen); // 컴포넌트 렌더링 여부 확인
-  console.log('content prop:', content); // 전달된 content 확
+export default function SummaryModal({ 
+  isOpen, 
+  onClose, 
+  title, 
+  date, 
+  participants, 
+  content,
+  confId 
+}: SummaryModalProps) {
   if (!isOpen) return null;
+  
+  // API 실패시 meetings.ts에서 해당 회의 데이터를 가져오는 로직
+  const getFallbackData = (confId: number) => {
+    const meeting = meetings.find(m => m.confId === confId);
+    if (!meeting) return null;
+
+    return {
+      title: meeting.title,
+      date: meeting.startTime,
+      participants: meeting.participants,
+      content: meeting.summary
+    };
+  };
+
+  // content가 비어있거나 유효하지 않은 JSON 형식일 때 fallback 데이터 사용
+  const fallbackData = confId ? getFallbackData(confId) : null;
+  
+  const displayContent = (() => {
+    try {
+      JSON.parse(content);
+      return content;
+    } catch {
+      return fallbackData?.content || "";
+    }
+  })();
+  
+  const displayParticipants = participants?.length > 0 
+    ? participants 
+    : fallbackData?.participants || [];
+  
+  const displayTitle = title || fallbackData?.title || "";
+  const displayDate = date || fallbackData?.date || "";
   
   const handleDownload = async () => {
     try {
@@ -43,10 +83,10 @@ export default function SummaryModal({ isOpen, onClose, title, date, participant
       const speakerDetailsRegex = /"(\w+)":\s*(?:{[^}]*"details":\s*"([^"]+)"|"(.*?)")/g;
   
       // 2. Topic 추출
-      const topics = [...content.matchAll(topicRegex)].map((match) => match[1]);
+      const topics = [...displayContent.matchAll(topicRegex)].map((match) => match[1]);
   
       // 3. Topic 블록 단위로 세분화하여 Speaker 및 Details 또는 Text 추출
-      const topicBlocks = [...content.matchAll(topicBlockRegex)].map((match) => match[0]);
+      const topicBlocks = [...displayContent.matchAll(topicBlockRegex)].map((match) => match[0]);
   
       const topicDetailsMap = topicBlocks.map((block, index) => {
         const details = [...block.matchAll(speakerDetailsRegex)].map((match) => ({

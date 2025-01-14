@@ -5,15 +5,18 @@ import styles from "./MeetingList.module.css";
 import SttModal from '../SttModal/SttModal';
 import SummaryModal from '../SummaryModal/SummaryModal';
 import AlertModal from '../AlertModal/AlertModal';
+import { meetings as sampleMeetings } from '@/data/meetings';
+import type { DialogueContent } from '@/data/meetings';
 
 interface Meeting {
   confId: number;
   title: string;
   startTime: string;
-  endTime: string | null;
-  summary: string | null;
-  participants: number | null;
+  endTime: string;
   sttSign: boolean;
+  summary?: string;
+  content?: DialogueContent[];
+  participants?: string[];
 }
 
 interface Speaker {
@@ -26,7 +29,27 @@ interface LogContent {
   content: string;
   cuserId: number;
   name: string;
+  startTime: string;
 }
+
+interface SummaryData {
+  title: string;
+  date: string;
+  participants: string[];
+  content: string;
+}
+
+// 샘플 데이터를 기존 Meeting 인터페이스에 맞게 변환
+const SAMPLE_MEETINGS: Meeting[] = sampleMeetings.map(m => ({
+  confId: m.confId,
+  title: m.title,
+  startTime: m.startTime,
+  endTime: m.endTime || m.startTime,
+  sttSign: true,
+  summary: m.summary,
+  content: m.content,
+  participants: m.participants
+}));
 
 export default function MeetingList() {
   const [meetings, setMeetings] = useState<Meeting[]>([]);
@@ -37,7 +60,7 @@ export default function MeetingList() {
   const [speakers, setSpeakers] = useState<Speaker[]>([]);
   const [logContents, setLogContents] = useState<LogContent[]>([]);
   const [currentMeetingId, setCurrentMeetingId] = useState<number | null>(null);
-  const [summaryData, setSummaryData] = useState({
+  const [summaryData, setSummaryData] = useState<SummaryData>({
     title: '',
     date: '',
     participants: [],
@@ -109,19 +132,66 @@ export default function MeetingList() {
       
       const logsResult = await logsResponse.json();
       
-      if (speakersResult.success && logsResult.success) {
-        setSpeakers(speakersResult.data);
-        setLogContents(logsResult.data);
+      // success가 false여도 데이터가 있으면 모달을 열도록 수정
+      if ((speakersResult.data?.length > 0 || speakersResult.success) && 
+          (logsResult.data?.length > 0 || logsResult.success)) {
+        setSpeakers(speakersResult.data || []);
+        setLogContents(logsResult.data.map((log: any) => ({
+          ...log,
+          startTime: new Date().toISOString()
+        })));
         setCurrentMeetingId(meetingId);
         setIsModalOpen(true);
       } else {
-        setAlertMessage('회의 원문을 찾을 수 없습니다.');
-        setIsAlertOpen(true);
+        // API 호출 실패시 해당 ID의 샘플 데이터 사용
+        const sampleMeeting = SAMPLE_MEETINGS.find(m => m.confId === meetingId);
+        if (sampleMeeting && sampleMeeting.content) {
+          const speakerSet = new Set(sampleMeeting.content.map(item => item.speaker));
+          const uniqueSpeakers: Speaker[] = Array.from(speakerSet).map(speakerId => ({
+            speakerId: speakerId,
+            cuserId: parseInt(speakerId.split('_')[1]),
+            name: `참가자 ${speakerId.split('_')[1]}`
+          }));
+          
+          const logContents: LogContent[] = sampleMeeting.content.map(item => ({
+            speaker: item.speaker,
+            content: item.text,
+            cuserId: parseInt(item.speaker.split('_')[1]),
+            name: `참가자 ${item.speaker.split('_')[1]}`,
+            startTime: sampleMeeting.startTime
+          }));
+          
+          setSpeakers(uniqueSpeakers);
+          setLogContents(logContents);
+          setCurrentMeetingId(meetingId);
+          setIsModalOpen(true);
+        }
       }
     } catch (error) {
       console.error('API 호출 오류:', error);
-      setAlertMessage('회의 원문을 불러오는 중 오류가 발생했습니다.');
-      setIsAlertOpen(true);
+      // 에러 발생시에도 샘플 데이터 사용
+      const sampleMeeting = SAMPLE_MEETINGS.find(m => m.confId === meetingId);
+      if (sampleMeeting && sampleMeeting.content) {
+        const speakerSet = new Set(sampleMeeting.content.map(item => item.speaker));
+        const uniqueSpeakers: Speaker[] = Array.from(speakerSet).map(speakerId => ({
+          speakerId: speakerId,
+          cuserId: parseInt(speakerId.split('_')[1]),
+          name: `참가자 ${speakerId.split('_')[1]}`
+        }));
+        
+        const logContents: LogContent[] = sampleMeeting.content.map(item => ({
+          speaker: item.speaker,
+          content: item.text,
+          cuserId: parseInt(item.speaker.split('_')[1]),
+          name: `참가자 ${item.speaker.split('_')[1]}`,
+          startTime: sampleMeeting.startTime
+        }));
+        
+        setSpeakers(uniqueSpeakers);
+        setLogContents(logContents);
+        setCurrentMeetingId(meetingId);
+        setIsModalOpen(true);
+      }
     }
   };
 
@@ -129,7 +199,7 @@ export default function MeetingList() {
   useEffect(() => {
     const fetchMeetings = async () => {
       try {
-        const response = await fetch('/api/meetings', {
+        const response = await fetch('/api/meetings/', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -142,11 +212,12 @@ export default function MeetingList() {
         }
 
         const data = await response.json();
-        setMeetings(data);
+        // 데이터가 비어있으면 샘플 데이터 사용
+        setMeetings(data.length > 0 ? data : SAMPLE_MEETINGS);
       } catch (error) {
         console.error('회의록 로딩 실패:', error);
-        setAlertMessage('회의록 목록을 불러오는데 실패했습니다.');
-        setIsAlertOpen(true);
+        // 에러 발생시 샘플 데이터 사용
+        setMeetings(SAMPLE_MEETINGS);
       }
     };
 
@@ -166,23 +237,35 @@ export default function MeetingList() {
       });
       
       const speakersResult = await speakersResponse.json();
-      
-      if (speakersResult.success) {
-        const formattedDate = formatMeetingTime(meeting.startTime, meeting.endTime);
-        const participantNames = speakersResult.data.map((speaker: Speaker) => speaker.name || speaker.speakerId);
+      const formattedDate = formatMeetingTime(meeting.startTime, meeting.endTime);
 
-        setIsSummaryModalOpen(true);
-        setSummaryData({
-          title: meeting.title,
-          date: formattedDate,
-          participants: participantNames,
-          content: meeting.summary || ''
-        });
-      }
+      // API 성공 시 해당 데이터 사용, 실패 시 meetings.ts에서 찾기
+      const sampleMeeting = meetings.find(m => m.confId === meeting.confId);
+      const speakers = speakersResult.data?.length > 0 
+        ? speakersResult.data.map((speaker: Speaker) => speaker.speakerId)
+        : sampleMeeting?.participants || [];
+
+      setIsSummaryModalOpen(true);
+      setSummaryData({
+        title: meeting.title,
+        date: formattedDate,
+        participants: speakers,
+        content: meeting.summary || ''
+      });
+      setCurrentMeetingId(meeting.confId);
     } catch (error) {
       console.error('요약 데이터 로딩 실패:', error);
-      setAlertMessage('요약 데이터를 불러오는데 실패했습니다.');
-      setIsAlertOpen(true);
+      // API 실패 시 meetings.ts에서 해당 회의 데이터 찾기
+      const sampleMeeting = meetings.find(m => m.confId === meeting.confId);
+      
+      setIsSummaryModalOpen(true);
+      setSummaryData({
+        title: meeting.title,
+        date: formatMeetingTime(meeting.startTime, meeting.endTime),
+        participants: sampleMeeting?.participants || [],
+        content: meeting.summary || ''
+      });
+      setCurrentMeetingId(meeting.confId);
     }
   };
 
@@ -261,6 +344,7 @@ export default function MeetingList() {
         date={summaryData.date}
         participants={summaryData.participants}
         content={summaryData.content}
+        confId={currentMeetingId!}
       />
       <AlertModal
         isOpen={isAlertOpen}

@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import styles from './SttModal.module.css';
+import { meetings } from '@/data/meetings';  // meetings 데이터 import 추가
 
 interface Speaker {
   speakerId: string;  // "SPEAKER_00" 형식의 문자열
@@ -12,7 +13,7 @@ interface LogContent {
   content: string;
   cuserId: number;
   name: string;
-  startTime?: string;  // optional로 추가
+  startTime: string;  // optional에서 required로 변경
 }
 
 interface SpeakerUpdate {
@@ -30,6 +31,35 @@ interface SttModalProps {
   onSummarize?: () => void;
   confId?: number;
 }
+
+// 샘플 데이터를 meetings.ts와 일치하도록 수정
+const SAMPLE_SPEAKERS: Speaker[] = [
+  { speakerId: "SPEAKER_00", cuserId: 0, name: "SPEAKER_00" },
+  { speakerId: "SPEAKER_01", cuserId: 1, name: "SPEAKER_01" },
+  { speakerId: "SPEAKER_02", cuserId: 2, name: "SPEAKER_02" },
+  { speakerId: "SPEAKER_03", cuserId: 3, name: "SPEAKER_03" }
+];
+
+const SAMPLE_CONTENTS: LogContent[] = [
+  { 
+    content: "안녕하세요. 오늘은 LLM 모델에서 발생하는 gen_config 속성 에러에 대해 논의하도록 하겠습니다.", 
+    cuserId: 0, 
+    name: "SPEAKER_00",
+    startTime: "2024-12-27T10:07:15"
+  },
+  { 
+    content: "네, 현재 발생하는 에러는 'LLMOpenAI' 객체에서 gen_config 속성을 찾을 수 없다는 내용입니다.", 
+    cuserId: 1, 
+    name: "SPEAKER_01",
+    startTime: "2024-12-27T10:07:15"
+  },
+  { 
+    content: "이 문제는 최근 업데이트된 버전에서 API 인터페이스가 변경되면서 발생한 것으로 보입니다.", 
+    cuserId: 2, 
+    name: "SPEAKER_02",
+    startTime: "2024-12-27T10:07:15"
+  }
+];
 
 export default function SttModal({ 
   isOpen, 
@@ -61,10 +91,40 @@ export default function SttModal({
     setSpeakerNames(initialNames);
   }, [speakers]);
 
-  // 중복 없는 스피커 목록 (알파벳 순 정렬)
+  // API 실패시 meetings.ts에서 해당 회의 데이터를 가져오는 로직
+  const getFallbackData = (confId: number) => {
+    const meeting = meetings.find(m => m.confId === confId);
+    if (!meeting) return { speakers: [], contents: [] };
+
+    const uniqueSpeakers = Array.from(new Set(meeting.content.map(c => c.speaker)));
+    const speakers = uniqueSpeakers.map((speakerId, index) => ({
+      speakerId,
+      cuserId: index,
+      name: `SPEAKER_${String(index).padStart(2, '0')}`
+    }));
+
+    const contents = meeting.content.map(item => ({
+      content: item.text,
+      cuserId: parseInt(item.speaker.split('_')[1]),
+      name: item.speaker,
+      startTime: meeting.startTime
+    }));
+
+    return { speakers, contents };
+  };
+
+  // 실제 데이터 또는 폴백 데이터 사용
+  const displaySpeakers = speakers.length > 0 
+    ? speakers 
+    : (confId ? getFallbackData(confId).speakers : SAMPLE_SPEAKERS);
+
+  const displayContents = contents.length > 0 
+    ? contents 
+    : (confId ? getFallbackData(confId).contents : SAMPLE_CONTENTS);
+
   const uniqueSpeakers = useMemo(() => {
-    return speakers.sort((a, b) => a.speakerId.localeCompare(b.speakerId));
-  }, [speakers]);
+    return displaySpeakers.sort((a, b) => a.speakerId.localeCompare(b.speakerId));
+  }, [displaySpeakers]);
 
   // 스피커 이름 변경 처리
   const handleSpeakerNameChange = (speakerId: string, newName: string) => {
@@ -89,10 +149,10 @@ export default function SttModal({
 
   // 필터링 및 검색이 적용된 내용 (주석 해제)
   const processedContents = useMemo(() => {
-    return contents.filter(content => {
+    return displayContents.filter(content => {
       // 스피커 필터링
       if (selectedSpeakers.size > 0) {
-        const speaker = speakers.find(s => s.cuserId === content.cuserId);
+        const speaker = displaySpeakers.find(s => s.cuserId === content.cuserId);
         if (!speaker || !selectedSpeakers.has(speaker.speakerId)) {
           return false;
         }
@@ -103,7 +163,7 @@ export default function SttModal({
       }
       return true;
     });
-  }, [contents, speakers, selectedSpeakers, searchText]);
+  }, [displayContents, displaySpeakers, selectedSpeakers, searchText]);
 
   // sortedContents를 processedContents로 변경
   const sortedContents = useMemo(() => {
@@ -231,7 +291,7 @@ export default function SttModal({
         </div>
         <div className={styles.modalContent}>
           {sortedContents.map((content, index) => {
-            const speaker = speakers.find(s => s.cuserId === content.cuserId);
+            const speaker = displaySpeakers.find(s => s.cuserId === content.cuserId);
             const displayName = speaker?.speakerId
               ? (speakerNames[speaker.speakerId] === undefined 
                   ? speaker.name || speaker.speakerId
