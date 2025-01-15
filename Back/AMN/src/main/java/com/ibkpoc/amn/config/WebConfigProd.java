@@ -12,7 +12,8 @@ public class WebConfigProd implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
                 .allowedOrigins("https://ibkpoc.fingerservice.co.kr",
-                        "http://localhost:3000", "http://172.17.10.13:8080","http://172.16.20.23:8080")
+                        "http://localhost:3000", "http://172.17.10.13:8080","http://172.16.20.23:8080",
+                        "http://172.16.204.111:3000","http://172.50.37.111:8080")
                 .allowedMethods("*")
                 .allowedHeaders("*")
                 .allowCredentials(true);

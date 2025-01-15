@@ -42,22 +42,22 @@ interface CoAgentState {
   context: string;
 }
 
-// 메시지 컴포넌트 (메모이제이션으로 렌더링 최적화)
-const ChatMessage = memo(({ sender, text }: { sender: string; text: string }) => (
-  <div
-    className={`${styles.message} ${
-      sender === "user" ? styles.userMessage : styles.botMessage
-    }`}
-  >
-    {text.split("\n").map((line, i) => (
-      <span key={i}>
-        {line}
-        {i !== text.split("\n").length - 1 && <br />}
-      </span>
-    ))}
-  </div>
-));
-ChatMessage.displayName = "ChatMessage";
+// // 메시지 컴포넌트 (메모이제이션으로 렌더링 최적화)
+// const ChatMessage = memo(({ sender, text }: { sender: string; text: string }) => (
+//   <div
+//     className={`${styles.message} ${
+//       sender === "user" ? styles.userMessage : styles.botMessage
+//     }`}
+//   >
+//     {text.split("\n").map((line, i) => (
+//       <span key={i}>
+//         {line}
+//         {i !== text.split("\n").length - 1 && <br />}
+//       </span>
+//     ))}
+//   </div>
+// ));
+// ChatMessage.displayName = "ChatMessage";
 
 // InputProps 타입 확장
 interface CustomInputProps extends InputProps {
@@ -219,7 +219,7 @@ export default function ChatBox({
   }, [serviceName]);
 
   // 문서 관련 상태 (from useCoAgent)
-  const { nodeName, state } = useCoAgent<CoAgentState>({
+  const { nodeName, running, state } = useCoAgent<CoAgentState>({
     name: agent || "",
     initialState: {
       nodeName: "",
@@ -248,7 +248,7 @@ export default function ChatBox({
     } else {
       setDocuments([]);
     }
-  }, [nodeName, state.retrieved_documents]);
+  }, [nodeName, running, state]);
 
   // DOM 변경 시 스크롤 유지
   useEffect(() => {
