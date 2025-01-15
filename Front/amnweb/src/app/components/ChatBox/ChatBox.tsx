@@ -81,7 +81,7 @@ function CustomInput({ inProgress, onSend, initialInput }: CustomInputProps) {
     if (value.trim()) onSend(value);
   };
 
-  return (
+  return (  
     <div className="flex gap-2 p-4 border-t">
       <input 
         disabled={inProgress}
@@ -110,6 +110,8 @@ function CustomInput({ inProgress, onSend, initialInput }: CustomInputProps) {
     </div>
   );
 }
+
+
 
 export default function ChatBox({
   initialInput = "",
@@ -230,7 +232,23 @@ export default function ChatBox({
         context: "",
       },
     },
-  });
+  })
+
+  // nodeName 상태 변화 로그
+  useEffect(() => {
+    console.log("nodeName changed:", nodeName);
+  }, [nodeName]);
+
+  // running 상태 변화 로그
+  useEffect(() => {
+    console.log("running state changed:", running);
+  }, [running]);
+
+  // state 상태 변화 로그
+  useEffect(() => {
+    console.log("state changed:", state);
+  }, [state]);  
+  
 
   const [documents, setDocuments] = useState<RetrievedDocument[]>([]);
 

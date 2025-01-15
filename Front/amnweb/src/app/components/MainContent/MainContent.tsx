@@ -13,6 +13,7 @@ import { serviceConfig } from "../../config/serviceConfig";
 import { CopilotKit } from "@copilotkit/react-core";
 
 export default function MainContent() {
+  console.log("MainContent component rendered");
   const { currentService, pageState, setPageState } = useService();
   const [chatInput, setChatInput] = useState("");
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -20,6 +21,10 @@ export default function MainContent() {
   useEffect(() => {
     setChatInput("");
     setIsTransitioning(false);
+    console.log("Render Chat Service - Current State:", {
+      pageState,
+      currentService
+    });
   }, [currentService, pageState]);
 
   const handleQuestionSubmit = () => {
@@ -60,7 +65,12 @@ export default function MainContent() {
         />
       );
     }
-
+     // 디버깅 로그 추가
+  console.log("Render Chat Service - Current State:", {
+    pageState,
+    currentService,
+    config,
+  });
     // pageState가 'chat'일 때
     return (
       <CopilotKit

@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
-import { apiConfig } from '@/app/config/serviceConfig';
+
+const API_BASE_URL = process.env.NODE_ENV === 'production' 
+  ? process.env.NEXT_PUBLIC_FINGER_URL
+  : process.env.NEXT_PUBLIC_EC2_URL;
 
 export async function POST(request: Request) {
   try {
@@ -7,7 +10,7 @@ export async function POST(request: Request) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-    const response = await fetch(`${apiConfig.baseURL}/api/meetings/summarize`, {
+    const response = await fetch(`${API_BASE_URL}/api/meetings/summarize`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -20,16 +20,17 @@ OPTION_TABLES = {
 # 테이블별 컬럼 맵핑 (엑셀 컬럼명 -> DB 컬럼명)
 COLUMN_MAPPINGS = {
     'manpower_status': {
-        '감사': 'auditor',
-        '경영이사': 'executive_director',
-        '계약직원': 'contract_employee',
-        '기타': 'others',
-        '비등기임원': 'unregistered_executive',
-        '사외이사': 'outside_director',
-        '업권구분': 'sector',
+        '회사명': 'company_name',
+        '감사': 'auditor_count',
+        '경영이사': 'executive_count',
+        '계약직원': 'contract_staff_count',
+        '기타': 'other_staff_count',
+        '비등기임원': 'non_registered_executive_count',
+        '사외이사': 'outside_director_count',
+        '업권구분': 'industry_type',
         '임직원합계': 'total_employees',
-        '정규직원': 'regular_employee',
-        '투자권유대행인': 'company_name'  # 이 부분 수정
+        '정규직원': 'regular_staff_count',
+        '투자권유대행인': 'investment_advisor_count'
     },
     "financial_condition": {
         "회사명": "company_name",
@@ -37,7 +38,7 @@ COLUMN_MAPPINGS = {
         "당기순이익": "net_income",
         "부채총계": "total_liabilities",
         "업권구분": "industry_type",
-        "영업수익": "operating_revenue",
+        "엽엉수익": "operating_revenue",
         "영업비용": "operating_expenses",
         "영업이익": "operating_profit",
         "자본금": "capital_stock",
@@ -102,8 +103,11 @@ def check_invalid_data(df):
                 print(f"Invalid data at row {index + 1}, column '{col_name}': {value}")
                 print(f"Error: {e}")
 
-
-
+# 날짜 변환 함수 추가
+def convert_date(date_str):
+    if isinstance(date_str, (int, float)):
+        date_str = str(int(date_str))
+    return f"{date_str[:4]}-{date_str[4:6]}-{date_str[6:]}"
 
 # 메인 처리 함수
 def process_excel_files(custom_year=None, custom_quarter=None, db_conn=None):

@@ -1,12 +1,16 @@
 import { NextResponse } from 'next/server';
-import { apiConfig } from '@/app/config/serviceConfig';
+
+const API_BASE_URL = process.env.NODE_ENV === 'production' 
+  ? process.env.NEXT_PUBLIC_FINGER_URL
+  : process.env.NEXT_PUBLIC_EC2_URL;
+
 
 export async function GET() {
   try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 5000); // 5초 타임아웃
-
-    const response = await fetch(`${apiConfig.baseURL}/api/meetings/`, {
+// 이 부분 수정중
+    const response = await fetch(`${API_BASE_URL}/api/meetings/`, {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
@@ -19,7 +23,7 @@ export async function GET() {
 
     if (!response.ok) {
       console.error(`API Response Status: ${response.status}`);
-      console.error(`API Response URL: ${apiConfig.baseURL}/api/meetings/`);
+      console.error(`API Response URL: ${API_BASE_URL}/api/meetings/`);
       throw new Error('HTTP error! status: ' + response.status);
     }
 
