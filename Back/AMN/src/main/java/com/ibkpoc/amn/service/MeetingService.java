@@ -190,7 +190,7 @@ public class MeetingService {
             return client.send(request, HttpResponse.BodyHandlers.ofString());
         } catch (Exception e) {
             log.error("API 호출 중 예외 발생: {}", e.getMessage(), e);
-            throw new RuntimeException("API 호출 실패", e);
+            return null;
         }
     }
 }
