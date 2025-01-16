@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import styles from "./MainContent.module.css";
 import ChatBox from "../ChatBox/ChatBox";
 import GreetingSection from "./GreetingSection";
@@ -19,8 +19,8 @@ export default function MainContent() {
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
-    setChatInput("");
-    setIsTransitioning(false);
+    if (chatInput !== "")setChatInput("");
+    if (isTransitioning)setIsTransitioning(false);
     console.log("Render Chat Service - Current State:", {
       pageState,
       currentService
@@ -50,9 +50,9 @@ export default function MainContent() {
     return faqData[serviceType as keyof typeof faqData] || faqData['general-chat'];
   };
 
-  const renderChatService = () => {
+  const memoizedRenderChatService = useMemo(() => {
     const config = serviceConfig[currentService];
-    
+  
     if (pageState === 'select') {
       return (
         <GreetingSection
@@ -65,20 +65,21 @@ export default function MainContent() {
         />
       );
     }
-     // 디버깅 로그 추가
-  console.log("Render Chat Service - Current State:", {
-    pageState,
-    currentService,
-    config,
-  });
-    // pageState가 'chat'일 때
+  
+    console.log("Render Chat Service - Current State:", {
+      pageState,
+      currentService,
+      config,
+    });
+  
+    // pageState가 'chat'일 때 반환
     return (
       <CopilotKit
         runtimeUrl={config.apiEndpoint}
         agent={config.agent}
         showDevConsole={false}
       >
-        <ChatBox 
+        <ChatBox
           initialInput={isTransitioning ? chatInput : ""}
           serviceName={currentService}
           agent={config.agent}
@@ -86,7 +87,7 @@ export default function MainContent() {
         />
       </CopilotKit>
     );
-  };
+  }, [currentService, pageState, isTransitioning, chatInput]);
 
   return (
     <div className={styles.container}>
@@ -98,7 +99,7 @@ export default function MainContent() {
         <InvestmentReport />
       ) : (
         // 채팅 서비스 렌더링 (general-chat, branch-manual, overseas-loan, financial-statements)
-        renderChatService()
+        memoizedRenderChatService
       )}
     </div>
   );

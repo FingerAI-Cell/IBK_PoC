@@ -144,16 +144,6 @@ export default function ChatBox({
     console.log("Agent state updated:", state);
   }, [state]);
 
-  // 디버깅을 위한 로그 추가
-  useEffect(() => {
-    console.log('ChatBox Props:', {
-      initialInput,
-      agent,
-      serviceName,
-      useCopilot
-    });
-  }, [initialInput, agent, serviceName, useCopilot]);
-
   // 실제 메시지 전송을 처리하는 함수
   const handleSubmitMessage = useCallback(async (message: string) => {
     console.log('handleSubmitMessage called with:', message);
@@ -211,13 +201,6 @@ export default function ChatBox({
     }
   }, [isLoaded]);
 
-  useEffect(() => {
-    if (chatRef.current) {
-        console.log("Resetting CopilotChat state");
-        chatRef.current.resetState();
-    }
-}, [nodeName, running]);
-
   // initialInput 처리 - handleSubmitMessage 사용
   useEffect(() => {
     if (initialInput?.trim() && isLoaded && !isInitialized) {
@@ -226,20 +209,6 @@ export default function ChatBox({
       setIsInitialized(true);
     }
   }, [initialInput, isLoaded, isInitialized, handleSubmitMessage]);
-
-  // CopilotChat 로드 완료 체크
-  useEffect(() => {
-    const checkLoaded = setInterval(() => {
-      const inputElement = chatRef.current?.querySelector('[role="textbox"], textarea, input');
-      if (inputElement) {
-        console.log('Chat loaded with element:', inputElement.tagName);
-        setIsLoaded(true);
-        clearInterval(checkLoaded);
-      }
-    }, 100);
-
-    return () => clearInterval(checkLoaded);
-  }, []);
 
   // 서비스 로깅 (히스토리 추적용)
   useEffect(() => {
@@ -300,22 +269,27 @@ export default function ChatBox({
 }, [nodeName, running, state]);
 
 useEffect(() => {
-  if (nodeName === "__end__") {
-    console.log("Resetting nodeName and running state");
-    setDocuments([]); // 문서 초기화
-    if (chatRef.current) {
-      chatRef.current.resetState?.(); // CopilotChat 상태 초기화
+  if (state?.alert && state.alert !== '') {
+    const messages = document.querySelectorAll('.copilotKitAssistantMessage');
+    const lastMessage = messages[messages.length - 1] as HTMLDivElement;
+    
+    if (lastMessage && !lastMessage.dataset.alertInserted) {
+      const alertContainer = document.createElement('div');
+      alertContainer.className = "p-4 mt-2 bg-red-100 border-l-4 border-red-500 text-red-700 rounded";
+      alertContainer.innerHTML = `
+        <div class="flex items-center">
+          <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+          </svg>
+          <p>${state.alert}</p>
+        </div>
+      `;
+
+      lastMessage.appendChild(alertContainer);
+      lastMessage.dataset.alertInserted = "true";
     }
   }
-}, [nodeName, running]);
-
-useEffect(() => {
-  if (chatRef.current) {
-    console.log("Resetting CopilotChat state after document handling");
-    chatRef.current.resetState?.(); // CopilotChat 상태 초기화
-  }
-}, [documents]); // 문서 변경 시 상태 초기화
-
+}, [state?.alert]);
 
   // DOM 변경 시 스크롤 유지
   useEffect(() => {

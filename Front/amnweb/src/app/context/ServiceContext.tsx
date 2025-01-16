@@ -78,8 +78,10 @@ export function ServiceProvider({ children }: { children: React.ReactNode }) {
       currentPageState: pageState
     });
     
-    setCurrentService(service);
-    setPageState('select');
+    setCurrentService(() => {
+      setPageState('select');
+      return service;
+    });
   };
 
   useEffect(() => {
@@ -90,8 +92,10 @@ export function ServiceProvider({ children }: { children: React.ReactNode }) {
   }, [currentService, pageState]);
 
   const handleMyServices = () => {
-    setCurrentService("general-chat");
-    setPageState('select');
+    setCurrentService(() => {
+      setPageState("select");
+      return "general-chat";
+    });
   };
 
   const handleSetReportDate = (date: string, data?: ReportData) => {
@@ -100,8 +104,9 @@ export function ServiceProvider({ children }: { children: React.ReactNode }) {
   };
 
   const toggleSidebar = () => {
-    console.log('ServiceContext - Before Toggle:', isSidebarOpen);
-    setIsSidebarOpen(!isSidebarOpen);
+    const nextState = !isSidebarOpen;
+    console.log('ServiceContext - Toggling Sidebar:', nextState);
+    setIsSidebarOpen(nextState);
     console.log('ServiceContext - After Toggle:', !isSidebarOpen);
   };
 
