@@ -6,6 +6,7 @@ import { CopilotChat } from "@copilotkit/react-ui";
 import "@copilotkit/react-ui/styles.css";
 import styles from "./ChatBox.module.css";
 import { InputProps} from "@copilotkit/react-ui";
+import { serviceConfig } from "@/app/config/serviceConfig";
 
 interface ChatBoxProps {
   initialInput?: string;
@@ -54,8 +55,11 @@ function CustomInput({ inProgress, onSend, initialInput }: CustomInputProps) {
     }
   }, []);
 
-  const handleSubmit = (value: string) => {
-    if (value.trim()) onSend(value);
+  const handleSubmit = () => {
+    if (value.trim()) {
+      onSend(value);
+      setValue(""); // 입력 필드 초기화
+    }
   };
 
   return (  
@@ -69,8 +73,7 @@ function CustomInput({ inProgress, onSend, initialInput }: CustomInputProps) {
         className="flex-1 p-2 rounded-md border border-gray-300 focus:outline-none focus:border-blue-500 disabled:bg-gray-100"
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
-            handleSubmit(e.currentTarget.value);
-            setValue("");
+            handleSubmit();
           }
         }}
       />
@@ -78,8 +81,7 @@ function CustomInput({ inProgress, onSend, initialInput }: CustomInputProps) {
         disabled={inProgress}
         className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
         onClick={() => {
-          handleSubmit(value);
-          setValue("");
+          handleSubmit();
         }}
       >
         전송
@@ -116,7 +118,7 @@ export default function ChatBox({
     running,
     state
   } = useCoAgent<CoAgentState>({
-    name: agent,
+    name: agent ? agent : "olaf_ibk_poc_agent",
     initialState: {
       nodeName: '',
       running: false,
@@ -136,6 +138,11 @@ export default function ChatBox({
   const [isLoaded, setIsLoaded] = useState(false);
   const messageEndRef = useRef<HTMLDivElement>(null);
   const chatRef = useRef<any>(null);
+
+  // 에이전트 상태 변경 시 디버깅
+  useEffect(() => {
+    console.log("Agent state updated:", state);
+  }, [state]);
 
   // 디버깅을 위한 로그 추가
   useEffect(() => {
@@ -204,6 +211,13 @@ export default function ChatBox({
     }
   }, [isLoaded]);
 
+  useEffect(() => {
+    if (chatRef.current) {
+        console.log("Resetting CopilotChat state");
+        chatRef.current.resetState();
+    }
+}, [nodeName, running]);
+
   // initialInput 처리 - handleSubmitMessage 사용
   useEffect(() => {
     if (initialInput?.trim() && isLoaded && !isInitialized) {
@@ -232,126 +246,75 @@ export default function ChatBox({
     console.log(`현재 서비스: ${serviceName}`);
   }, [serviceName]);
 
-  // 새로운 문서가 도착할 때 상태 업데이트
-  useEffect(() => {
-    console.log("nodeName, running, state", nodeName, running, state);
-    if (nodeName === 'save_chat_history' && state?.retrieved_documents?.length > 0) {
-      const extractedDocs = state.retrieved_documents;
-      const uniqueDocs = extractedDocs.filter(
-        (doc, index, self) =>
-          index ===
-          self.findIndex((d) => d.kwargs.metadata.file_name === doc.kwargs.metadata.file_name)
-      );
-      setDocuments(uniqueDocs);
-      
-      // 문서가 업데이트되면 즉시 DOM에 추가
-      if (chatContainerRef.current) {
-        const messages = chatContainerRef.current.querySelectorAll('.copilotKitAssistantMessage');
-        const lastMessage = messages[messages.length - 1] as HTMLDivElement;
-        
-        if (lastMessage && !lastMessage.dataset.inserted) {
-          const docContainer = document.createElement('div');
-          docContainer.className = "p-4 mt-2 border-l-4 border-blue-500";
-          docContainer.innerHTML = `<h3 class="text-sm font-semibold">📄 관련 문서</h3>`;
-          
-          uniqueDocs.forEach(doc => {
-            const docElement = document.createElement('div');
-            const keywordsHTML = doc.kwargs.metadata.keywords
-              .map((keyword) => `#${keyword}`).join(' ');
-            
-            docElement.innerHTML = `
-              <div class="p-2 border rounded shadow-sm mt-2">
-                <a href="${doc.kwargs.metadata.file_url}" target="_blank" class="text-blue-600 hover:underline">
-                  ${doc.kwargs.metadata.file_name}
-                </a>
-                <p class="text-xs">주제: ${doc.kwargs.metadata.main_topic}</p>
-                <p class="text-xs">페이지 번호: ${doc.kwargs.metadata.page_number}</p>
-                <p class="text-xs text-gray-500">${keywordsHTML}</p>
-              </div>
-            `;
-            docContainer.appendChild(docElement);
-          });
-          
-          lastMessage.appendChild(docContainer);
-          lastMessage.dataset.inserted = "true";
-        }
-      }
-    } else {
-      setDocuments([]);
-    }
-  }, [nodeName, running, state]);
-
    // 새로운 문서가 도착할 때 상태 업데이트
-   useEffect(() => {
-    console.log("nodeName, running, state", nodeName, running, state);
-    if (nodeName === 'save_chat_history' && state?.retrieved_documents?.length > 0) {
-      const extractedDocs = state.retrieved_documents;
-      const uniqueDocs = extractedDocs.filter(
-        (doc, index, self) =>
-          index ===
-          self.findIndex((d) => d.kwargs.metadata.file_name === doc.kwargs.metadata.file_name)
-      );
-      setDocuments(uniqueDocs);
-      
-      // 문서가 업데이트되면 즉시 DOM에 추가
-      if (chatContainerRef.current) {
-        const messages = chatContainerRef.current.querySelectorAll('.copilotKitAssistantMessage');
-        const lastMessage = messages[messages.length - 1] as HTMLDivElement;
-        
-        if (lastMessage && !lastMessage.dataset.inserted) {
-          const docContainer = document.createElement('div');
-          docContainer.className = "p-4 mt-2 border-l-4 border-blue-500";
-          docContainer.innerHTML = `<h3 class="text-sm font-semibold">📄 관련 문서</h3>`;
-          
-          uniqueDocs.forEach(doc => {
-            const docElement = document.createElement('div');
-            const keywordsHTML = doc.kwargs.metadata.keywords
-              .map((keyword) => `#${keyword}`).join(' ');
-            
-            docElement.innerHTML = `
-              <div class="p-2 border rounded shadow-sm mt-2">
-                <a href="${doc.kwargs.metadata.file_url}" target="_blank" class="text-blue-600 hover:underline">
-                  ${doc.kwargs.metadata.file_name}
-                </a>
-                <p class="text-xs">주제: ${doc.kwargs.metadata.main_topic}</p>
-                <p class="text-xs">페이지 번호: ${doc.kwargs.metadata.page_number}</p>
-                <p class="text-xs text-gray-500">${keywordsHTML}</p>
-              </div>
-            `;
-            docContainer.appendChild(docElement);
-          });
-          
-          lastMessage.appendChild(docContainer);
-          lastMessage.dataset.inserted = "true";
-        }
-      }
-    } else {
-      setDocuments([]);
-    }
-  }, [nodeName, running, state]);
-
   useEffect(() => {
-    if (state?.alert && state.alert !== '') {
-      const messages = document.querySelectorAll('.copilotKitAssistantMessage');
-      const lastMessage = messages[messages.length - 1] as HTMLDivElement;
-      
-      if (lastMessage && !lastMessage.dataset.alertInserted) {
-        const alertContainer = document.createElement('div');
-        alertContainer.className = "p-4 mt-2 bg-red-100 border-l-4 border-red-500 text-red-700 rounded";
-        alertContainer.innerHTML = `
-          <div class="flex items-center">
-            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-            </svg>
-            <p>${state.alert}</p>
-          </div>
-        `;
+  console.log("nodeName, running, state", nodeName, running, state);
 
-        lastMessage.appendChild(alertContainer);
-        lastMessage.dataset.alertInserted = "true";
+  if (nodeName === "save_chat_history" && state?.retrieved_documents?.length > 0) {
+    const extractedDocs = state.retrieved_documents;
+    const uniqueDocs = extractedDocs.filter(
+      (doc, index, self) =>
+        index ===
+        self.findIndex((d) => d.kwargs.metadata.file_name === doc.kwargs.metadata.file_name)
+    );
+    setDocuments(uniqueDocs);
+
+    // DOM 조작 수행
+    if (chatContainerRef.current) {
+      const messages = chatContainerRef.current.querySelectorAll(".copilotKitAssistantMessage");
+      const lastMessage = messages[messages.length - 1] as HTMLDivElement;
+
+      if (lastMessage && !lastMessage.dataset.inserted) {
+        const docContainer = document.createElement("div");
+        docContainer.className = "p-4 mt-2 border-l-4 border-blue-500";
+        docContainer.innerHTML = `<h3 class="text-sm font-semibold">📄 관련 문서</h3>`;
+
+        uniqueDocs.forEach((doc) => {
+          const docElement = document.createElement("div");
+          const keywordsHTML = doc.kwargs.metadata.keywords
+            .map((keyword) => `#${keyword}`)
+            .join(" ");
+          docElement.innerHTML = `
+            <div class="p-2 border rounded shadow-sm mt-2">
+              <a href="${doc.kwargs.metadata.file_url}" target="_blank" class="text-blue-600 hover:underline">
+                ${doc.kwargs.metadata.file_name}
+              </a>
+              <p class="text-xs">주제: ${doc.kwargs.metadata.main_topic}</p>
+              <p class="text-xs">페이지 번호: ${doc.kwargs.metadata.page_number}</p>
+              <p class="text-xs text-gray-500">${keywordsHTML}</p>
+            </div>
+          `;
+          docContainer.appendChild(docElement);
+        });
+      // 추가된 DOM의 이벤트 전파 차단
+      docContainer.addEventListener("click", (e) => {
+        e.stopPropagation();
+      });
+        lastMessage.appendChild(docContainer);
+        lastMessage.dataset.inserted = "true"; // 중복 삽입 방지
       }
     }
-  }, [state?.alert]);
+  } else {
+    setDocuments([]);
+  }
+}, [nodeName, running, state]);
+
+useEffect(() => {
+  if (nodeName === "__end__") {
+    console.log("Resetting nodeName and running state");
+    setDocuments([]); // 문서 초기화
+    if (chatRef.current) {
+      chatRef.current.resetState?.(); // CopilotChat 상태 초기화
+    }
+  }
+}, [nodeName, running]);
+
+useEffect(() => {
+  if (chatRef.current) {
+    console.log("Resetting CopilotChat state after document handling");
+    chatRef.current.resetState?.(); // CopilotChat 상태 초기화
+  }
+}, [documents]); // 문서 변경 시 상태 초기화
 
 
   // DOM 변경 시 스크롤 유지
@@ -360,7 +323,7 @@ export default function ChatBox({
   }, []);
 
   return (
-    <div ref={chatContainerRef} className={styles.container}>
+    <div ref={chatContainerRef} className={styles.container} suppressHydrationWarning>
       {useCopilot && agent && (
         <div className={styles.chatWrapper}>
           <CopilotChat

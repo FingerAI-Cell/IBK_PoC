@@ -72,7 +72,7 @@ public class MeetingController {
             return ResponseEntity.ok(new CommonResponse<>("SUCCESS", "STT 요청이 처리되었습니다", null));
         } catch (Exception e) {
             log.error("STT 요청 처리 실패: meetingId={}", request.getMeetingId(), e);
-            return ResponseEntity.badRequest()
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new CommonResponse<>("ERROR", "STT 요청 처리 실패: " + e.getMessage(), null));
         }
     }

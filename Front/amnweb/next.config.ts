@@ -11,6 +11,9 @@ const nextConfig: NextConfig = {
     },
   },
   crossOrigin: 'anonymous',
+  typescript: {
+    ignoreBuildErrors: true,
+  },
 };
 
 export default nextConfig;

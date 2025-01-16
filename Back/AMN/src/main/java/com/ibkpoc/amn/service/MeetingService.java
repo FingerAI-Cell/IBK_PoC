@@ -170,10 +170,7 @@ public class MeetingService {
             } else {
                 throw new RuntimeException("두 API 중 하나 이상 응답이 null입니다.");
             }
-        }).exceptionally(e -> {
-            log.error("API 호출 중 예외 발생: {}", e.getMessage(), e);
-            return null;
-        }).join(); // 마지막 작업까지 대기
+        }).join(); // join 호출 시 예외를 던짐
     }
 
     private HttpResponse<String> callApi(String apiUrl, String requestJson) {
