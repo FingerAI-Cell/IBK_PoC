@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import styles from "./MainContent.module.css";
 import ChatBox from "../ChatBox/ChatBox";
 import GreetingSection from "./GreetingSection";
@@ -19,12 +19,8 @@ export default function MainContent() {
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
-    if (chatInput !== "")setChatInput("");
-    if (isTransitioning)setIsTransitioning(false);
-    console.log("Render Chat Service - Current State:", {
-      pageState,
-      currentService
-    });
+    setChatInput("");
+    setIsTransitioning(false);
   }, [currentService, pageState]);
 
   const handleQuestionSubmit = () => {
@@ -45,14 +41,24 @@ export default function MainContent() {
       setPageState('chat');
     }, 100);
   };
-
   const getServiceFaqs = (serviceType: string) => {
     return faqData[serviceType as keyof typeof faqData] || faqData['general-chat'];
   };
 
-  const memoizedRenderChatService = useMemo(() => {
+  const renderChatService = () => {
     const config = serviceConfig[currentService];
-  
+    const initialMessage = isTransitioning ? chatInput : ""; // 기본 메시지
+    console.log("!!Render Chat Service - Current State:", {
+      pageState,
+      currentService,
+      config,
+    });
+
+    // 조건부 렌더링
+    if (!config || (pageState !== "chat" && pageState !== "select")) {
+      return null;
+    }
+
     if (pageState === 'select') {
       return (
         <GreetingSection
@@ -65,29 +71,31 @@ export default function MainContent() {
         />
       );
     }
+     // 디버깅 로그 추가
+  console.log("Render Chat Service - Current State:", {
+    pageState,
+    currentService,
+    config,
+    initialMessage,
+    chatInput
+  });
   
-    console.log("Render Chat Service - Current State:", {
-      pageState,
-      currentService,
-      config,
-    });
-  
-    // pageState가 'chat'일 때 반환
+    // pageState가 'chat'일 때
     return (
       <CopilotKit
         runtimeUrl={config.apiEndpoint}
         agent={config.agent}
         showDevConsole={false}
       >
-        <ChatBox
-          initialInput={isTransitioning ? chatInput : ""}
+        <ChatBox 
+          initialInput={initialMessage}
           serviceName={currentService}
           agent={config.agent}
           useCopilot={config.useCopilot}
         />
       </CopilotKit>
     );
-  }, [currentService, pageState, isTransitioning, chatInput]);
+  };
 
   return (
     <div className={styles.container}>
@@ -99,7 +107,7 @@ export default function MainContent() {
         <InvestmentReport />
       ) : (
         // 채팅 서비스 렌더링 (general-chat, branch-manual, overseas-loan, financial-statements)
-        memoizedRenderChatService
+        renderChatService()
       )}
     </div>
   );

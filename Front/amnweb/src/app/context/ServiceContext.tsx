@@ -78,10 +78,8 @@ export function ServiceProvider({ children }: { children: React.ReactNode }) {
       currentPageState: pageState
     });
     
-    setCurrentService(() => {
-      setPageState('select');
-      return service;
-    });
+    setCurrentService(service);
+    setPageState('select');
   };
 
   useEffect(() => {
@@ -108,11 +106,6 @@ export function ServiceProvider({ children }: { children: React.ReactNode }) {
     console.log('ServiceContext - Toggling Sidebar:', nextState);
     setIsSidebarOpen(nextState);
     console.log('ServiceContext - After Toggle:', !isSidebarOpen);
-  };
-
-  const handleAdminPage = () => {
-    setPageState('admin');
-    setCurrentService('');
   };
 
   return (
