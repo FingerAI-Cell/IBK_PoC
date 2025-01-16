@@ -17,7 +17,7 @@ export async function GET(request: NextRequest, context: Params) {
     let baseUrl: string;
     
     if (isDevelopment) {
-      baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL!; // 외부 API
+      baseUrl = process.env.NEXT_PUBLIC_EC2_URL!; // 외부 API
     } else if (isProduction) {
       baseUrl = process.env.NEXT_PUBLIC_LOCAL_API_URL!; // 로컬 API
     } else {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, memo, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useCoAgent } from "@copilotkit/react-core";
 import { CopilotChat } from "@copilotkit/react-ui";
 import "@copilotkit/react-ui/styles.css";
@@ -35,29 +35,6 @@ interface RetrievedDocument {
     page_content: string;
   };
 }
-
-interface CoAgentState {
-  routing_vectordb_collection: string;
-  retrieved_documents: RetrievedDocument[];
-  context: string;
-}
-
-// // 메시지 컴포넌트 (메모이제이션으로 렌더링 최적화)
-// const ChatMessage = memo(({ sender, text }: { sender: string; text: string }) => (
-//   <div
-//     className={`${styles.message} ${
-//       sender === "user" ? styles.userMessage : styles.botMessage
-//     }`}
-//   >
-//     {text.split("\n").map((line, i) => (
-//       <span key={i}>
-//         {line}
-//         {i !== text.split("\n").length - 1 && <br />}
-//       </span>
-//     ))}
-//   </div>
-// ));
-// ChatMessage.displayName = "ChatMessage";
 
 // InputProps 타입 확장
 interface CustomInputProps extends InputProps {
@@ -111,6 +88,21 @@ function CustomInput({ inProgress, onSend, initialInput }: CustomInputProps) {
   );
 }
 
+// CoAgent 상태 타입
+interface AgentState {
+  routing_vectordb_collection: string;
+  retrieved_documents: RetrievedDocument[];
+  context: string;
+  alert: string;
+}
+
+// 전체 상태 타입
+interface CoAgentState {
+  nodeName: string;
+  running: boolean;
+  state: AgentState;
+}
+
 
 
 export default function ChatBox({
@@ -119,10 +111,30 @@ export default function ChatBox({
   serviceName,
   useCopilot = false,
 }: ChatBoxProps) {
+  const {
+    nodeName,
+    running,
+    state
+  } = useCoAgent<CoAgentState>({
+    name: agent,
+    initialState: {
+      nodeName: '',
+      running: false,
+      state: {
+        routing_vectordb_collection: '',
+        retrieved_documents: [],
+        context: '',
+        alert: '',
+      },
+    },
+  });
+  const [documents, setDocuments] = useState<any[]>([]);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+
+
   const [isInitialized, setIsInitialized] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const messageEndRef = useRef<HTMLDivElement>(null);
-  const chatContainerRef = useRef<HTMLDivElement>(null);
   const chatRef = useRef<any>(null);
 
   // 디버깅을 위한 로그 추가
@@ -220,109 +232,132 @@ export default function ChatBox({
     console.log(`현재 서비스: ${serviceName}`);
   }, [serviceName]);
 
-  // 문서 관련 상태 (from useCoAgent)
-  const { nodeName, running, state } = useCoAgent<CoAgentState>({
-    name: agent || "",
-    initialState: {
-      nodeName: "",
-      running: false,
-      state: {
-        routing_vectordb_collection: "",
-        retrieved_documents: [],
-        context: "",
-      },
-    },
-  })
-
-  // nodeName 상태 변화 로그
+  // 새로운 문서가 도착할 때 상태 업데이트
   useEffect(() => {
-    console.log("nodeName changed:", nodeName);
-  }, [nodeName]);
-
-  // running 상태 변화 로그
-  useEffect(() => {
-    console.log("running state changed:", running);
-  }, [running]);
-
-  // state 상태 변화 로그
-  useEffect(() => {
-    console.log("state changed:", state);
-  }, [state]);  
-  
-
-  const [documents, setDocuments] = useState<RetrievedDocument[]>([]);
-
-  // 문서 상태 업데이트
-  useEffect(() => {
-    if (nodeName === "__end__" && state.retrieved_documents.length > 0) {
-      const uniqueDocs = state.retrieved_documents.filter(
+    console.log("nodeName, running, state", nodeName, running, state);
+    if (nodeName === 'save_chat_history' && state?.retrieved_documents?.length > 0) {
+      const extractedDocs = state.retrieved_documents;
+      const uniqueDocs = extractedDocs.filter(
         (doc, index, self) =>
           index ===
-          self.findIndex(
-            (d) => d.kwargs.metadata.file_name === doc.kwargs.metadata.file_name
-          )
+          self.findIndex((d) => d.kwargs.metadata.file_name === doc.kwargs.metadata.file_name)
       );
       setDocuments(uniqueDocs);
+      
+      // 문서가 업데이트되면 즉시 DOM에 추가
+      if (chatContainerRef.current) {
+        const messages = chatContainerRef.current.querySelectorAll('.copilotKitAssistantMessage');
+        const lastMessage = messages[messages.length - 1] as HTMLDivElement;
+        
+        if (lastMessage && !lastMessage.dataset.inserted) {
+          const docContainer = document.createElement('div');
+          docContainer.className = "p-4 mt-2 border-l-4 border-blue-500";
+          docContainer.innerHTML = `<h3 class="text-sm font-semibold">📄 관련 문서</h3>`;
+          
+          uniqueDocs.forEach(doc => {
+            const docElement = document.createElement('div');
+            const keywordsHTML = doc.kwargs.metadata.keywords
+              .map((keyword) => `#${keyword}`).join(' ');
+            
+            docElement.innerHTML = `
+              <div class="p-2 border rounded shadow-sm mt-2">
+                <a href="${doc.kwargs.metadata.file_url}" target="_blank" class="text-blue-600 hover:underline">
+                  ${doc.kwargs.metadata.file_name}
+                </a>
+                <p class="text-xs">주제: ${doc.kwargs.metadata.main_topic}</p>
+                <p class="text-xs">페이지 번호: ${doc.kwargs.metadata.page_number}</p>
+                <p class="text-xs text-gray-500">${keywordsHTML}</p>
+              </div>
+            `;
+            docContainer.appendChild(docElement);
+          });
+          
+          lastMessage.appendChild(docContainer);
+          lastMessage.dataset.inserted = "true";
+        }
+      }
     } else {
       setDocuments([]);
     }
   }, [nodeName, running, state]);
 
+   // 새로운 문서가 도착할 때 상태 업데이트
+   useEffect(() => {
+    console.log("nodeName, running, state", nodeName, running, state);
+    if (nodeName === 'save_chat_history' && state?.retrieved_documents?.length > 0) {
+      const extractedDocs = state.retrieved_documents;
+      const uniqueDocs = extractedDocs.filter(
+        (doc, index, self) =>
+          index ===
+          self.findIndex((d) => d.kwargs.metadata.file_name === doc.kwargs.metadata.file_name)
+      );
+      setDocuments(uniqueDocs);
+      
+      // 문서가 업데이트되면 즉시 DOM에 추가
+      if (chatContainerRef.current) {
+        const messages = chatContainerRef.current.querySelectorAll('.copilotKitAssistantMessage');
+        const lastMessage = messages[messages.length - 1] as HTMLDivElement;
+        
+        if (lastMessage && !lastMessage.dataset.inserted) {
+          const docContainer = document.createElement('div');
+          docContainer.className = "p-4 mt-2 border-l-4 border-blue-500";
+          docContainer.innerHTML = `<h3 class="text-sm font-semibold">📄 관련 문서</h3>`;
+          
+          uniqueDocs.forEach(doc => {
+            const docElement = document.createElement('div');
+            const keywordsHTML = doc.kwargs.metadata.keywords
+              .map((keyword) => `#${keyword}`).join(' ');
+            
+            docElement.innerHTML = `
+              <div class="p-2 border rounded shadow-sm mt-2">
+                <a href="${doc.kwargs.metadata.file_url}" target="_blank" class="text-blue-600 hover:underline">
+                  ${doc.kwargs.metadata.file_name}
+                </a>
+                <p class="text-xs">주제: ${doc.kwargs.metadata.main_topic}</p>
+                <p class="text-xs">페이지 번호: ${doc.kwargs.metadata.page_number}</p>
+                <p class="text-xs text-gray-500">${keywordsHTML}</p>
+              </div>
+            `;
+            docContainer.appendChild(docElement);
+          });
+          
+          lastMessage.appendChild(docContainer);
+          lastMessage.dataset.inserted = "true";
+        }
+      }
+    } else {
+      setDocuments([]);
+    }
+  }, [nodeName, running, state]);
+
+  useEffect(() => {
+    if (state?.alert && state.alert !== '') {
+      const messages = document.querySelectorAll('.copilotKitAssistantMessage');
+      const lastMessage = messages[messages.length - 1] as HTMLDivElement;
+      
+      if (lastMessage && !lastMessage.dataset.alertInserted) {
+        const alertContainer = document.createElement('div');
+        alertContainer.className = "p-4 mt-2 bg-red-100 border-l-4 border-red-500 text-red-700 rounded";
+        alertContainer.innerHTML = `
+          <div class="flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+            </svg>
+            <p>${state.alert}</p>
+          </div>
+        `;
+
+        lastMessage.appendChild(alertContainer);
+        lastMessage.dataset.alertInserted = "true";
+      }
+    }
+  }, [state?.alert]);
+
+
   // DOM 변경 시 스크롤 유지
   useEffect(() => {
     messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, []);
-
-  // DOM 변경 감지 및 문서 추가
-  useEffect(() => {
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        mutation.addedNodes.forEach((node) => {
-          if (
-            node instanceof HTMLElement &&
-            node.classList.contains("copilotKitAssistantMessage") &&
-            !node.dataset.inserted &&
-            documents.length > 0
-          ) {
-            // 약간의 지연을 주어 메시지가 완전히 렌더링된 후 문서를 추가
-            setTimeout(() => {
-              const docContainer = document.createElement("div");
-              docContainer.className = "p-4 mt-2 border-l-4 border-blue-500";
-              docContainer.innerHTML = `<h3 class="text-sm font-semibold">📄 관련 문서</h3>`;
-
-              documents.forEach((doc) => {
-                const keywordsHTML = doc.kwargs.metadata.keywords
-                  .map((keyword) => `#${keyword}`)
-                  .join(" ");
-                const docElement = document.createElement("div");
-                docElement.innerHTML = `
-                  <div class="p-2 border rounded shadow-sm mt-2">
-                    <a href="${doc.kwargs.metadata.file_url}" target="_blank" class="text-blue-600 hover:underline">
-                      ${doc.kwargs.metadata.file_name}
-                    </a>
-                    <p class="text-xs">${doc.kwargs.metadata.main_topic}</p>
-                    <p class="text-xs text-gray-500">${keywordsHTML}</p>
-                  </div>`;
-                docContainer.appendChild(docElement);
-              });
-
-              node.appendChild(docContainer);
-              node.dataset.inserted = "true";
-            }, 100);
-          }
-        });
-      });
-    });
-
-    if (chatContainerRef.current) {
-      observer.observe(chatContainerRef.current, {
-        childList: true,
-        subtree: true,
-      });
-    }
-
-    return () => observer.disconnect();
-  }, [documents]);
 
   return (
     <div ref={chatContainerRef} className={styles.container}>

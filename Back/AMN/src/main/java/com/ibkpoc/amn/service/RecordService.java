@@ -167,7 +167,7 @@ public class RecordService implements DisposableBean {
             } catch (IOException e) {
                 log.error("강제 종료 중 오류", e);
             }
-        }, 60, TimeUnit.SECONDS);
+        }, 180, TimeUnit.SECONDS);
 
         info.setTimeoutFuture(timeoutFuture);
     }
@@ -184,24 +184,42 @@ public class RecordService implements DisposableBean {
                 log.warn("미완성 WAV 파일 감지: meetingId={}, 받은 청크={}/{}",
                         meetingId, info.getWavChunks().size(), info.getTotalWavChunks());
             }
+            if (forcedEnd){
+                try {
+                    // 파일 병합 시도
+                    try (FileOutputStream fos = new FileOutputStream(info.getFilePath().toFile())) {
+                        for (byte[] chunk : info.getWavChunks().values()) {
+                            fos.write(chunk);
+                            info.totalBytes += chunk.length;
+                        }
+                    }
 
+                    log.info("WAV 파일 저장 완료: meetingId={}, 경로={}, totalBytes={}",
+                            meetingId, info.getFilePath().toAbsolutePath(), info.getTotalBytes());
+                } catch (Exception e) {
+                    log.error("WAV 파일 저장 실패: meetingId={}, error={}", meetingId, e.getMessage(), e);
+                    if (!forcedEnd) {
+                        throw e; // 강제 종료가 아닌 경우 예외 재던지기
+                    }
+                }
+            }
             log.info("녹음 파일 처리 완료: meetingId={}, file={}, totalBytes={}, duration={}ms",
                     meetingId,
                     info.getFilePath().getFileName(),
                     info.getTotalBytes(),
                     info.getDuration());
-            if (info.isWavComplete()) {
-                try {
-                    Path absoluteFilePath = info.getFilePath().toAbsolutePath(); // 절대 경로 포함
-                    String absolutePathString = absoluteFilePath.toString();     // String으로 변환
-                    log.info("WAV 파일 생성 완료: meetingId={}, 절대 경로={}", meetingId, absolutePathString);
 
-                    // MeetingService를 통해 wavSrc 필드 업데이트
-                    meetingService.updateWavSrc(meetingId, absolutePathString);
-                } catch (Exception e) {
-                    log.error("녹음 파일 경로 업데이트 실패: meetingId={}, error={}", meetingId, e.getMessage(), e);
-                }
+            try {
+                Path absoluteFilePath = info.getFilePath().toAbsolutePath(); // 절대 경로 포함
+                String absolutePathString = absoluteFilePath.toString();     // String으로 변환
+                log.info("WAV 파일 생성 완료: meetingId={}, 절대 경로={}", meetingId, absolutePathString);
+
+                // MeetingService를 통해 wavSrc 필드 업데이트
+                meetingService.updateWavSrc(meetingId, absolutePathString);
+            } catch (Exception e) {
+                log.error("녹음 파일 경로 업데이트 실패: meetingId={}, error={}", meetingId, e.getMessage(), e);
             }
+
         } else {
             log.warn("존재하지 않는 녹음에 대한 종료 처리: meetingId={}", meetingId);
         }

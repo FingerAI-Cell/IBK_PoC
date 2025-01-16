@@ -47,31 +47,46 @@ export default function AdminDashboard() {
   );
 
   useEffect(() => {
-    const fetchFilingData = async () => {
+    const fetchData = async () => {
       try {
         setFilingData(null);
         
-        const response = await fetch(`/api/admin/filing/${selectedDate}`);
+        // Overview 데이터 가져오기
+        const overviewResponse = await fetch(`/api/admin/filing/overview/range?from_date=${selectedDate}&to_date=${selectedDate}`);
         
-        if (!response.ok) {
-          throw new Error(`HTTP 상태 오류: ${response.status}`);
+        if (!overviewResponse.ok) {
+          throw new Error(`HTTP 상태 오류 (Overview): ${overviewResponse.status}`);
         }
         
-        const data = await response.json();
+        const overviewData = await overviewResponse.json();
+
+        // Summary 데이터 가져오기
+        const summaryResponse = await fetch(`/api/admin/filing/search?from_date=${selectedDate}&to_date=${selectedDate}`);
         
-        if (!data || 
-            (data.overview && data.overview.length === 0) || 
-            (data.summary && data.summary.length === 0)) {
+        if (!summaryResponse.ok) {
+          throw new Error(`HTTP 상태 오류 (Summary): ${summaryResponse.status}`);
+        }
+        
+        const summaryData = await summaryResponse.json();
+
+        // 두 데이터 합치기
+        const combinedData = {
+          overview: overviewData.overview || [],
+          summary: summaryData.summary || []
+        };
+        
+        // 데이터가 비어있는지 확인
+        if (!combinedData.overview.length && !combinedData.summary.length) {
           return;
         }
         
-        setFilingData(data);
+        setFilingData(combinedData);
       } catch (error) {
         console.error('데이터 불러오기 실패:', error);
       }
     };
 
-    fetchFilingData();
+    fetchData();
   }, [selectedDate]);
 
   useEffect(() => {
