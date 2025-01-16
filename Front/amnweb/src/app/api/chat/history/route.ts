@@ -8,10 +8,11 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const dateFrom = searchParams.get('date_from');
   const dateTo = searchParams.get('date_to');
+  const botType = searchParams.get('bot_type') || 'manual';
 
   try {
     const response = await fetch(
-      `${API_BASE_URL}/chat/history?date_from=${dateFrom}&date_to=${dateTo}`,
+      `${API_BASE_URL}/chat/history?bot_type=${botType}&date_from=${dateFrom}&date_to=${dateTo}`,
       {
         headers: {
           'accept': 'application/json'

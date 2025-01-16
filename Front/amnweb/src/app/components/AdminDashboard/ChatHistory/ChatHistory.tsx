@@ -32,6 +32,13 @@ interface ChatHistoryResponse {
   chat_history: ChatMessage[];
 }
 
+// 봇 타입 정의 추가
+const BOT_TYPES = [
+  { value: 'manual', label: '업무챗봇' },
+  { value: 'filing', label: '재무제표' },
+  { value: 'finance', label: '해외주식' },
+] as const;
+
 export default function ChatHistory() {
   const [dateFrom, setDateFrom] = useState<string>('');
   const [dateTo, setDateTo] = useState<string>('');
@@ -41,6 +48,7 @@ export default function ChatHistory() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const itemsPerPage = 10;
+  const [botType, setBotType] = useState<string>('manual');
 
   const fetchChatHistory = async () => {
     if (!dateFrom || !dateTo) return;
@@ -50,7 +58,7 @@ export default function ChatHistory() {
     
     try {
       const response = await fetch(
-        `/api/chat/history?date_from=${dateFrom.replace(/-/g, '')}&date_to=${dateTo.replace(/-/g, '')}`
+        `/api/chat/history?bot_type=${botType}&date_from=${dateFrom.replace(/-/g, '')}&date_to=${dateTo.replace(/-/g, '')}`
       );
 
       if (!response.ok) {
@@ -158,6 +166,17 @@ export default function ChatHistory() {
   return (
     <div className={styles.container}>
       <div className={styles.filterSection}>
+        <select 
+          value={botType}
+          onChange={(e) => setBotType(e.target.value)}
+          className={styles.botTypeSelect}
+        >
+          {BOT_TYPES.map(type => (
+            <option key={type.value} value={type.value}>
+              {type.label}
+            </option>
+          ))}
+        </select>
         <input
           type="date"
           value={dateFrom}
