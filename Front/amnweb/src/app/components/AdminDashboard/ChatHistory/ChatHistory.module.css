@@ -327,4 +327,12 @@
 
 .chatDetail::-webkit-scrollbar-thumb:hover {
   background: #555;
+}
+
+.botTypeSelect {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-right: 10px;
+  min-width: 120px;
 } 
