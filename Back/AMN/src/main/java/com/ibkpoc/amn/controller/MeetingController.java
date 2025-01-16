@@ -5,11 +5,13 @@ import com.ibkpoc.amn.service.MeetingService;
 import com.ibkpoc.amn.service.RecordService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 // controller/MeetingController.java
 @Slf4j
@@ -51,10 +53,10 @@ public class MeetingController {
                     request.getFile().getSize());
 
             recordService.saveWavFile(request);
-            return ResponseEntity.ok(new CommonResponse<>("SUCCESS", "WAV 청크가 업로드되었습니다", null));
+            return ResponseEntity.ok(new CommonResponse<>("SUCCESS", "WAV 청크가 업로드되었습니다", Map.of("currentChunk", request.getCurrentChunk())));
         } catch (Exception e) {
             log.error("WAV 청크 업로드 실패: meetingId={}", request.getMeetingId(), e);
-            return ResponseEntity.badRequest()
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new CommonResponse<>("ERROR", "청크 업로드 실패: " + e.getMessage(), null));
         }
     }

@@ -44,4 +44,15 @@ object NetworkModule {
             .build()
             .create(ApiService::class.java)
     }
+
+    fun createWavUploadClient(): OkHttpClient {
+        return OkHttpClient.Builder()
+            .connectTimeout(10, TimeUnit.SECONDS) // 연결 대기 시간
+            .readTimeout(10, TimeUnit.SECONDS)   // 응답 대기 시간
+            .writeTimeout(10, TimeUnit.SECONDS)  // 쓰기 대기 시간
+            .addInterceptor(HttpLoggingInterceptor().apply {
+                level = HttpLoggingInterceptor.Level.BODY
+            })
+            .build()
+    }
 }

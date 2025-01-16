@@ -25,18 +25,22 @@ export const serviceConfig: { [key: string]: ServiceConfig } = {
     useCopilot: true
   },
   'overseas-loan': {
-    apiEndpoint: '/api/chat/overseas',
+    apiEndpoint: '/api/onelineai/olaf',
     title: '해외주식',
     defaultMessage: '해외주식에 대해 질문해주세요.',
     historyKey: 'chat-history-overseas',
-    greeting: '해외주식 도우미입니다.'
+    greeting: '해외주식 도우미입니다.',
+    agent: "olaf_ibk_poc_filing_agent",
+    useCopilot: true
   },
   'financial-statements': {
-    apiEndpoint: '/api/chat/finance',
+    apiEndpoint: '/api/onelineai/olaf',
     title: '재무제표',
     defaultMessage: '재무제표에 대해 질문해주세요.',
     historyKey: 'chat-history-finance',
-    greeting: '재무제표 도우미입니다.'
+    greeting: '재무제표 도우미입니다.',
+    agent: "olaf_ibk_poc_finance_agent",
+    useCopilot: true
   },
   'branch-manual': {
     apiEndpoint: '/api/onelineai/olaf',

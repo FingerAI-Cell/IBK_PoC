@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 
 const API_BASE_URL = process.env.NODE_ENV === 'production' 
   ? process.env.NEXT_PUBLIC_FINGER_URL
-  : process.env.NEXT_PUBLIC_EC2_URL;
+  : process.env.NEXT_PUBLIC_MEETING_URL_DEV;
 
 
 export async function GET() {

@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -78,6 +79,7 @@ public class WebService {
 
         // 2. LogResponseDto 리스트 반환
         return logs.stream()
+                .sorted(Comparator.comparing(MeetingLog::getStartTime))
                 .map(log -> {
                     MeetingUser user = log.getMeetingUser();
                     return new LogResponseDto(

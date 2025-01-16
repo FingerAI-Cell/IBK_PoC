@@ -19,6 +19,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 
 class MeetingRepositoryImpl @Inject constructor(
     private val apiService: ApiService
@@ -77,6 +78,7 @@ class MeetingRepositoryImpl @Inject constructor(
 
     override suspend fun uploadMeetingWavFile(wavUploadData: WavUploadData): Flow<NetworkResult<Unit>> = flow {
         emit(NetworkResult.Loading)
+        val failedChunks = mutableListOf<Int>() // 실패한 청크 번호 저장
         try {
             coroutineScope {
                 val file = wavUploadData.wavFile
@@ -88,7 +90,7 @@ class MeetingRepositoryImpl @Inject constructor(
                     val buffer = ByteArray(CHUNK_SIZE)
                     var chunkNumber = 0
                     var totalBytesUploaded = 0L
-                    
+
                     while (true) {
                         val bytesRead = input.read(buffer)
                         if (bytesRead <= 0) break
@@ -98,18 +100,35 @@ class MeetingRepositoryImpl @Inject constructor(
                         
                         val chunkUploadData = wavUploadData.copy(
                             totalChunks = totalChunks.toInt(),
-                            currentChunk = chunkNumber++,
+                            currentChunk = chunkNumber,
                             chunkData = chunkData
                         )
-                        
-                        uploadChunk(chunkUploadData)
-                        
+                        // 청크 업로드 시도
+                        val isSuccess = uploadChunk(chunkUploadData)
+                        if (!isSuccess) {
+                            Logger.e("청크 업로드 실패: 청크 번호 $chunkNumber")
+                            failedChunks.add(chunkNumber) // 실패한 청크 기록
+                        } else {
+                            Logger.i("청크 업로드 성공: $chunkNumber")
+                        }
+
+                        chunkNumber++
                         Logger.i("업로드 진행률: ${(totalBytesUploaded * 100 / file.length())}%")
                     }
                 }
-                
-                Logger.i("파일 업로드 완료")
-                emit(NetworkResult.Success(Unit))
+
+                if (failedChunks.isEmpty()) {
+                    Logger.i("파일 업로드 완료: 모든 청크 성공적으로 업로드됨")
+                    emit(NetworkResult.Success(Unit))
+                } else {
+                    Logger.e("파일 업로드 완료: 일부 청크 실패 (${failedChunks.size}개 실패)")
+                    emit(
+                        NetworkResult.Error(
+                            0,
+                            "파일 업로드 중 일부 청크 실패: 실패한 청크 번호 -> $failedChunks"
+                        )
+                    )
+                }
             }
         } catch (e: Exception) {
             Logger.e("파일 업로드 실패", e)
@@ -150,45 +169,50 @@ class MeetingRepositoryImpl @Inject constructor(
         }
     }
 
-    private suspend fun uploadChunk(chunkData: WavUploadData) {
-        uploadMutex.withLock {
-            val meetingIdBody = chunkData.meetingId.toString()
-                .toRequestBody("text/plain".toMediaTypeOrNull())
-            val startTimeBody = chunkData.startTime
-                .toRequestBody("text/plain".toMediaTypeOrNull())
-            val durationBody = chunkData.duration.toString()
-                .toRequestBody("text/plain".toMediaTypeOrNull())
-            val currentChunkBody = chunkData.currentChunk.toString()
-                .toRequestBody("text/plain".toMediaTypeOrNull())
-            val totalChunksBody = chunkData.totalChunks.toString()
-                .toRequestBody("text/plain".toMediaTypeOrNull())
-            
-            val chunkPart = MultipartBody.Part.createFormData(
-                "file", 
-                "chunk_${chunkData.currentChunk}.wav",
-                chunkData.chunkData.toRequestBody("audio/wav".toMediaTypeOrNull())
-            )
-            
-            try {
-                val response = apiService.uploadWavChunk(
-                    meetingId = meetingIdBody,
-                    startTime = startTimeBody,
-                    duration = durationBody,
-                    currentChunk = currentChunkBody,
-                    totalChunks = totalChunksBody,
-                    file = chunkPart
-                )
-                
-                if (!response.isSuccessful) {
-                    throw Exception("청크 업로드 실패: ${response.message()}")
+    private suspend fun uploadChunk(chunkData: WavUploadData, maxRetries: Int = 3): Boolean {
+        var attempt = 0
+        while (attempt < maxRetries) {
+            try{
+                uploadMutex.withLock {
+                    val meetingIdBody = chunkData.meetingId.toString()
+                        .toRequestBody("text/plain".toMediaTypeOrNull())
+                    val startTimeBody = chunkData.startTime
+                        .toRequestBody("text/plain".toMediaTypeOrNull())
+                    val durationBody = chunkData.duration.toString()
+                        .toRequestBody("text/plain".toMediaTypeOrNull())
+                    val currentChunkBody = chunkData.currentChunk.toString()
+                        .toRequestBody("text/plain".toMediaTypeOrNull())
+                    val totalChunksBody = chunkData.totalChunks.toString()
+                        .toRequestBody("text/plain".toMediaTypeOrNull())
+
+                    val chunkPart = MultipartBody.Part.createFormData(
+                        "file",
+                        "chunk_${chunkData.currentChunk}.wav",
+                        chunkData.chunkData.toRequestBody("audio/wav".toMediaTypeOrNull())
+                    )
+
+                    val response = apiService.uploadWavChunk(
+                        meetingId = meetingIdBody,
+                        startTime = startTimeBody,
+                        duration = durationBody,
+                        currentChunk = currentChunkBody,
+                        totalChunks = totalChunksBody,
+                        file = chunkPart
+                    )
+                    if (!response.isSuccessful) {
+                        throw Exception("청크 업로드 실패: ${response.message()}")
+                    }
+
+                    Logger.i("청크 업로드 성공: ${chunkData.currentChunk}/${chunkData.totalChunks}")
+                    return true
                 }
-                
-                Logger.i("청크 업로드 성공: ${chunkData.currentChunk}/${chunkData.totalChunks}")
             } catch (e: Exception) {
                 Logger.e("청크 업로드 중 오류", e)
-                throw e
             }
+                attempt++
+                delay(2000L) // 재시도 대기
         }
+            return false
     }
 
     private fun getCurrentTime(): String {
