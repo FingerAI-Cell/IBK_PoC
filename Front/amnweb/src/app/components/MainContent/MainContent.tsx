@@ -11,104 +11,124 @@ import { useService } from "../../context/ServiceContext";
 import InvestmentReport from "../InvestmentReport/InvestmentReport";
 import { serviceConfig } from "../../config/serviceConfig";
 import { CopilotKit } from "@copilotkit/react-core";
+import React from "react";
+import { useGlobalKey } from "@/app/context/GlobalKeyContext";
+
+const MemoizedCopilotKit = React.memo(function CopilotKitWrapper({
+  config,
+  globalKey,
+}: {
+  config: any; // config 타입에 맞게 정의 필요
+  globalKey: string | null; // 글로벌 키
+}) {
+  if (!config || !globalKey) return null; // 글로벌 키가 없으면 렌더링하지 않음
+
+  console.log("CopilotKit Rendered with key:", globalKey);
+
+  return (
+    <CopilotKit
+      key={globalKey} // 키 기반으로 상태 유지
+      runtimeUrl={config.apiEndpoint}
+      agent={config.agent}
+      showDevConsole={false}
+    >
+      <ChatBox
+        initialInput=""
+        serviceName={config.serviceName}
+        agent={config.agent}
+        useCopilot={config.useCopilot}
+      />
+    </CopilotKit>
+  );
+});
 
 export default function MainContent() {
   console.log("MainContent component rendered");
   const { currentService, pageState, setPageState } = useService();
   const [chatInput, setChatInput] = useState("");
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const { globalKey, setGlobalKey } = useGlobalKey();
+  const config = React.useMemo(() => {
+    const cfg = serviceConfig[currentService];
+    console.log("Config for currentService:", cfg);
+    return cfg;
+  }, [currentService]);
 
   useEffect(() => {
     setChatInput("");
     setIsTransitioning(false);
   }, [currentService, pageState]);
 
+  useEffect(() => {
+    if (pageState === "chat") {
+      setIsTransitioning(false); // transition 상태 초기화
+      console.log("Chat state activated with:", { currentService, chatInput });
+    }
+  }, [pageState]); // pageState가 변경될 때만 실행
+
   const handleQuestionSubmit = () => {
     if (chatInput.trim()) {
       setIsTransitioning(true);
-      // 약간의 지연 후 페이지 상태 변경
-      setTimeout(() => {
-        setPageState('chat');
-      }, 100);
+      setPageState("chat"); // 바로 상태를 변경
     }
   };
 
   const handleFAQClick = (question: string) => {
     setChatInput(question);
     setIsTransitioning(true);
-    // 약간의 지연 후 페이지 상태 변경
-    setTimeout(() => {
-      setPageState('chat');
-    }, 100);
+    setPageState("chat"); // 바로 상태를 변경
   };
   const getServiceFaqs = (serviceType: string) => {
     return faqData[serviceType as keyof typeof faqData] || faqData['general-chat'];
   };
 
-  const renderChatService = () => {
-    const config = serviceConfig[currentService];
-    const initialMessage = isTransitioning ? chatInput : ""; // 기본 메시지
-    console.log("!!Render Chat Service - Current State:", {
-      pageState,
-      currentService,
-      config,
-    });
+  // 키 설정 로직
+  useEffect(() => {
+    if (currentService && !globalKey) {
+      setGlobalKey(`copilot-${currentService}`); // 현재 서비스 기반 키 생성
+    }
+  }, [currentService, globalKey, setGlobalKey]);
 
-    // 조건부 렌더링
+  // 키 제거 또는 초기화 (예: 특정 조건에서)
+  const handleKeyReset = () => {
+    setGlobalKey(null); // 키 제거
+  };
+
+  // Chat 서비스 렌더링 함수
+  const renderChatService = () => {
     if (!config || (pageState !== "chat" && pageState !== "select")) {
       return null;
     }
 
-    if (pageState === 'select') {
+    if (pageState === "select") {
       return (
         <GreetingSection
           chatInput={chatInput}
           onInputChange={setChatInput}
           onSubmit={handleQuestionSubmit}
           serviceType={currentService}
-          faqs={getServiceFaqs(currentService)}
+          faqs={faqData[currentService as keyof typeof faqData] || faqData["general-chat"]}
           onFAQClick={handleFAQClick}
         />
       );
     }
-     // 디버깅 로그 추가
-  console.log("Render Chat Service - Current State:", {
-    pageState,
-    currentService,
-    config,
-    initialMessage,
-    chatInput
-  });
-  
-    // pageState가 'chat'일 때
-    return (
-      <CopilotKit
-        runtimeUrl={config.apiEndpoint}
-        agent={config.agent}
-        showDevConsole={false}
-      >
-        <ChatBox 
-          initialInput={initialMessage}
-          serviceName={currentService}
-          agent={config.agent}
-          useCopilot={config.useCopilot}
-        />
-      </CopilotKit>
-    );
+
+    // MemoizedCopilotKit 사용
+    return <MemoizedCopilotKit config={config} globalKey={globalKey} />;
   };
 
   return (
     <div className={styles.container}>
-      {pageState === 'admin' ? (
+      {pageState === "admin" ? (
         <AdminDashboard />
       ) : currentService === "meeting-minutes" ? (
         <MeetingList />
       ) : currentService === "investment-report" ? (
         <InvestmentReport />
       ) : (
-        // 채팅 서비스 렌더링 (general-chat, branch-manual, overseas-loan, financial-statements)
         renderChatService()
       )}
+      <button onClick={handleKeyReset}>Reset Key</button>
     </div>
   );
 }

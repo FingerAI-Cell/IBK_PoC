@@ -1,0 +1,31 @@
+
+read -r -d '' PAYLOAD << EOM
+{
+  "라이선스키": "A077DCC707D24D6BADE5EEC98C7658A9",
+  "maxPool": 1,
+  "serviceUri": "https://down.finger.co.kr/down/mws/big/service",
+  "스크래핑": [
+    {
+      "서비스명": "금융투자협회_금융투자회사공시",
+      "조회기간": "20240930",
+      "옵션": "3",
+      "조회시작일": "20220101",
+      "조회종료일": "20220303",
+      "jobId": "금융투자협회_금융투자회사공시"
+    }
+  ]
+}
+EOM
+
+URL="http://211.111.214.248:52167/ScrapService"
+
+
+RESPONSE=$(curl -s -X POST \
+  "$URL" \
+  -H "Content-Type: application/json" \
+  -d "$PAYLOAD")
+
+echo "Response from server:"
+echo "$RESPONSE"
+
+echo "Request sent to $URL"
