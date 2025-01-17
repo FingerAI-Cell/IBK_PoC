@@ -5,9 +5,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.util.HashMap;
@@ -46,13 +48,21 @@ public class AISummarizer {
                     .uri(apiUrl)
                     .contentType(MediaType.APPLICATION_JSON) // Content-Type 명시
                     .bodyValue(requestBody)
-                    .retrieve()
-                    .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {})
-                    .map(response -> {
-                        logger.info("Response Body: {}", response); // 응답 바디 로그 출력
-                        return (String) response.get("output");
+                    .exchangeToMono(response -> {
+                        logger.info("HTTP Status: {}", response.statusCode());
+
+                        // Body 확인
+                        return response.bodyToMono(String.class)
+                                .doOnNext(body -> logger.info("Raw Response Body: {}", body))
+                                .defaultIfEmpty("EMPTY BODY") // Body가 비었을 경우 처리
+                                .flatMap(body -> {
+                                    if (body.equals("EMPTY BODY")) {
+                                        logger.warn("Response Body is empty");
+                                    }
+                                    return Mono.just(body);
+                                });
                     })
-                    .block(Duration.ofMinutes(5)); // 타임아웃 설정
+                    .block(Duration.ofMinutes(5));
         } catch (Exception e) {
             e.printStackTrace();
             return "요약을 생성하지 못했습니다.";
