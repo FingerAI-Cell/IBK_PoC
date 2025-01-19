@@ -71,7 +71,7 @@ export default function ChatBox() {
   });
 
   useEffect(() => {
-    console.log("[ChatBox] 활성화된 상태로 렌더링됨");
+    console.log("[ChatBox0] 활성화된 상태로 렌더링됨",isChatActive);
   }, [isChatActive]);
 
   // 새로운 문서가 도착할 때 상태 업데이트
@@ -146,7 +146,7 @@ export default function ChatBox() {
     }
   }, [state?.alert]);
 
-  console.log("[ChatBox] 활성화된 상태로 렌더링됨",currentConfig.apiEndpoint, currentConfig.agent);
+  console.log("[ChatBox] 활성화된 상태로 렌더링됨",isChatActive, currentConfig.apiEndpoint, currentConfig.agent);
   
   return (
     <CopilotKit 

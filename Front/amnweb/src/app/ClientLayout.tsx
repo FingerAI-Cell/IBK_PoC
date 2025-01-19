@@ -15,7 +15,8 @@ interface ClientLayoutProps {
 export default function ClientLayout({ children }: ClientLayoutProps) {
   const { currentService, setCurrentService, isSidebarOpen, toggleSidebar } = useService();
   const { isChatActive } = useChat();
-
+  // ClientLayout 마운트 및 상태 확인 로그
+  console.log("ClientLayout 렌더링");
   return (
     <div className="relative min-h-screen">
       <button 

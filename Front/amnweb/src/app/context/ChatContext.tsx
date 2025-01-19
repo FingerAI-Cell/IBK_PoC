@@ -17,6 +17,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   const [chatInput, setChatInput] = useState("");
 
   const activateChat = (initialInput?: string) => {
+    console.log("activate");
     if (initialInput) {
       setChatInput(initialInput);
     }
