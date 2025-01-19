@@ -3,16 +3,13 @@
 import { useEffect, useState, useRef} from "react";
 import { useCoAgent } from "@copilotkit/react-core";
 import { CopilotChat } from "@copilotkit/react-ui";
+import { CopilotKit } from "@copilotkit/react-core";
 import "@copilotkit/react-ui/styles.css";
 import styles from "./ChatBox.module.css";
-import { InputProps} from "@copilotkit/react-ui";
-
-interface ChatBoxProps {
-  initialInput?: string;
-  agent?: string;
-  serviceName?: string;
-  useCopilot?: boolean;
-}
+// import { InputProps } from "@copilotkit/react-ui";
+import { useService } from "@/app/context/ServiceContext";
+import { useChat } from "@/app/context/ChatContext";
+import { serviceConfig } from "@/app/config/serviceConfig";
 
 // 문서 메타데이터 타입
 interface DocumentMetadata {
@@ -52,73 +49,18 @@ interface CoAgentState {
 }
 
 
-// InputProps 타입 확장
-interface CustomInputProps extends InputProps {
-  initialInput?: string;
-}
-
-function CustomInput({ inProgress, onSend, initialInput }: CustomInputProps) {
-  const [value, setValue] = useState("");
-  const isFirstRender = useRef(true);
-
-  // 초기 메시지 자동 전송
-  useEffect(() => {
-    if (isFirstRender.current && initialInput) {
-      console.log('Auto sending initial message:', initialInput);
-      onSend(initialInput);
-      isFirstRender.current = false;
-    }
-  }, []);
-
-  const handleSubmit = (value: string) => {
-    console.log('Submitting message:', value);
-    if (value.trim()) onSend(value);
-  };
-
-  return (  
-    <div className="flex gap-2 p-4 border-t">
-      <input 
-        disabled={inProgress}
-        type="text"
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        placeholder="메시지를 입력하세요..."
-        className="flex-1 p-2 rounded-md border border-gray-300 focus:outline-none focus:border-blue-500 disabled:bg-gray-100"
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') {
-            handleSubmit(e.currentTarget.value);
-            setValue("");
-          }
-        }}
-      />
-      <button 
-        disabled={inProgress}
-        className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
-        onClick={() => {
-          handleSubmit(value);
-          setValue("");
-        }}
-      >
-        전송
-      </button>
-    </div>
-  );
-}
-
-
-export default function ChatBox({
-  initialInput = "",
-  agent,
-  serviceName,
-  useCopilot = false,
-}: ChatBoxProps) {
+export default function ChatBox() {
+  const currentService = useService().currentService;
   const [isLoaded, setIsLoaded] = useState(false);
   const messageEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const chatRef = useRef<any>(null);
-  // 문서 관련 상태 (from useCoAgent)
+  const { isChatActive, chatInput, deactivateChat } = useChat();
+  const currentConfig = serviceConfig[currentService];
+  const [documents, setDocuments] = useState<RetrievedDocument[]>([]);
+
   const { nodeName, running, state } = useCoAgent<CoAgentState>({
-    name: agent || "olaf_ibk_poc_agent",
+    name: currentConfig.agent || "olaf_ibk_poc_agent",
     initialState: {
       nodeName: "",
       running: false,
@@ -126,44 +68,27 @@ export default function ChatBox({
         routing_vectordb_collection: "",
         retrieved_documents: [],
         context: "",
-        alert: '',
+        alert: "",
       },
     },
-  })
-  const [documents, setDocuments] = useState<RetrievedDocument[]>([]);
+  });
 
-  // 디버깅을 위한 로그 추가
   useEffect(() => {
-    console.log('ChatBox Props:', {
-      initialInput,
-      agent,
-      serviceName,
-      useCopilot
-    });
-  }, [initialInput, agent, serviceName, useCopilot]);
+    console.log("[ChatBox] 활성화된 상태로 렌더링됨");
+  }, [isChatActive]);
 
   // CopilotChat 로드 완료 체크
   useEffect(() => {
     const checkLoaded = setInterval(() => {
       const inputElement = chatRef.current?.querySelector('[role="textbox"], textarea, input');
       if (inputElement) {
-        console.log('Chat loaded with element:', inputElement.tagName);
+        console.log("[ChatBox] Chat loaded with element:", inputElement.tagName);
         setIsLoaded(true);
         clearInterval(checkLoaded);
       }
     }, 100);
 
     return () => clearInterval(checkLoaded);
-  }, []);
-
-  // 서비스 로깅 (히스토리 추적용)
-  useEffect(() => {
-    console.log(`현재 서비스: ${serviceName}`);
-  }, [serviceName]);
-
-  // DOM 변경 시 스크롤 유지
-  useEffect(() => {
-    messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, []);
 
   // 새로운 문서가 도착할 때 상태 업데이트
@@ -177,22 +102,22 @@ export default function ChatBox({
           self.findIndex((d) => d.kwargs.metadata.file_name === doc.kwargs.metadata.file_name)
       );
       setDocuments(uniqueDocs);
-      
+
       // 문서가 업데이트되면 즉시 DOM에 추가
       if (chatContainerRef.current) {
         const messages = chatContainerRef.current.querySelectorAll('.copilotKitAssistantMessage');
         const lastMessage = messages[messages.length - 1] as HTMLDivElement;
-        
+
         if (lastMessage && !lastMessage.dataset.inserted) {
           const docContainer = document.createElement('div');
           docContainer.className = "p-4 mt-2 border-l-4 border-blue-500";
           docContainer.innerHTML = `<h3 class="text-sm font-semibold">📄 관련 문서</h3>`;
-          
+
           uniqueDocs.forEach(doc => {
             const docElement = document.createElement('div');
             const keywordsHTML = doc.kwargs.metadata.keywords
               .map((keyword) => `#${keyword}`).join(' ');
-            
+
             docElement.innerHTML = `
               <div class="p-2 border rounded shadow-sm mt-2">
                 <a href="${doc.kwargs.metadata.file_url}" target="_blank" class="text-blue-600 hover:underline">
@@ -205,7 +130,7 @@ export default function ChatBox({
             `;
             docContainer.appendChild(docElement);
           });
-          
+
           lastMessage.appendChild(docContainer);
           lastMessage.dataset.inserted = "true";
         }
@@ -219,7 +144,7 @@ export default function ChatBox({
     if (state?.alert && state.alert !== '') {
       const messages = document.querySelectorAll('.copilotKitAssistantMessage');
       const lastMessage = messages[messages.length - 1] as HTMLDivElement;
-      
+
       if (lastMessage && !lastMessage.dataset.alertInserted) {
         const alertContainer = document.createElement('div');
         alertContainer.className = "p-4 mt-2 bg-red-100 border-l-4 border-red-500 text-red-700 rounded";
@@ -238,21 +163,46 @@ export default function ChatBox({
     }
   }, [state?.alert]);
 
+  console.log("[ChatBox] 활성화된 상태로 렌더링됨",currentConfig.apiEndpoint, currentConfig.agent);
   return (
-    <div ref={chatContainerRef} className={styles.container}>
-      {useCopilot && agent && (
-        <div className={styles.chatWrapper}>
+    <CopilotKit runtimeUrl={currentConfig.apiEndpoint} agent={currentConfig.agent}>
+      <div ref={chatContainerRef} className={styles.chatWrapper}>
+        <div className={styles.container}>
           <CopilotChat
             className={styles.copilotChat}
-            Input={(props) => <CustomInput {...props} initialInput={initialInput} />}
+            messages={[
+              {
+                role: "assistant",
+                content: currentConfig.greeting || "무엇을 도와드릴까요?"
+              }
+            ]}
+            initialMessages={[]}
+            Input={(props) => (
+              <div className={styles.inputContainer}>
+                <input
+                  type="text"
+                  value={chatInput}
+                  placeholder={currentConfig.defaultMessage}
+                  className={styles.input}
+                  disabled={props.inProgress}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !props.inProgress) {
+                      props.onSend(chatInput);
+                    }
+                  }}
+                />
+              </div>
+            )}
             labels={{
-              title: "IBK 투자증권 업무 효율화 챗봇",
-              initial: "안녕하세요. IBK 투자증권 업무 효율화 챗봇입니다. 무엇을 도와드릴까요?",
-              placeholder: "메시지를 입력하세요...",
+              title: currentConfig.title,
+              initial: currentConfig.greeting,
             }}
           />
+          <button onClick={deactivateChat} className={styles["close-button"]}>
+            닫기
+          </button>
         </div>
-      )}
-    </div>
+      </div>
+    </CopilotKit>
   );
 }

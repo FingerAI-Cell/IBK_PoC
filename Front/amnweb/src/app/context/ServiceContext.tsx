@@ -1,63 +1,21 @@
-// ServiceContext.tsx
 "use client";
 
 import { createContext, useState, useContext, useEffect } from "react";
 
-interface ReportData {
-  totalAmount: number;
-  totalAmountDifference: number;
-  totalAmountDifferencePercentage: number;
-  investedAmount: number;
-  portfolioData: {
-    stocks: number;
-    bondsFunds: number;
-    derivatives: number;
-    trust: number;
-    others: number;
-  };
-  investmentDetails: {
-    name: string;
-    value: string;
-    amount: string;
-    dayBefore: string;
-  }[];
-  date: string;
-  content: string;
-}
-
 interface ServiceContextType {
   currentService: string;
   setCurrentService: (service: string) => void;
-  pageState: 'select' | 'chat' | 'admin';
-  setPageState: (state: 'select' | 'chat' | 'admin') => void;
-  handleMyServices: () => void;
-  reportDate: string | null;
-  reportData: ReportData | null;
-  setReportDate: (date: string, data?: ReportData) => void;
+  pageState: "select" | "chat" | "admin";
+  setPageState: (state: "select" | "chat" | "admin") => void;
   isSidebarOpen: boolean;
   toggleSidebar: () => void;
 }
 
-const defaultValue: ServiceContextType = {
-  currentService: "general-chat",
-  setCurrentService: () => {},
-  pageState: "select",
-  setPageState: () => {},
-  handleMyServices: () => {},
-  reportDate: null,
-  reportData: null,
-  setReportDate: () => {},
-  isSidebarOpen: true,
-  toggleSidebar: () => {},
-};
-
-const ServiceContext = createContext<ServiceContextType>(defaultValue);
+const ServiceContext = createContext<ServiceContextType | undefined>(undefined);
 
 export function ServiceProvider({ children }: { children: React.ReactNode }) {
   const [currentService, setCurrentService] = useState("general-chat");
-  const [pageState, setPageState] = useState<'select' | 'chat' | 'admin'>('select');
-  const [reportDate, setReportDate] = useState<string | null>(null);
-  const [reportData, setReportData] = useState<ReportData | null>(null);
+  const [pageState, setPageState] = useState<"select" | "chat" | "admin">("select");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   useEffect(() => {
@@ -67,58 +25,26 @@ export function ServiceProvider({ children }: { children: React.ReactNode }) {
 
     handleResize();
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const handleServiceChange = (service: string) => {
-    console.log('Service Change:', {
-      current: currentService,
-      new: service,
-      currentPageState: pageState
-    });
-    
     setCurrentService(service);
-    setPageState('select');
-  };
-
-  useEffect(() => {
-    console.log('State Updated:', {
-      service: currentService,
-      pageState: pageState
-    });
-  }, [currentService, pageState]);
-
-  const handleMyServices = () => {
-    setCurrentService(() => {
-      setPageState("select");
-      return "general-chat";
-    });
-  };
-
-  const handleSetReportDate = (date: string, data?: ReportData) => {
-    setReportDate(date);
-    setReportData(data || null);
+    setPageState("select");
   };
 
   const toggleSidebar = () => {
-    const nextState = !isSidebarOpen;
-    console.log('ServiceContext - Toggling Sidebar:', nextState);
-    setIsSidebarOpen(nextState);
-    console.log('ServiceContext - After Toggle:', !isSidebarOpen);
+    setIsSidebarOpen((prev) => !prev);
   };
 
   return (
-    <ServiceContext.Provider 
-      value={{ 
-        currentService, 
+    <ServiceContext.Provider
+      value={{
+        currentService,
         setCurrentService: handleServiceChange,
         pageState,
         setPageState,
-        handleMyServices,
-        reportDate,
-        reportData,
-        setReportDate: handleSetReportDate,
         isSidebarOpen,
         toggleSidebar,
       }}
@@ -129,5 +55,9 @@ export function ServiceProvider({ children }: { children: React.ReactNode }) {
 }
 
 export function useService() {
-  return useContext(ServiceContext);
+  const context = useContext(ServiceContext);
+  if (context === undefined) {
+    throw new Error("useService must be used within a ServiceProvider");
+  }
+  return context;
 }

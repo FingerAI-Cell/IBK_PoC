@@ -1,15 +1,23 @@
 "use client";
 
+import { ReactNode } from "react";
 import Header from "./components/Header/Header";
 import Sidebar from "./components/Sidebar/Sidebar";
 import MainContent from "./components/MainContent/MainContent";
+import ChatBox from "./components/ChatBox/ChatBox";
 import { useService } from "./context/ServiceContext";
+import { useChat } from "./context/ChatContext";
 
-export default function ClientLayout() {
+interface ClientLayoutProps {
+  children: ReactNode;
+}
+
+export default function ClientLayout({ children }: ClientLayoutProps) {
   const { currentService, setCurrentService, isSidebarOpen, toggleSidebar } = useService();
+  const { isChatActive } = useChat();
 
   return (
-    <>
+    <div className="relative min-h-screen">
       <button 
         className="fixed top-4 left-4 z-40 block xl:hidden"
         onClick={toggleSidebar}
@@ -33,9 +41,19 @@ export default function ClientLayout() {
       <div className="flex-grow flex flex-col">
         <Header />
         <main className="p-6 mt-16">
-          <MainContent />
+          {!isChatActive && (
+            <>
+              <MainContent />
+              {children}
+            </>
+          )}
+          {isChatActive && (
+            <div className="fixed inset-0 pt-16 xl:pl-80">
+              <ChatBox />
+            </div>
+          )}
         </main>
       </div>
-    </>
+    </div>
   );
 } 
