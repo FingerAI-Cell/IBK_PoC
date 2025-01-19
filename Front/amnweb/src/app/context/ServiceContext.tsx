@@ -9,6 +9,7 @@ interface ServiceContextType {
   setPageState: (state: "select" | "chat" | "admin") => void;
   isSidebarOpen: boolean;
   toggleSidebar: () => void;
+  handleMyServices: () => void;
 }
 
 const ServiceContext = createContext<ServiceContextType | undefined>(undefined);
@@ -34,6 +35,11 @@ export function ServiceProvider({ children }: { children: React.ReactNode }) {
     setPageState("select");
   };
 
+  const handleMyServices = () => {
+    setCurrentService("general-chat");
+    setPageState("select");
+  };
+
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => !prev);
   };
@@ -47,6 +53,7 @@ export function ServiceProvider({ children }: { children: React.ReactNode }) {
         setPageState,
         isSidebarOpen,
         toggleSidebar,
+        handleMyServices,
       }}
     >
       {children}

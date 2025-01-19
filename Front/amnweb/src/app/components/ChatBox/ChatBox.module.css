@@ -6,12 +6,14 @@
   flex-direction: column;
   overflow: hidden;
   margin-left: 0; /* 모바일 기본값 */
+  padding-left: 4rem; /* 모바일 메뉴 버튼 공간 */
 }
 
 /* xl 브레이크포인트에서 사이드바 너비만큼 여백 추가 */
 @media (min-width: 1400px) {
   .chatWrapper {
     margin-left: 20rem; /* 사이드바 너비만큼 */
+    padding-left: 0; /* xl 사이즈에서는 패딩 제거 */
   }
 }
 
@@ -22,9 +24,16 @@
   height: 100%;
   background-color: #f7fafc;
   border-left: 1px solid #e2e8f0;
-  max-width: 1200px; /* MainContent와 동일한 최대 너비 */
+  max-width: min(1200px, calc(100vw - 22rem)); /* 사이드바 너비(20rem) + 여유 공간(2rem) 제외 */
   margin: 0 auto;
   width: 100%;
+}
+
+/* 모바일 화면에서는 최대 너비 조정 */
+@media (max-width: 1399px) {
+  .container {
+    max-width: min(1200px, calc(100vw - 5rem)); /* 모바일 메뉴 버튼 공간(4rem) + 여유 공간(1rem) 제외 */
+  }
 }
 
 .copilotChat {
@@ -132,6 +141,7 @@
     gap: 0.75rem;
     border-top: 1px solid #e2e8f0;
     background-color: white;
+    align-items: center;
 }
 
 .input {
@@ -139,10 +149,6 @@
     padding: 0.75rem 1rem;
     border: 1px solid #e2e8f0;
     border-radius: 0.5rem;
-    resize: none;
-    min-height: 40px;
-    max-height: 150px;
-    overflow-y: auto;
     font-size: 0.95rem;
     transition: border-color 0.2s;
 }
@@ -159,13 +165,19 @@
 }
 
 .sendButton {
-    padding: 0.5rem 1.25rem;
+    padding: 0.75rem 1.5rem;
     background-color: #4299e1;
     color: white;
+    border: none;
     border-radius: 0.5rem;
     font-weight: 500;
     transition: all 0.2s;
+    cursor: pointer;
     min-width: 80px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .sendButton:hover:not(:disabled) {
@@ -176,6 +188,7 @@
 .sendButton:disabled {
     background-color: #a0aec0;
     cursor: not-allowed;
+    opacity: 0.7;
 }
 
 .cancelButton {

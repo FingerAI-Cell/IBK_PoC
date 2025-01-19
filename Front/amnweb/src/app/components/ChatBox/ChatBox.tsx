@@ -51,11 +51,8 @@ interface CoAgentState {
 
 export default function ChatBox() {
   const currentService = useService().currentService;
-  const [isLoaded, setIsLoaded] = useState(false);
-  const messageEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
-  const chatRef = useRef<any>(null);
-  const { isChatActive, chatInput, deactivateChat } = useChat();
+  const { isChatActive, chatInput } = useChat();
   const currentConfig = serviceConfig[currentService];
   const [documents, setDocuments] = useState<RetrievedDocument[]>([]);
 
@@ -76,20 +73,6 @@ export default function ChatBox() {
   useEffect(() => {
     console.log("[ChatBox] 활성화된 상태로 렌더링됨");
   }, [isChatActive]);
-
-  // CopilotChat 로드 완료 체크
-  useEffect(() => {
-    const checkLoaded = setInterval(() => {
-      const inputElement = chatRef.current?.querySelector('[role="textbox"], textarea, input');
-      if (inputElement) {
-        console.log("[ChatBox] Chat loaded with element:", inputElement.tagName);
-        setIsLoaded(true);
-        clearInterval(checkLoaded);
-      }
-    }, 100);
-
-    return () => clearInterval(checkLoaded);
-  }, []);
 
   // 새로운 문서가 도착할 때 상태 업데이트
   useEffect(() => {
@@ -165,18 +148,14 @@ export default function ChatBox() {
 
   console.log("[ChatBox] 활성화된 상태로 렌더링됨",currentConfig.apiEndpoint, currentConfig.agent);
   return (
-    <CopilotKit runtimeUrl={currentConfig.apiEndpoint} agent={currentConfig.agent}>
+    <CopilotKit 
+      runtimeUrl={currentConfig.apiEndpoint}
+      agent={currentConfig.agent}
+    >
       <div ref={chatContainerRef} className={styles.chatWrapper}>
         <div className={styles.container}>
           <CopilotChat
             className={styles.copilotChat}
-            messages={[
-              {
-                role: "assistant",
-                content: currentConfig.greeting || "무엇을 도와드릴까요?"
-              }
-            ]}
-            initialMessages={[]}
             Input={(props) => (
               <div className={styles.inputContainer}>
                 <input
@@ -191,6 +170,13 @@ export default function ChatBox() {
                     }
                   }}
                 />
+                <button
+                  className={styles.sendButton}
+                  disabled={props.inProgress}
+                  onClick={() => props.onSend(chatInput)}
+                >
+                  전송
+                </button>
               </div>
             )}
             labels={{
@@ -198,9 +184,6 @@ export default function ChatBox() {
               initial: currentConfig.greeting,
             }}
           />
-          <button onClick={deactivateChat} className={styles["close-button"]}>
-            닫기
-          </button>
         </div>
       </div>
     </CopilotKit>
