@@ -3,9 +3,11 @@
 import styles from "./Header.module.css";
 import { useService } from "../../context/ServiceContext";
 import { HiMenuAlt2 } from "react-icons/hi";
+import { useChat } from "../../context/ChatContext";
 
 export default function Header() {
   const { handleMyServices, setPageState, toggleSidebar, isSidebarOpen } = useService();
+  const { deactivateChat } = useChat();
 
   const handleToggle = () => {
     console.log('Toggling sidebar:', !isSidebarOpen); // 디버깅용
@@ -15,7 +17,13 @@ export default function Header() {
   const handleAdminButtonClick = () => {
     console.log('Navigating to admin page');
     setPageState('admin');
+    deactivateChat();
   };
+
+  const handleHeaderButtonClick = () => {
+    handleMyServices();
+    deactivateChat();
+  }
 
   return (
     <header className={styles.header}>
@@ -32,7 +40,7 @@ export default function Header() {
         xl:justify-start
       `}>
         <button 
-          onClick={handleMyServices}
+          onClick={handleHeaderButtonClick}
           className={styles.titleButton}
         >
           My Services
