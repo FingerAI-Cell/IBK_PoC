@@ -1,14 +1,11 @@
 .modalOverlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;  /* top, right, bottom, left 모두 0으로 설정 */
   background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 1500;  /* SttModal과 동일한 z-index */
 }
 
 .modal {
@@ -16,9 +13,12 @@
   border-radius: 8px;
   width: 90%;
   max-width: 800px;
-  max-height: 90vh;
+  height: 90vh;  /* max-height에서 height로 변경 */
   display: flex;
   flex-direction: column;
+  margin: 0 auto;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .modalHeader {
@@ -77,9 +77,9 @@
 }
 
 .summaryContent {
-  padding: 20px 40px;
-  overflow-y: auto;
   flex: 1;
+  overflow-y: auto;
+  padding: 20px;
 }
 
 .contentWrapper {

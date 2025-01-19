@@ -1,3 +1,5 @@
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import styles from './SummaryModal.module.css';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -22,7 +24,14 @@ export default function SummaryModal({
   content,
   confId 
 }: SummaryModalProps) {
-  if (!isOpen) return null;
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
+
+  if (!isOpen || !mounted) return null;
   
   // API 실패시 meetings.ts에서 해당 회의 데이터를 가져오는 로직
   const getFallbackData = (confId: number) => {
@@ -77,50 +86,62 @@ export default function SummaryModal({
   
   const renderContent = () => {
     try {
-      // 1. "topic"과 각 topic에 포함된 "details" 또는 직접 텍스트 추출 정규식
-      const topicRegex = /"topic":\s*"([^"]+)"/g;
-      const topicBlockRegex = /{[^}]*"topic":\s*"([^"]+)"[^}]*}/g;
-      const speakerDetailsRegex = /"(\w+)":\s*(?:{[^}]*"details":\s*"([^"]+)"|"(.*?)")/g;
-  
-      // 2. Topic 추출
-      const topics = [...displayContent.matchAll(topicRegex)].map((match) => match[1]);
-  
-      // 3. Topic 블록 단위로 세분화하여 Speaker 및 Details 또는 Text 추출
-      const topicBlocks = [...displayContent.matchAll(topicBlockRegex)].map((match) => match[0]);
-  
-      const topicDetailsMap = topicBlocks.map((block, index) => {
-        const details = [...block.matchAll(speakerDetailsRegex)].map((match) => ({
-          speaker: match[1],
-          details: match[2] || match[3], // "details" 값이 없으면 텍스트 값 사용
-        }));
-        return {
-          topic: topics[index],
-          details,
-        };
-      });
-  
-      // 4. 렌더링 (details에서 topic 제거)
-      return topicDetailsMap.map((entry, index) => (
+      // 1단계: 첫 번째 JSON 파싱
+      const parsedData = JSON.parse(displayContent);
+      
+      // 2단계: output에서 코드 블록 마커 제거 후 JSON 파싱
+      const cleanedOutput = parsedData.output.replace(/```json\n|\n```/g, '');
+      const summaryContent = JSON.parse(cleanedOutput);
+
+      // 파싱된 데이터를 React 컴포넌트로 변환
+      return summaryContent.map((entry: any, index: number) => (
         <div key={`topic-${index}`} className={styles.topicSection}>
-          {/* topic 제목만 표시 */}
           <h4 className={styles.topicTitle}>{entry.topic}</h4>
-          {/* topic과 관련된 details만 표시 */}
-          {entry.details.map((d, i) => (
-            d.details && !d.details.includes(entry.topic) ? ( // topic 중복 제거
-              <p key={`details-${index}-${i}`} className={styles.speakerDetails}>
-                {d.details}
-              </p>
-            ) : null
-          ))}
+          <div className={styles.speakerSection}>
+            {Object.entries(entry)
+              .filter(([key]) => key.startsWith('speaker_'))
+              .map(([speaker, value]: [string, any], i: number) => {
+                // speaker의 내용을 추출하는 로직
+                let speakerContent = '';
+                if (typeof value === 'string') {
+                  // 문자열인 경우 그대로 사용
+                  speakerContent = value;
+                } else if (typeof value === 'object') {
+                  // 객체인 경우 text나 details 필드 사용
+                  speakerContent = value.text || value.details || '';
+                }
+
+                // 문자열에서 "SPEAKER_XX:" 부분 제거
+                speakerContent = speakerContent.replace(/SPEAKER_\d+:\s*/g, '');
+                // 개행문자(\n)를 <br/>로 변환
+                const formattedContent = speakerContent.split('\\n').map((line, lineIndex) => (
+                  <span key={lineIndex}>
+                    {line}
+                    {lineIndex < speakerContent.split('\\n').length - 1 && <br />}
+                  </span>
+                ));
+
+                return (
+                  <p key={`${speaker}-${i}`} className={styles.speakerDetails}>
+                    <span className={styles.speaker}>{speaker}:</span> 
+                    {formattedContent}
+                  </p>
+                );
+              })}
+          </div>
         </div>
       ));
     } catch (error) {
       console.error('문자열 처리 오류:', error);
+      console.error('Error details:', {
+        message: error.message,
+        displayContent: displayContent
+      });
       return <p>회의 데이터를 처리할 수 없습니다.</p>;
     }
   };
   
-  return (
+  const modalContent = (
     <div className={styles.modalOverlay}>
       <div className={styles.modal}>
         <div className={styles.modalHeader}>
@@ -162,4 +183,12 @@ export default function SummaryModal({
       </div>
     </div>
   );
+
+  // document가 있는지 확인 (SSR 대비)
+  if (typeof document === 'undefined') return null;
+
+  const modalRoot = document.getElementById('modal-root');
+  if (!modalRoot) return null;
+
+  return createPortal(modalContent, modalRoot);
 }

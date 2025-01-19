@@ -1,4 +1,7 @@
 .container {
+  position: relative;  /* 상대 위치 설정 */
+  height: 100vh;  /* 전체 높이 설정 */
+  overflow: hidden;  /* 내부 스크롤 방지 */
   padding: 2rem;
   max-width: 1200px;
   margin: 0 auto;
