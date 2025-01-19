@@ -147,6 +147,7 @@ export default function ChatBox() {
   }, [state?.alert]);
 
   console.log("[ChatBox] 활성화된 상태로 렌더링됨",currentConfig.apiEndpoint, currentConfig.agent);
+  
   return (
     <CopilotKit 
       runtimeUrl={currentConfig.apiEndpoint}
@@ -160,20 +161,27 @@ export default function ChatBox() {
               <div className={styles.inputContainer}>
                 <input
                   type="text"
-                  value={chatInput}
-                  placeholder={currentConfig.defaultMessage}
+                  defaultValue={chatInput || ""} // 초기값 설정
+                  placeholder="메시지를 입력하세요"
                   className={styles.input}
                   disabled={props.inProgress}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && !props.inProgress) {
-                      props.onSend(chatInput);
+                      const inputValue = e.currentTarget.value; // 현재 입력값 가져오기
+                      props.onSend(inputValue); // 전송
+                      e.currentTarget.value = ""; // 전송 후 입력 필드 초기화
                     }
                   }}
                 />
                 <button
                   className={styles.sendButton}
                   disabled={props.inProgress}
-                  onClick={() => props.onSend(chatInput)}
+                  onClick={(e) => {
+                    const inputElement = e.currentTarget.previousElementSibling as HTMLInputElement;
+                    const inputValue = inputElement.value; // 현재 입력값 가져오기
+                    props.onSend(inputValue); // 전송
+                    inputElement.value = ""; // 전송 후 입력 필드 초기화
+                  }}
                 >
                   전송
                 </button>
