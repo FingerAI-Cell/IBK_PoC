@@ -188,13 +188,14 @@ export default function MeetingList() {
       const speakersResult = await speakersResponse.json();
       const formattedDate = formatMeetingTime(meeting.startTime, meeting.endTime);
 
-      if (summaryResult.success && speakersResult.success) {
+      // success 체크 대신 실제 데이터 존재 여부 확인
+      if (summaryResult.summary && speakersResult.data?.length > 0) {
         setIsSummaryModalOpen(true);
         setSummaryData({
           title: meeting.title,
           date: formattedDate,
           participants: speakersResult.data.map((speaker: Speaker) => speaker.name),
-          content: summaryResult.data.summary
+          content: summaryResult.summary  // .data.summary가 아닌 .summary로 직접 접근
         });
         setCurrentMeetingId(meeting.confId);
       } else {

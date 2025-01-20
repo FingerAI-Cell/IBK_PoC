@@ -150,15 +150,19 @@ public class WebService {
         }
 
         // 5. AI 요약 호출
-        String summaryResults = summarizer.summarizeData(jsonString);
-        logger.info("Summary results received: {}", summaryResults);
+        String summaryResults;
+        try {
+            summaryResults = summarizer.summarizeData(jsonString);
+            logger.info("Summary results received: {}", summaryResults);
 
-        // 6. 요약 결과 저장
-        meeting.setSummary(summaryResults);
-        logger.info("Final summary set to meeting: {}", summaryResults);
-
-        meetingRepository.save(meeting);
-        logger.info("Meeting saved to database: {}", meeting);
+            // 성공 시 DB에 요약 저장
+            meeting.setSummary(summaryResults);
+            meetingRepository.save(meeting);
+            logger.info("Summary saved to database for confId: {}", confId);
+        } catch (Exception e) {
+            logger.error("Error during summarization", e);
+            throw new RuntimeException("요약 생성 실패", e);
+        }
     }
 
     @Transactional

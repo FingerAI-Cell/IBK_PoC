@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import styles from './AlertModal.module.css';
 
 interface AlertModalProps {
@@ -9,7 +10,7 @@ interface AlertModalProps {
 export default function AlertModal({ isOpen, onClose, message }: AlertModalProps) {
   if (!isOpen) return null;
 
-  return (
+  const modalContent = (
     <div className={styles.alertOverlay}>
       <div className={styles.alertModal}>
         <div className={styles.alertContent}>
@@ -21,4 +22,12 @@ export default function AlertModal({ isOpen, onClose, message }: AlertModalProps
       </div>
     </div>
   );
+
+  // document가 있는지 확인 (SSR 대비)
+  if (typeof document === 'undefined') return null;
+
+  const modalRoot = document.getElementById('modal-root');
+  if (!modalRoot) return null;
+
+  return createPortal(modalContent, modalRoot);
 } 

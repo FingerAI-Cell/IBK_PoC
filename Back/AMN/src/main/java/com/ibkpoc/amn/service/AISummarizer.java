@@ -50,22 +50,37 @@ public class AISummarizer {
                     .bodyValue(requestBody)
                     .exchangeToMono(response -> {
                         logger.info("HTTP Status: {}", response.statusCode());
-
-                        // Body 확인
-                        return response.bodyToMono(String.class)
-                                .doOnNext(body -> logger.info("Raw Response Body: {}", body))
-                                .defaultIfEmpty("EMPTY BODY") // Body가 비었을 경우 처리
-                                .flatMap(body -> {
-                                    if (body.equals("EMPTY BODY")) {
-                                        logger.warn("Response Body is empty");
-                                    }
-                                    return Mono.just(body);
-                                });
+                        if (response.statusCode().is2xxSuccessful()) {
+                            logger.info("HTTP Status: {}", response.statusCode());
+                            return response.bodyToMono(String.class)
+                                    .doOnNext(body -> logger.info("Raw Response Body: {}", body))
+                                    .flatMap(body -> {
+                                        if (isValidJson(body)) {
+                                            return Mono.just(body); // 유효한 JSON 데이터만 반환
+                                        } else {
+                                            logger.warn("Invalid JSON Response");
+                                            return Mono.error(new RuntimeException("Invalid JSON Response"));
+                                        }
+                                    });
+                        } else {
+                            logger.error("Non-successful HTTP Status: {}", response.statusCode());
+                            return Mono.error(new RuntimeException("HTTP Error: " + response.statusCode()));
+                        }
                     })
                     .block(Duration.ofMinutes(5));
         } catch (Exception e) {
             e.printStackTrace();
             return "요약을 생성하지 못했습니다.";
+        }
+    }
+    // JSON 유효성 검사
+    private boolean isValidJson(String body) {
+        try {
+            objectMapper.readTree(body); // JSON 파싱 시도
+            return true;
+        } catch (Exception e) {
+            logger.error("Invalid JSON format", e);
+            return false;
         }
     }
 }
