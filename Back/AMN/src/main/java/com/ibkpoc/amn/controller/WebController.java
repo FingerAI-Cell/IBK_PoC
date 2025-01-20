@@ -27,6 +27,17 @@ public class WebController {
         List<MeetingResponseDto> meetings = webService.getAllMeetings();
         return ResponseEntity.ok(meetings);
     }
+    @GetMapping("/{meetingId}/summary")
+    public ResponseEntity<MeetingSummaryResponseDto> getMeetingSummary(@PathVariable Long meetingId) {
+        try {
+            MeetingSummaryResponseDto response = webService.getMeetingSummaryById(meetingId);
+            return ResponseEntity.ok(response);
+        } catch (FileNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
     @PostMapping("/speakers")
     public ResponseEntity<ApiResponse<List<SpeakerResponseDto>>> getSpeakers(@RequestBody SttRequest request) {

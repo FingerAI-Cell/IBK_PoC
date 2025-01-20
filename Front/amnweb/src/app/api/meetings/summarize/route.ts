@@ -8,7 +8,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    const timeoutId = setTimeout(() => controller.abort(), 300000);
 
     const response = await fetch(`${API_BASE_URL}/api/meetings/summarize`, {
       method: 'POST',

@@ -3,7 +3,6 @@ import { createPortal } from 'react-dom';
 import styles from './SummaryModal.module.css';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
-import { meetings } from '@/data/meetings';
 
 interface SummaryModalProps {
   isOpen: boolean;
@@ -21,8 +20,7 @@ export default function SummaryModal({
   title, 
   date, 
   participants, 
-  content,
-  confId 
+  content
 }: SummaryModalProps) {
   const [mounted, setMounted] = useState(false);
 
@@ -32,38 +30,6 @@ export default function SummaryModal({
   }, []);
 
   if (!isOpen || !mounted) return null;
-  
-  // API 실패시 meetings.ts에서 해당 회의 데이터를 가져오는 로직
-  const getFallbackData = (confId: number) => {
-    const meeting = meetings.find(m => m.confId === confId);
-    if (!meeting) return null;
-
-    return {
-      title: meeting.title,
-      date: meeting.startTime,
-      participants: meeting.participants,
-      content: meeting.summary
-    };
-  };
-
-  // content가 비어있거나 유효하지 않은 JSON 형식일 때 fallback 데이터 사용
-  const fallbackData = confId ? getFallbackData(confId) : null;
-  
-  const displayContent = (() => {
-    try {
-      JSON.parse(content);
-      return content;
-    } catch {
-      return fallbackData?.content || "";
-    }
-  })();
-  
-  const displayParticipants = participants?.length > 0 
-    ? participants 
-    : fallbackData?.participants || [];
-  
-  const displayTitle = title || fallbackData?.title || "";
-  const displayDate = date || fallbackData?.date || "";
   
   const handleDownload = async () => {
     try {
@@ -86,10 +52,7 @@ export default function SummaryModal({
   
   const renderContent = () => {
     try {
-      // 1단계: 첫 번째 JSON 파싱
-      const parsedData = JSON.parse(displayContent);
-      
-      // 2단계: output에서 코드 블록 마커 제거 후 JSON 파싱
+      const parsedData = JSON.parse(content);
       const cleanedOutput = parsedData.output.replace(/```json\n|\n```/g, '');
       const summaryContent = JSON.parse(cleanedOutput);
 
@@ -111,7 +74,15 @@ export default function SummaryModal({
                   speakerContent = value.text || value.details || '';
                 }
 
-                // 문자열에서 "SPEAKER_XX:" 부분 제거
+                // 스피커 이름 또는 ID 표시 로직
+                const speakerName = (() => {
+                  const speakerId = speaker.replace('speaker_', '').toUpperCase();
+                  const participant = participants.find(p => 
+                    p.toLowerCase().includes(speakerId.toLowerCase())
+                  );
+                  return participant || `SPEAKER_${speakerId}`;
+                })();
+
                 speakerContent = speakerContent.replace(/SPEAKER_\d+:\s*/g, '');
                 // 개행문자(\n)를 <br/>로 변환
                 const formattedContent = speakerContent.split('\\n').map((line, lineIndex) => (
@@ -123,7 +94,7 @@ export default function SummaryModal({
 
                 return (
                   <p key={`${speaker}-${i}`} className={styles.speakerDetails}>
-                    <span className={styles.speaker}>{speaker}:</span> 
+                    <span className={styles.speaker}>{speakerName}:</span> 
                     {formattedContent}
                   </p>
                 );
@@ -133,10 +104,6 @@ export default function SummaryModal({
       ));
     } catch (error) {
       console.error('문자열 처리 오류:', error);
-      console.error('Error details:', {
-        message: error.message,
-        displayContent: displayContent
-      });
       return <p>회의 데이터를 처리할 수 없습니다.</p>;
     }
   };

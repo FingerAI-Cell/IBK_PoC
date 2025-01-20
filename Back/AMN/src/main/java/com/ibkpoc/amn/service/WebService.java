@@ -47,15 +47,26 @@ public class WebService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public MeetingSummaryResponseDto getMeetingSummaryById(Long meetingId) throws FileNotFoundException {
+        String summary = meetingRepository.findById(meetingId)
+                .map(Meeting::getSummary)
+                .orElse(""); // summary가 null인 경우 빈 문자열 반환
+
+        return MeetingSummaryResponseDto.builder()
+                .summary(summary)
+                .build();
+    }
+
+
     private MeetingResponseDto convertToDto(Meeting meeting) {
         return MeetingResponseDto.builder()
                 .confId(meeting.getConfId())
                 .title(meeting.getTitle())
                 .startTime(meeting.getStartTime())
                 .endTime(meeting.getEndTime())
-                .summary(meeting.getSummary())
+                .summarySign((meeting.getSummary()!=null))
                 .sttSign(meeting.getSttSign())
-                .participants(meeting.getParticipants())
                 .build();
     }
 
