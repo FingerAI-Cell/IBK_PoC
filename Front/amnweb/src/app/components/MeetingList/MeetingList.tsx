@@ -28,10 +28,15 @@ interface LogContent {
   startTime: string;
 }
 
+interface Participant {
+  id: string;
+  name: string | null;
+}
+
 interface SummaryData {
   title: string;
   date: string;
-  participants: string[];
+  participants: Participant[];
   content: string;
 }
 
@@ -51,6 +56,8 @@ export default function MeetingList() {
     participants: [],
     content: ''
   });
+  const [loadingStates, setLoadingStates] = useState<{ [key: number]: boolean }>({});
+
 
   // 회의 시간 계산 함수
   const calculateDuration = (start: string, end: string | null): string => {
@@ -162,6 +169,8 @@ export default function MeetingList() {
   }, []);
 
   const handleSummaryClick = async (meeting: Meeting) => {
+    // 특정 회의에 대한 로딩 상태 활성화
+    setLoadingStates((prev) => ({ ...prev, [meeting.confId]: true }));
     try {
       // 요약 데이터 가져오기
       const summaryResponse = await fetch('/api/meetings/summary', {
@@ -194,7 +203,10 @@ export default function MeetingList() {
         setSummaryData({
           title: meeting.title,
           date: formattedDate,
-          participants: speakersResult.data.map((speaker: Speaker) => speaker.name),
+          participants: speakersResult.data.map((speaker: Speaker) => ({
+            id: speaker.speakerId,              // speakerId는 항상 포함
+            name: speaker.name?.trim() || null          // name이 없으면 null로 처리
+          })) || [],
           content: summaryResult.summary  // .data.summary가 아닌 .summary로 직접 접근
         });
         setCurrentMeetingId(meeting.confId);
@@ -206,6 +218,9 @@ export default function MeetingList() {
       console.error('요약 데이터 로딩 실패:', error);
       setAlertMessage('요약 데이터를 불러오는데 실패했습니다.');
       setIsAlertOpen(true);
+    } finally {
+      // 로딩 상태 종료
+      setLoadingStates((prev) => ({ ...prev, [meeting.confId]: false }));
     }
   };
 
@@ -237,7 +252,7 @@ export default function MeetingList() {
     <div className={styles.container}>
       <h2 className={styles.title}>회의 목록</h2>
       <div className={styles.meetingList}>
-        {meetings && meetings.map((meeting) => (
+        {meetings?.map((meeting) => (
           <div key={meeting.confId} className={styles.meetingItem}>
             <div className={styles.meetingInfo}>
               <h3 className={styles.meetingTitle}>{meeting.title}</h3>
@@ -256,10 +271,10 @@ export default function MeetingList() {
               </button>
               <button 
                 className={`${styles.summaryButton}`}
-                disabled={!meeting.summarySign}
+                disabled={!meeting.summarySign || loadingStates[meeting.confId]} // 해당 회의만 비활성화
                 onClick={() => handleSummaryClick(meeting)}
               >
-                요약보기
+                {loadingStates[meeting.confId] ? "로딩 중..." : "요약보기"}
               </button>
             </div>
           </div>
@@ -271,7 +286,7 @@ export default function MeetingList() {
         onClose={() => setIsModalOpen(false)}
         speakers={speakers}
         contents={logContents}
-        title={meetings.find(m => m.confId === currentMeetingId)?.title || "회의 원문"}
+        title={meetings?.find(m => m.confId === currentMeetingId)?.title || "회의 원문"}
         confId={currentMeetingId!}
         onSummarize={() => {
           // 요약 완료 후 처리
