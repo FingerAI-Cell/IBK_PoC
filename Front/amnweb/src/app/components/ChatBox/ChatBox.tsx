@@ -52,6 +52,7 @@ interface CoAgentState {
 export default function ChatBox() {
   const currentService = useService().currentService;
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const chatInputRef = useRef<HTMLInputElement>(null); // 입력 필드 참조
   const { isChatActive, chatInput } = useChat();
   const currentConfig = serviceConfig[currentService];
   const [documents, setDocuments] = useState<RetrievedDocument[]>([]);
@@ -72,6 +73,7 @@ export default function ChatBox() {
 
   useEffect(() => {
     console.log("[ChatBox0] 활성화된 상태로 렌더링됨",isChatActive);
+    chatInputRef.current.focus();
   }, [isChatActive]);
 
   // 새로운 문서가 도착할 때 상태 업데이트
@@ -152,6 +154,7 @@ export default function ChatBox() {
     <CopilotKit 
       runtimeUrl={currentConfig.apiEndpoint}
       agent={currentConfig.agent}
+      showDevConsole={false}
     >
       <div ref={chatContainerRef} className={styles.chatWrapper}>
         <div className={styles.container}>
@@ -160,15 +163,18 @@ export default function ChatBox() {
             Input={(props) => (
               <div className={styles.inputContainer}>
                 <input
-                  type="text"
+                  autoFocus
+                  ref={chatInputRef} // 입력 필드 참조 연결
+                  type="textarea"
                   defaultValue={chatInput || ""} // 초기값 설정
                   placeholder="메시지를 입력하세요"
                   className={styles.input}
                   disabled={props.inProgress}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter" && !props.inProgress) {
+                    if (e.key === "Enter" && !e.shiftKey && !props.inProgress) {
+                      e.preventDefault(); // 기본 동작(줄바꿈) 방지
                       const inputValue = e.currentTarget.value; // 현재 입력값 가져오기
-                      props.onSend(inputValue); // 전송
+                      props.onSend(inputValue); // 메시지 전송
                       e.currentTarget.value = ""; // 전송 후 입력 필드 초기화
                     }
                   }}

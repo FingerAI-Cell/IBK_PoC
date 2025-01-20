@@ -57,6 +57,8 @@ export default function MeetingList() {
     content: ''
   });
   const [loadingStates, setLoadingStates] = useState<{ [key: number]: boolean }>({});
+  const [finishedLoadingStates, setFinishedLoadingStates] = useState<{ [key: number]: boolean }>({});
+
 
 
   // 회의 시간 계산 함수
@@ -168,9 +170,20 @@ export default function MeetingList() {
     fetchMeetings();
   }, []);
 
+  useEffect(() => {
+    console.log("LoadingStates 변경:", loadingStates);
+    Object.keys(loadingStates).forEach((confId) => {
+      const id = parseInt(confId, 10);
+      if (loadingStates[id] === false) {
+        setFinishedLoadingStates((prev) => ({ ...prev, [id]: true }));
+      }
+    });
+  }, [loadingStates]);
+  
+
   const handleSummaryClick = async (meeting: Meeting) => {
     // 특정 회의에 대한 로딩 상태 활성화
-    setLoadingStates((prev) => ({ ...prev, [meeting.confId]: true }));
+
     try {
       // 요약 데이터 가져오기
       const summaryResponse = await fetch('/api/meetings/summary', {
@@ -218,10 +231,7 @@ export default function MeetingList() {
       console.error('요약 데이터 로딩 실패:', error);
       setAlertMessage('요약 데이터를 불러오는데 실패했습니다.');
       setIsAlertOpen(true);
-    } finally {
-      // 로딩 상태 종료
-      setLoadingStates((prev) => ({ ...prev, [meeting.confId]: false }));
-    }
+    } 
   };
 
   // 시간 포맷팅 함수
@@ -269,13 +279,42 @@ export default function MeetingList() {
               >
                 원문보기
               </button>
-              <button 
-                className={`${styles.summaryButton}`}
-                disabled={!meeting.summarySign || loadingStates[meeting.confId]} // 해당 회의만 비활성화
-                onClick={() => handleSummaryClick(meeting)}
-              >
-                {loadingStates[meeting.confId] ? "로딩 중..." : "요약보기"}
-              </button>
+              {/* 조건부로 버튼 상태 렌더링 */}
+              {meeting.summarySign ? (
+                // Case 1: 요약 가능 상태 버튼
+                <button
+                  className={`${styles.summaryButton}`}
+                  onClick={() => handleSummaryClick(meeting)}
+                  disabled={false}
+                >
+                  요약보기
+                </button>
+              ) : loadingStates[meeting.confId] ? (
+                // Case 2: 로딩 중 상태 버튼
+                <button
+                  className={`${styles.loadingButton}`}
+                  disabled
+                >
+                  로딩 중...
+                </button>
+              ) : finishedLoadingStates[meeting.confId] ? (
+                // Case 3: 로딩이 끝난 후 활성화된 요약 버튼
+                <button
+                  className={`${styles.summaryButton}`}
+                  onClick={() => handleSummaryClick(meeting)}
+                  disabled={false}
+                >
+                  요약보기
+                </button>
+              ) : (
+                // Case 4: 비활성화된 상태 버튼
+                <button
+                  className={`${styles.summaryButton}`}
+                  disabled
+                >
+                  요약 불가
+                </button>
+              )}
             </div>
           </div>
         ))}
@@ -288,6 +327,8 @@ export default function MeetingList() {
         contents={logContents}
         title={meetings?.find(m => m.confId === currentMeetingId)?.title || "회의 원문"}
         confId={currentMeetingId!}
+        loadingStates={loadingStates} // 전달
+        setLoadingStates={setLoadingStates} // 전달
         onSummarize={() => {
           // 요약 완료 후 처리
         }}

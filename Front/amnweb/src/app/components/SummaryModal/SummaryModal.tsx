@@ -56,79 +56,87 @@ export default function SummaryModal({
   };
   
   const renderContent = () => {
-    try {
-      const parsedData = JSON.parse(content);
-      const cleanedOutput = parsedData.output.replace(/```json\n|\n```/g, '').trim();
-      let summaryContent;
+//     try {
+//       const parsedData = JSON.parse(content);
+//       const cleanedOutput = parsedData.output.replace(/```json\n|\n```/g, '').trim();
+//       let summaryContent;
 
-      try {
-        summaryContent = JSON.parse(cleanedOutput);
-      } catch (error) {
-        console.warn('JSON 파싱 실패. 평문 데이터로 처리:', cleanedOutput);
-        summaryContent = { text: cleanedOutput }; // 평문 처리
-      }
+//       try {
+//         summaryContent = JSON.parse(cleanedOutput);
+//       } catch (error) {
+//         console.warn('JSON 파싱 실패. 평문 데이터로 처리:', cleanedOutput);
+//         summaryContent = { text: cleanedOutput }; // 평문 처리
+//       }
 
-      // summaryContent가 배열인지 확인
-      if (!Array.isArray(summaryContent)) {
-        summaryContent = [summaryContent];
-      }
+//       // summaryContent가 배열인지 확인
+//       if (!Array.isArray(summaryContent)) {
+//         summaryContent = [summaryContent];
+//       }
 
-      // 파싱된 데이터를 React 컴포넌트로 변환
-      // topic 아래 데이터를 처리
-    return summaryContent.map((entry: any, index: number) => (
-      <div key={`topic-${index}`} className={styles.topicSection}>
-        <h4 className={styles.topicTitle}>{entry.topic || '전체 요약'}</h4>
-        <div className={styles.speakerSection}>
-          {Object.entries(entry)
-            .filter(([key]) => key !== 'topic') // topic 제외
-            .map(([speaker, value]: [string, any], i: number) => {
-              // speaker의 내용을 추출
-              let speakerContent = '';
-              if (typeof value === 'string') {
-                // 문자열인 경우 그대로 사용
-                speakerContent = value.trim();
-              } else if (typeof value === 'object') {
-                // 객체인 경우 text나 details 필드 사용
-                speakerContent = (value.text || value.details || JSON.stringify(value)).trim();
-              }
+//       // 파싱된 데이터를 React 컴포넌트로 변환
+//       // topic 아래 데이터를 처리
+//     return summaryContent.map((entry: any, index: number) => (
+//       <div key={`topic-${index}`} className={styles.topicSection}>
+//         <h4 className={styles.topicTitle}>{entry.topic || '전체 요약'}</h4>
+//         <div className={styles.speakerSection}>
+//           {Object.entries(entry)
+//             .filter(([key]) => key !== 'topic') // topic 제외
+//             .map(([speaker, value]: [string, any], i: number) => {
+//               // speaker의 내용을 추출
+//               let speakerContent = '';
+//               if (typeof value === 'string') {
+//                 // 문자열인 경우 그대로 사용
+//                 speakerContent = value.trim();
+//               } else if (typeof value === 'object') {
+//                 // 객체인 경우 text나 details 필드 사용
+//                 speakerContent = (value.text || value.details || JSON.stringify(value)).trim();
+//               }
 
-              // speakerContent가 빈 문자열이면 렌더링하지 않음
-              if (!speakerContent) return null;
+//               // speakerContent가 빈 문자열이면 렌더링하지 않음
+//               if (!speakerContent) return null;
 
-              // 스피커 이름 또는 ID 매핑
-              const speakerName = (() => {
-                if (!participants || participants.length === 0) {
-                  return speaker; // participants가 없으면 speaker 그대로 반환
-                }
+//               // 스피커 이름 또는 ID 매핑
+//               const speakerName = (() => {
+//                 if (!participants || participants.length === 0) {
+//                   return speaker; // participants가 없으면 speaker 그대로 반환
+//                 }
 
-                const participant = participants.find((p) => p.id === speaker || p.name === speaker);
-                return participant?.name || participant?.id || speaker; // 이름이 없으면 speaker 그대로 반환
-              })();
+//                 const participant = participants.find((p) => p.id === speaker || p.name === speaker);
+//                 return participant?.name || participant?.id || speaker; // 이름이 없으면 speaker 그대로 반환
+//               })();
 
-              // 개행문자 처리
-              const formattedContent = speakerContent.split('\\n').map((line, lineIndex) => (
-                <span key={lineIndex}>
-                  {line}
-                  {lineIndex < speakerContent.split('\\n').length - 1 && <br />}
-                </span>
-              ));
+//               // 개행문자 처리
+//               const formattedContent = speakerContent.split('\\n').map((line, lineIndex) => (
+//                 <span key={lineIndex}>
+//                   {line}
+//                   {lineIndex < speakerContent.split('\\n').length - 1 && <br />}
+//                 </span>
+//               ));
 
-              return (
-                <p key={`${speaker}-${i}`} className={styles.speakerDetails}>
-                  <span className={styles.speaker}>{speakerName}:</span>
-                  {formattedContent}
-                </p>
-              );
-            })}
-        </div>
-      </div>
-    ));
-  } catch (error) {
-    console.error('문자열 처리 오류:', error);
-    return <p>회의 데이터를 처리할 수 없습니다.</p>;
-  }
-};
-  
+//               return (
+//                 <p key={`${speaker}-${i}`} className={styles.speakerDetails}>
+//                   <span className={styles.speaker}>{speakerName}:</span>
+//                   {formattedContent}
+//                 </p>
+//               );
+//             })}
+//         </div>
+//       </div>
+//     ));
+//   } catch (error) {
+//     console.error('문자열 처리 오류:', error);
+//     return <p>회의 데이터를 처리할 수 없습니다.</p>;
+//   }
+// };
+    const { output } = content;
+        return (
+          <div className={styles.topicSection}>
+            <h4 className={styles.topicTitle}>전체 요약</h4>
+            <p className={styles.speakerDetails}>{output}</p>
+          </div>
+        );   
+  };
+
   const modalContent = (
     <div className={styles.modalOverlay}>
       <div className={styles.modal}>

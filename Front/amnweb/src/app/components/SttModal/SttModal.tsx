@@ -1,7 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import styles from './SttModal.module.css';
-import { meetings } from '@/data/meetings';  // meetings 데이터 import 추가
 
 interface Speaker {
   speakerId: string;  // "SPEAKER_00" 형식의 문자열
@@ -28,38 +27,11 @@ interface SttModalProps {
   speakers: Speaker[];
   contents: LogContent[];
   title: string;
+  loadingStates: { [key: number]: boolean }; // 추가
+  setLoadingStates: React.Dispatch<React.SetStateAction<{ [key: number]: boolean }>>; // 추가
   onSummarize?: () => void;
   confId?: number;
 }
-
-// 샘플 데이터를 meetings.ts와 일치하도록 수정
-const SAMPLE_SPEAKERS: Speaker[] = [
-  { speakerId: "SPEAKER_00", cuserId: 0, name: "SPEAKER_00" },
-  { speakerId: "SPEAKER_01", cuserId: 1, name: "SPEAKER_01" },
-  { speakerId: "SPEAKER_02", cuserId: 2, name: "SPEAKER_02" },
-  { speakerId: "SPEAKER_03", cuserId: 3, name: "SPEAKER_03" }
-];
-
-const SAMPLE_CONTENTS: LogContent[] = [
-  { 
-    content: "안녕하세요. 오늘은 LLM 모델에서 발생하는 gen_config 속성 에러에 대해 논의하도록 하겠습니다.", 
-    cuserId: 0, 
-    name: "SPEAKER_00",
-    startTime: "2024-12-27T10:07:15"
-  },
-  { 
-    content: "네, 현재 발생하는 에러는 'LLMOpenAI' 객체에서 gen_config 속성을 찾을 수 없다는 내용입니다.", 
-    cuserId: 1, 
-    name: "SPEAKER_01",
-    startTime: "2024-12-27T10:07:15"
-  },
-  { 
-    content: "이 문제는 최근 업데이트된 버전에서 API 인터페이스가 변경되면서 발생한 것으로 보입니다.", 
-    cuserId: 2, 
-    name: "SPEAKER_02",
-    startTime: "2024-12-27T10:07:15"
-  }
-];
 
 export default function SttModal({ 
   isOpen, 
@@ -68,7 +40,9 @@ export default function SttModal({
   contents, 
   title = "회의 원문", 
   onSummarize,
-  confId
+  confId,
+  loadingStates,
+  setLoadingStates,
 }: SttModalProps) {
   const [mounted, setMounted] = useState(false);
   const [speakerNames, setSpeakerNames] = useState<Record<string, string>>({});
@@ -116,11 +90,11 @@ export default function SttModal({
   // 실제 데이터 또는 폴백 데이터 사용
   const displaySpeakers = speakers.length > 0 
     ? speakers 
-    : (confId ? getFallbackData(confId).speakers : SAMPLE_SPEAKERS);
+    : (confId ? getFallbackData(confId).speakers : []);
 
   const displayContents = contents.length > 0 
     ? contents 
-    : (confId ? getFallbackData(confId).contents : SAMPLE_CONTENTS);
+    : (confId ? getFallbackData(confId).contents : []);
 
   const uniqueSpeakers = useMemo(() => {
     return displaySpeakers.sort((a, b) => a.speakerId.localeCompare(b.speakerId));
@@ -175,6 +149,7 @@ export default function SttModal({
   }, [processedContents]);
 
   const handleSummarize = async () => {
+    setLoadingStates((prev) => ({ ...prev, [confId]: true }));
     try {
       const response = await fetch('/api/meetings/summarize', {
         method: 'POST',
@@ -190,6 +165,9 @@ export default function SttModal({
       }
     } catch (error) {
       console.error('요약 생성 실패:', error);
+    } finally {
+      // 로딩 상태 종료
+      setLoadingStates((prev) => ({ ...prev, [confId]: false }));
     }
   };
 

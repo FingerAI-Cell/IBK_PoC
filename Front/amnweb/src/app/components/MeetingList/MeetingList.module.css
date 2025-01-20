@@ -64,7 +64,7 @@
   gap: 0.5rem;
 }
 
-.summaryButton, .originalButton {
+.summaryButton, .originalButton, .loadingButton {
   padding: 0.5rem 1rem;
   border-radius: 6px;
   cursor: pointer;
@@ -76,6 +76,13 @@
 .summaryButton {
   background-color: #e3f2fd;
   color: #1976d2;
+  cursor: pointer;
+}
+
+.loadingButton {
+  background-color: #ffc107;
+  color: black;
+  cursor: not-allowed;
 }
 
 .originalButton {

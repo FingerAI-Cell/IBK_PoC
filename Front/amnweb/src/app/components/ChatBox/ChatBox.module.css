@@ -1,104 +1,29 @@
 .chatWrapper {
-  position: absolute;
-  inset: 0;
-  background-color: #f7fafc;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  margin-left: 0; /* 모바일 기본값 */
-  padding-left: 4rem; /* 모바일 메뉴 버튼 공간 */
-}
-
-/* xl 브레이크포인트에서 사이드바 너비만큼 여백 추가 */
-@media (min-width: 1400px) {
-  .chatWrapper {
-    margin-left: 20rem; /* 사이드바 너비만큼 */
-    padding-left: 0; /* xl 사이즈에서는 패딩 제거 */
-  }
+  width: 100%;
+  height: 100%;
+  position: relative;
 }
 
 .container {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  background-color: #f7fafc;
-  border-left: 1px solid #e2e8f0;
-  max-width: min(1200px, calc(100vw - 22rem)); /* 사이드바 너비(20rem) + 여유 공간(2rem) 제외 */
-  margin: 0 auto;
-  width: 100%;
+    position: fixed;
+    top: var(--header-height);
+    bottom: 0;
+    background-color: #f7fafc;
+    border: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    z-index: 5;
+    /* 기본 (모바일) 스타일 */
+    left: 10%;
+    right: 10%;
 }
 
-/* 모바일 화면에서는 최대 너비 조정 */
-@media (max-width: 1399px) {
-  .container {
-    max-width: min(1200px, calc(100vw - 5rem)); /* 모바일 메뉴 버튼 공간(4rem) + 여유 공간(1rem) 제외 */
-  }
-}
-
-.copilotChat {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.copilotChat :global(.copilotkit-chat-messages) {
-  flex: 1;
-  overflow-y: auto;
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
-}
-
-.copilotChat :global(.copilotkit-chat-user-message) {
-  max-width: 70%;
-  word-wrap: break-word;
-  margin: 0.5rem;
-  padding: 0.8rem 1.2rem;
-  border-radius: 1.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  align-self: flex-end;
-  background-color: #4299e1;
-  color: white;
-  border-top-right-radius: 0;
-}
-
-.copilotChat :global(.copilotkit-chat-assistant-message) {
-  max-width: 70%;
-  word-wrap: break-word;
-  margin: 0.5rem;
-  padding: 0.8rem 1.2rem;
-  border-radius: 1.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  align-self: flex-start;
-  background-color: #edf2f7;
-  color: black;
-  border-top-left-radius: 0;
-}
-
-.copilotChat :global(.copilotkit-chat-input) {
-  padding: 1rem;
-  border-top: 1px solid #e2e8f0;
-  background-color: white;
-}
-
-.close-button {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  padding: 0.5rem 1rem;
-  background-color: #e53e3e;
-  color: white;
-  border: none;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  z-index: 10;
-}
-
-.close-button:hover {
-  background-color: #c53030;
+/* xl 브레이크포인트에서의 스타일 */
+@media (min-width: 1400px) {
+    .container {
+        left: 20rem;  /* 사이드바 너비만큼 */
+        right: 10%;
+    }
 }
 
 .messageList {
@@ -141,7 +66,6 @@
     gap: 0.75rem;
     border-top: 1px solid #e2e8f0;
     background-color: white;
-    align-items: center;
 }
 
 .input {
@@ -149,6 +73,10 @@
     padding: 0.75rem 1rem;
     border: 1px solid #e2e8f0;
     border-radius: 0.5rem;
+    resize: none;
+    min-height: 40px;
+    max-height: 150px;
+    overflow-y: auto;
     font-size: 0.95rem;
     transition: border-color 0.2s;
 }
@@ -165,19 +93,13 @@
 }
 
 .sendButton {
-    padding: 0.75rem 1.5rem;
+    padding: 0.5rem 1.25rem;
     background-color: #4299e1;
     color: white;
-    border: none;
     border-radius: 0.5rem;
     font-weight: 500;
     transition: all 0.2s;
-    cursor: pointer;
     min-width: 80px;
-    height: 42px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 .sendButton:hover:not(:disabled) {
@@ -188,7 +110,6 @@
 .sendButton:disabled {
     background-color: #a0aec0;
     cursor: not-allowed;
-    opacity: 0.7;
 }
 
 .cancelButton {
@@ -233,4 +154,67 @@
     flex-grow: 1;
     overflow-y: auto;
     padding-bottom: 80px;
+}
+
+.copilotChat {
+    height: 100%;
+    width: 100%;
+}
+
+.copilotChat :global(.copilotkit-chat-messages) {
+    flex-grow: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    gap: 0.8rem;
+}
+
+.copilotChat :global(.copilotkit-chat-user-message) {
+    max-width: 70%;
+    word-wrap: break-word;
+    margin: 0.5rem;
+    padding: 0.8rem 1.2rem;
+    border-radius: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: relative;
+    align-self: flex-end;
+    background-color: #4299e1;
+    color: white;
+    border-top-right-radius: 0;
+}
+
+.copilotChat :global(.copilotkit-chat-assistant-message) {
+    max-width: 70%;
+    word-wrap: break-word;
+    margin: 0.5rem;
+    padding: 0.8rem 1.2rem;
+    border-radius: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: relative;
+    align-self: flex-start;
+    background-color: #edf2f7;
+    color: black;
+    border-top-left-radius: 0;
+}
+
+.copilotChat :global(.copilotkit-chat-input) {
+    display: flex;
+    padding: 1rem;
+    gap: 0.75rem;
+    border-top: 1px solid #e2e8f0;
+    background-color: white;
+    position: fixed;
+    bottom: 0;
+    /* 기본 (모바일) 스타일 */
+    left: 10%;
+    right: 10%;
+}
+
+/* xl 브레이크포인트에서의 스타일 */
+@media (min-width: 1400px) {
+    .copilotChat :global(.copilotkit-chat-input) {
+        left: 20rem;
+        right: 10%;
+    }
 }
