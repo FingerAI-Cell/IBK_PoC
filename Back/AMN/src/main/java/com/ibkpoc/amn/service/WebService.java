@@ -161,7 +161,7 @@ public class WebService {
                     return new LogResponseDto(
                             log.getConvId(),
                             log.getContent(),                             // content
-                            (user != null ? user.getCuserId() : null),    // cuserId
+                            user != null ? user.getCuserId() : null,   // cuserId
                             log.getStartTime()
                     );
                 })
