@@ -39,6 +39,7 @@ public class WebController {
         }
     }
 
+
     @PostMapping("/speakers")
     public ResponseEntity<ApiResponse<List<SpeakerResponseDto>>> getSpeakers(@RequestBody SttRequest request) {
         try {

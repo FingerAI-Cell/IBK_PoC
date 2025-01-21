@@ -49,14 +49,70 @@ public class WebService {
 
     @Transactional(readOnly = true)
     public MeetingSummaryResponseDto getMeetingSummaryById(Long meetingId) throws FileNotFoundException {
+        // 1. DB에서 summary 데이터 조회
         String summary = meetingRepository.findById(meetingId)
                 .map(Meeting::getSummary)
-                .orElse(""); // summary가 null인 경우 빈 문자열 반환
+                .orElseThrow(() -> new FileNotFoundException("Meeting not found: " + meetingId));
 
+        // 2. JSON 데이터 추출
+        Map<String, Object> summaryData;
+        try {
+            summaryData = objectMapper.readValue(summary, Map.class); // JSON 문자열을 Map으로 변환
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to parse summary JSON", e);
+        }
+
+        // 3. output 필드 확인 및 추출
+        String rawOutput = (String) summaryData.get("output");
+        if (rawOutput == null || rawOutput.isBlank()) {
+            throw new IllegalStateException("Output field is missing or empty");
+        }
+
+        // 4. output 필드 정리
+        String cleanedOutput = rawOutput
+                .replaceFirst("^json\\n", "") // "json\n" 제거
+                .replace("\n", "") // 줄바꿈 제거
+                .trim();
+
+        // 5. JSON 데이터 파싱
+        List<Map<String, Object>> parsedOutput;
+        try {
+            parsedOutput = objectMapper.readValue(cleanedOutput, List.class); // JSON 문자열을 Java List로 변환
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to parse output JSON", e);
+        }
+
+        // 6. TopicDetail 리스트 생성
+        List<MeetingSummaryResponseDto.TopicDetail> topics = parsedOutput.stream()
+                .map(item -> {
+                    // topic 추출
+                    String topic = (String) item.get("topic");
+                    if (topic == null || topic.isBlank()) {
+                        throw new IllegalStateException("Topic field is missing or empty");
+                    }
+
+                    // speaker 변환: topic 이외의 모든 키를 스피커로 처리
+                    List<MeetingSummaryResponseDto.SpeakerDetail> speakers = item.entrySet().stream()
+                            .filter(entry -> !"topic".equals(entry.getKey())) // topic 키 제외
+                            .map(entry -> MeetingSummaryResponseDto.SpeakerDetail.builder()
+                                    .name(entry.getKey()) // 키를 스피커 이름으로 사용
+                                    .content(entry.getValue().toString()) // 값을 발언 내용으로 사용
+                                    .build())
+                            .toList();
+
+                    return MeetingSummaryResponseDto.TopicDetail.builder()
+                            .topic(topic)
+                            .speakers(speakers)
+                            .build();
+                })
+                .toList();
+
+        // 7. DTO 반환
         return MeetingSummaryResponseDto.builder()
-                .summary(summary)
+                .topics(topics)
                 .build();
     }
+
 
 
     private MeetingResponseDto convertToDto(Meeting meeting) {
