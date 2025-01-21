@@ -66,6 +66,19 @@ public class WebController {
         }
     }
 
+    @PostMapping("/logs/update")
+    public ResponseEntity<ApiResponse<Void>> updateLogs(@RequestBody LogUpdateRequest request) {
+        try {
+            webService.updateLogs(request);
+            return ResponseEntity.ok(ApiResponse.success(null));
+        } catch (Exception e) {
+            log.error("로그 업데이트 중 오류 발생: {}", e.getMessage(), e);
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error("로그 업데이트 중 오류가 발생했습니다."));
+        }
+    }
+
     @PostMapping("/summarize")
     public ResponseEntity<ApiResponse<Void>> summarize(@RequestBody SummarizeRequest request) {
         try {

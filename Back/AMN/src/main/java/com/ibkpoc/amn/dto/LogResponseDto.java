@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LogResponseDto {
+    private Long logId;
     private String content;   // 발화 내용
     private Long cuserId;     // 사용자 ID
     private Float startTime;

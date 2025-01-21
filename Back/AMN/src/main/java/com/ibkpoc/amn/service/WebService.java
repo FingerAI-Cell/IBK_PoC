@@ -159,12 +159,37 @@ public class WebService {
                 .map(log -> {
                     MeetingUser user = log.getMeetingUser();
                     return new LogResponseDto(
+                            log.getConvId(),
                             log.getContent(),                             // content
                             (user != null ? user.getCuserId() : null),    // cuserId
                             log.getStartTime()
                     );
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void updateLogs(LogUpdateRequest request) {
+        // confId로 해당 회의가 존재하는지 확인
+
+        for (LogUpdateRequest.LogUpdate logUpdate : request.getLogs()) {
+            MeetingLog log = meetingLogRepository.findById(logUpdate.getLogId())
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "로그를 찾을 수 없습니다: " + logUpdate.getLogId()));
+
+
+            // cuserId가 null이 아닌 경우에만 MeetingUser 업데이트
+            if (logUpdate.getCuserId() != null) {
+                MeetingUser newUser = meetingUserRepository.findById(logUpdate.getCuserId())
+                        .orElseThrow(() -> new IllegalArgumentException(
+                                "사용자를 찾을 수 없습니다: " + logUpdate.getCuserId()));
+                log.setMeetingUser(newUser);
+            } else {
+                log.setMeetingUser(null);  // cuserId가 null인 경우 MeetingUser 연결 해제
+            }
+
+            meetingLogRepository.save(log);
+        }
     }
 
     @Transactional
