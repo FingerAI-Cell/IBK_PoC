@@ -41,7 +41,6 @@ export default function SttModal({
   title = "회의 원문", 
   onSummarize,
   confId,
-  loadingStates,
   setLoadingStates,
 }: SttModalProps) {
   const [mounted, setMounted] = useState(false);
@@ -66,35 +65,35 @@ export default function SttModal({
   }, [speakers]);
 
   // API 실패시 meetings.ts에서 해당 회의 데이터를 가져오는 로직
-  const getFallbackData = (confId: number) => {
-    const meeting = meetings.find(m => m.confId === confId);
-    if (!meeting) return { speakers: [], contents: [] };
+  // const getFallbackData = (confId: number) => {
+  //   const meeting = meetings.find(m => m.confId === confId);
+  //   if (!meeting) return { speakers: [], contents: [] };
 
-    const uniqueSpeakers = Array.from(new Set(meeting.content.map(c => c.speaker)));
-    const speakers = uniqueSpeakers.map((speakerId, index) => ({
-      speakerId,
-      cuserId: index,
-      name: `SPEAKER_${String(index).padStart(2, '0')}`
-    }));
+  //   const uniqueSpeakers = Array.from(new Set(meeting.content.map(c => c.speaker)));
+  //   const speakers = uniqueSpeakers.map((speakerId, index) => ({
+  //     speakerId,
+  //     cuserId: index,
+  //     name: `SPEAKER_${String(index).padStart(2, '0')}`
+  //   }));
 
-    const contents = meeting.content.map(item => ({
-      content: item.text,
-      cuserId: parseInt(item.speaker.split('_')[1]),
-      name: item.speaker,
-      startTime: meeting.startTime
-    }));
+  //   const contents = meeting.content.map(item => ({
+  //     content: item.text,
+  //     cuserId: parseInt(item.speaker.split('_')[1]),
+  //     name: item.speaker,
+  //     startTime: meeting.startTime
+  //   }));
 
-    return { speakers, contents };
-  };
+  //   return { speakers, contents };
+  // };
 
   // 실제 데이터 또는 폴백 데이터 사용
   const displaySpeakers = speakers.length > 0 
     ? speakers 
-    : (confId ? getFallbackData(confId).speakers : []);
+    : [];
 
   const displayContents = contents.length > 0 
     ? contents 
-    : (confId ? getFallbackData(confId).contents : []);
+    : [];
 
   const uniqueSpeakers = useMemo(() => {
     return displaySpeakers.sort((a, b) => a.speakerId.localeCompare(b.speakerId));

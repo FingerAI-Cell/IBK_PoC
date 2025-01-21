@@ -56,6 +56,7 @@ export default function ChatBox() {
   const { isChatActive, chatInput } = useChat();
   const currentConfig = serviceConfig[currentService];
   const [documents, setDocuments] = useState<RetrievedDocument[]>([]);
+  const [initialMessageSent, setInitialMessageSent] = useState(false);
 
   const { nodeName, running, state } = useCoAgent<CoAgentState>({
     name: currentConfig.agent || "olaf_ibk_poc_agent",
@@ -71,9 +72,23 @@ export default function ChatBox() {
     },
   });
 
+  // 커스텀 이벤트 핸들러를 컴포넌트 레벨로 이동
+  const handleCustomSend = (onSend: (message: string) => void) => (e: CustomEvent<{ message: string }>) => {
+    onSend(e.detail.message);
+  };
+
   useEffect(() => {
     console.log("[ChatBox0] 활성화된 상태로 렌더링됨",isChatActive);
     chatInputRef.current.focus();
+    
+    // chatInput이 있고 아직 초기 메시지를 보내지 않았을 때만 실행
+    if (chatInput && !initialMessageSent) {
+      const customEvent = new CustomEvent('copilotSendMessage', {
+        detail: { message: chatInput }
+      });
+      document.dispatchEvent(customEvent);
+      setInitialMessageSent(true);
+    }
   }, [isChatActive]);
 
   // 새로운 문서가 도착할 때 상태 업데이트
@@ -150,6 +165,50 @@ export default function ChatBox() {
 
   console.log("[ChatBox] 활성화된 상태로 렌더링됨",isChatActive, currentConfig.apiEndpoint, currentConfig.agent);
   
+  // Input 컴포넌트를 별도로 분리
+  const CustomInput = (props: any) => {
+    useEffect(() => {
+      const handler = handleCustomSend(props.onSend);
+      document.addEventListener('copilotSendMessage', handler as EventListener);
+      return () => {
+        document.removeEventListener('copilotSendMessage', handler as EventListener);
+      };
+    }, [props.onSend]);
+
+    return (
+      <div className={styles.inputContainer}>
+        <input
+          autoFocus
+          ref={chatInputRef}
+          type="textarea"
+          placeholder="메시지를 입력하세요"
+          className={styles.input}
+          disabled={props.inProgress}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey && !props.inProgress) {
+              e.preventDefault();
+              const inputValue = e.currentTarget.value;
+              props.onSend(inputValue);
+              e.currentTarget.value = "";
+            }
+          }}
+        />
+        <button
+          className={styles.sendButton}
+          disabled={props.inProgress}
+          onClick={(e) => {
+            const inputElement = e.currentTarget.previousElementSibling as HTMLInputElement;
+            const inputValue = inputElement.value;
+            props.onSend(inputValue);
+            inputElement.value = "";
+          }}
+        >
+          전송
+        </button>
+      </div>
+    );
+  };
+
   return (
     <CopilotKit 
       runtimeUrl={currentConfig.apiEndpoint}
@@ -160,39 +219,7 @@ export default function ChatBox() {
         <div className={styles.container}>
           <CopilotChat
             className={styles.copilotChat}
-            Input={(props) => (
-              <div className={styles.inputContainer}>
-                <input
-                  autoFocus
-                  ref={chatInputRef} // 입력 필드 참조 연결
-                  type="textarea"
-                  defaultValue={chatInput || ""} // 초기값 설정
-                  placeholder="메시지를 입력하세요"
-                  className={styles.input}
-                  disabled={props.inProgress}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey && !props.inProgress) {
-                      e.preventDefault(); // 기본 동작(줄바꿈) 방지
-                      const inputValue = e.currentTarget.value; // 현재 입력값 가져오기
-                      props.onSend(inputValue); // 메시지 전송
-                      e.currentTarget.value = ""; // 전송 후 입력 필드 초기화
-                    }
-                  }}
-                />
-                <button
-                  className={styles.sendButton}
-                  disabled={props.inProgress}
-                  onClick={(e) => {
-                    const inputElement = e.currentTarget.previousElementSibling as HTMLInputElement;
-                    const inputValue = inputElement.value; // 현재 입력값 가져오기
-                    props.onSend(inputValue); // 전송
-                    inputElement.value = ""; // 전송 후 입력 필드 초기화
-                  }}
-                >
-                  전송
-                </button>
-              </div>
-            )}
+            Input={CustomInput}
             labels={{
               title: currentConfig.title,
               initial: currentConfig.greeting,
