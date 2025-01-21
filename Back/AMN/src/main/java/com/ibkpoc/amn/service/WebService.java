@@ -53,7 +53,9 @@ public class WebService {
         String summary = meetingRepository.findById(meetingId)
                 .map(Meeting::getSummary)
                 .orElseThrow(() -> new FileNotFoundException("Meeting not found: " + meetingId));
-
+        if (summary == null || summary.isBlank()) {
+            throw new IllegalStateException("Summary data is missing");
+        }
         // 2. JSON 데이터 추출
         Map<String, Object> summaryData;
         try {
@@ -77,10 +79,16 @@ public class WebService {
         // 5. JSON 데이터 파싱
         List<Map<String, Object>> parsedOutput;
         try {
-            parsedOutput = objectMapper.readValue(cleanedOutput, List.class); // JSON 문자열을 Java List로 변환
+            parsedOutput = objectMapper.readValue(cleanedOutput, List.class);
+            logger.info("Parsed output JSON: {}", parsedOutput);
         } catch (Exception e) {
+            logger.error("Failed to parse output JSON", e);
             throw new RuntimeException("Failed to parse output JSON", e);
         }
+        logger.info("Raw summary data: {}", summary);
+        logger.info("Parsed summary data: {}", summaryData);
+        logger.info("Raw output: {}", rawOutput);
+        logger.info("Cleaned output: {}", cleanedOutput);
 
         // 6. TopicDetail 리스트 생성
         List<MeetingSummaryResponseDto.TopicDetail> topics = parsedOutput.stream()
