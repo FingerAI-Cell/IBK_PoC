@@ -72,8 +72,9 @@ public class WebService {
 
         // 4. output 필드 정리
         String cleanedOutput = rawOutput
-                .replaceFirst("^json\\n", "") // "json\n" 제거
-                .replace("\n", "") // 줄바꿈 제거
+                .replaceAll("^```json", "") // 시작 부분의 ```json 제거
+                .replaceAll("```", "")     // 끝 부분의 ``` 제거
+                .replace("\n", "")         // 줄바꿈 제거
                 .trim();
 
         // 5. JSON 데이터 파싱
