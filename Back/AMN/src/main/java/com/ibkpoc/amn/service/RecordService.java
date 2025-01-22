@@ -163,7 +163,6 @@ public class RecordService implements DisposableBean {
             try {
                 log.warn("타임아웃으로 인한 강제 종료: meetingId={}", info.getMeetingId());
                 finalizeRecording(info.getMeetingId(), true);
-                meetingService.endMeeting(info.getMeetingId());
             } catch (IOException e) {
                 log.error("강제 종료 중 오류", e);
             }
@@ -216,6 +215,8 @@ public class RecordService implements DisposableBean {
 
                 // MeetingService를 통해 wavSrc 필드 업데이트
                 meetingService.updateWavSrc(meetingId, absolutePathString);
+                TimeUnit.SECONDS.sleep(1);
+                meetingService.processSttRequest(meetingId);
             } catch (Exception e) {
                 log.error("녹음 파일 경로 업데이트 실패: meetingId={}, error={}", meetingId, e.getMessage(), e);
             }
