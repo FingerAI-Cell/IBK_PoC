@@ -10,15 +10,21 @@ interface Speaker {
 
 interface LogContent {
   content: string;
-  cuserId: number;
+  cuserId: number | null;  // null 가능하도록 수정
   name: string;
-  startTime: string;  // optional에서 required로 변경
+  startTime: string;
+  logId: number;  // logId 추가
 }
 
 interface SpeakerUpdate {
   speakerId: string;
   cuserId: number;
   name: string;
+}
+
+interface ChangedLog {
+  logId: number;
+  cuserId: number | null;
 }
 
 interface SttModalProps {
@@ -37,7 +43,7 @@ export default function SttModal({
   isOpen, 
   onClose, 
   speakers, 
-  contents, 
+  contents: initialContents,  // contents를 initialContents로 이름 변경
   title = "회의 원문", 
   onSummarize,
   confId,
@@ -47,6 +53,8 @@ export default function SttModal({
   const [speakerNames, setSpeakerNames] = useState<Record<string, string>>({});
   const [selectedSpeakers, setSelectedSpeakers] = useState<Set<string>>(new Set());
   const [searchText, setSearchText] = useState('');
+  const [changedLogs, setChangedLogs] = useState<ChangedLog[]>([]);
+  const [logContents, setLogContents] = useState<LogContent[]>([]);  // logContents 상태 추가
   
   useEffect(() => {
     setMounted(true);
@@ -63,6 +71,11 @@ export default function SttModal({
     });
     setSpeakerNames(initialNames);
   }, [speakers]);
+
+  // 초기 contents를 logContents에 설정
+  useEffect(() => {
+    setLogContents(initialContents);
+  }, [initialContents]);
 
   // API 실패시 meetings.ts에서 해당 회의 데이터를 가져오는 로직
   // const getFallbackData = (confId: number) => {
@@ -91,8 +104,8 @@ export default function SttModal({
     ? speakers 
     : [];
 
-  const displayContents = contents.length > 0 
-    ? contents 
+  const displayContents = initialContents.length > 0 
+    ? initialContents 
     : [];
 
   const uniqueSpeakers = useMemo(() => {
@@ -173,13 +186,15 @@ export default function SttModal({
   // 발화자 이름 저장 처리
   const handleSaveSpeakerNames = async () => {
     try {
+      // 발화자 이름 업데이트
       const speakerUpdates: SpeakerUpdate[] = speakers.map(speaker => ({
         speakerId: speaker.speakerId,
         cuserId: speaker.cuserId,
         name: speakerNames[speaker.speakerId] || ''
       }));
 
-      const response = await fetch('/api/meetings/speakers/update', {
+      // 스피커 업데이트 요청
+      const speakerResponse = await fetch('/api/meetings/speakers/update', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -190,15 +205,36 @@ export default function SttModal({
         }),
       });
 
-      const result = await response.json();
-      if (result.success) {
-        alert('발화자 이름이 저장되었습니다.');
+      // 변경된 로그가 있는 경우에만 로그 업데이트 요청
+      if (changedLogs.length > 0) {
+        const logsResponse = await fetch('/api/meetings/logs/update', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            confId,
+            logs: changedLogs
+          }),
+        });
+
+        const logsResult = await logsResponse.json();
+        if (!logsResult.success) {
+          throw new Error('로그 업데이트 실패');
+        }
+      }
+
+      const speakerResult = await speakerResponse.json();
+      if (speakerResult.success) {
+        alert('발화자 정보가 저장되었습니다.');
+        // 저장 성공 후 changedLogs 초기화
+        setChangedLogs([]);
       } else {
         throw new Error('발화자 이름 저장 실패');
       }
     } catch (error) {
-      console.error('발화자 이름 저장 오류:', error);
-      alert('발화자 이름 저장에 실패했습니다.');
+      console.error('저장 오류:', error);
+      alert('저장에 실패했습니다.');
     }
   };
 
@@ -240,7 +276,7 @@ export default function SttModal({
                 <span className={styles.originalSpeaker}>{speaker.speakerId}</span>
                 <input
                   type="text"
-                  className={styles.speakerInput}
+                  className={styles.speakerChange}
                   defaultValue={speaker.name}
                   onChange={(e) => handleSpeakerNameChange(speaker.speakerId, e.target.value)}
                   placeholder="발화자 이름 입력"
@@ -268,21 +304,82 @@ export default function SttModal({
         </div>
         <div className={styles.modalContent}>
           {sortedContents.map((content, index) => {
-            const speaker = displaySpeakers.find(s => s.cuserId === content.cuserId);
-            const displayName = speaker?.speakerId
-              ? (speakerNames[speaker.speakerId] === undefined 
-                  ? speaker.name || speaker.speakerId
-                  : speakerNames[speaker.speakerId] || speaker.speakerId)
-              : content.name;
-            
+            const speaker = displaySpeakers.find((s) => s.cuserId === content.cuserId);
+
             return (
-              <div key={index} className={styles.sttItem}>
-                <span className={styles.speaker}>{displayName}:</span>
+              <div key={content.logId} className={styles.sttItem}>
+                {/* 드롭다운: 발화자 선택 */}
+                <select
+                  className={styles.speakerInput}
+                  value={
+                    speaker?.cuserId
+                      ? (speakerNames[speaker.speakerId] || speaker.name || speaker.speakerId)
+                      : ""
+                  }
+                  onChange={(e) => {
+                    const selectedValue = e.target.value;
+
+                    // 선택된 발화자 찾기
+                    const selectedSpeaker = displaySpeakers.find(
+                      (s) => s.name === selectedValue || s.speakerId === selectedValue
+                    );
+
+                    // logContents 업데이트
+                    setLogContents((prevContents) =>
+                      prevContents.map((item) =>
+                        item.logId === content.logId
+                          ? {
+                              ...item,
+                              cuserId: selectedSpeaker?.cuserId || null,
+                              name: selectedSpeaker?.name || selectedSpeaker?.speakerId || "",
+                            }
+                          : item
+                      )
+                    );
+
+                    // changedLogs 업데이트
+                    setChangedLogs((prevChanges) => {
+                      const updatedChanges = [...prevChanges];
+                      const existingIndex = updatedChanges.findIndex(
+                        (log) => log.logId === content.logId
+                      );
+
+                      if (existingIndex >= 0) {
+                        // 기존 변경 사항 업데이트
+                        updatedChanges[existingIndex].cuserId = selectedSpeaker?.cuserId || null;
+                      } else {
+                        // 새로운 변경 사항 추가
+                        updatedChanges.push({
+                          logId: content.logId,
+                          cuserId: selectedSpeaker?.cuserId || null,
+                        });
+                      }
+
+                      return updatedChanges;
+                    });
+                  }}
+                >
+                  {/* 선택 없음 옵션 */}
+                  <option value="">선택 없음</option>
+
+                  {/* 발화자 목록 옵션 생성 */}
+                  {displaySpeakers.map((s) => (
+                    <option
+                      key={s.speakerId}
+                      value={s.name || s.speakerId}
+                    >
+                      {s.name || s.speakerId}
+                    </option>
+                  ))}
+                </select>
+
+                {/* 대화 내용 */}
                 <span className={styles.text}>{content.content}</span>
               </div>
             );
           })}
         </div>
+
       </div>
     </div>
   );

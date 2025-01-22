@@ -114,8 +114,11 @@
 
 .sttItem {
   margin-bottom: 15px;
-  padding: 10px;
+  padding: 15px;
   border-bottom: 1px solid #eee;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
 }
 
 .speaker {
@@ -126,6 +129,9 @@
 
 .text {
   color: #333;
+  flex: 1;
+  line-height: 1.5;
+  padding-top: 8px;
 }
 
 .speakerItem {
@@ -140,21 +146,49 @@
   font-size: 0.9rem;
   color: #666;
 }
-
-.speakerInput {
-  flex: 1;
-  padding: 4px 8px;
+.speakerChange {
+  flex: 2;
+  padding: 6px 12px;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 0.9rem;
-  min-width: 120px;
-  height: 32px;
+  background-color: #f8f9fa;
+  color: #333;
+  text-align: center;
+  cursor: pointer;
+  min-width: 200px;
+}
+
+.speakerChange:focus {
+  outline: none;
+  border-color: #2196F3;
+  box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.1);
+}
+
+.speakerInput {
+  min-width: 150px;
+  padding: 6px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  height: 36px;
+  background-color: #f8f9fa;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 16px;
+  padding-right: 32px;
+}
+
+.speakerInput:hover {
+  border-color: #adb5bd;
 }
 
 .speakerInput:focus {
   outline: none;
   border-color: #2196F3;
-  box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.1);
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
 }
 
 .speakerButton {

@@ -23,9 +23,10 @@ interface Speaker {
 
 interface LogContent {
   content: string;
-  cuserId: number;
+  cuserId: number | null;
   name: string;
   startTime: string;
+  logId: number;
 }
 
 interface Participant {
@@ -132,7 +133,8 @@ export default function MeetingList() {
         setSpeakers(speakersResult.data || []);
         setLogContents(logsResult.data.map((log: any) => ({
           ...log,
-          startTime: new Date().toISOString()
+          startTime: new Date().toISOString(),
+          logId: log.logId
         })));
         setCurrentMeetingId(meetingId);
         setIsModalOpen(true);
@@ -211,7 +213,7 @@ export default function MeetingList() {
       const formattedDate = formatMeetingTime(meeting.startTime, meeting.endTime);
 
       // success 체크 대신 실제 데이터 존재 여부 확인
-      if (summaryResult.summary && speakersResult.data?.length > 0) {
+      if (summaryResult.topics?.length > 0) {
         setIsSummaryModalOpen(true);
         setSummaryData({
           title: meeting.title,
@@ -220,7 +222,7 @@ export default function MeetingList() {
             id: speaker.speakerId,              // speakerId는 항상 포함
             name: speaker.name?.trim() || null          // name이 없으면 null로 처리
           })) || [],
-          content: summaryResult.summary  // .data.summary가 아닌 .summary로 직접 접근
+          content: JSON.stringify(summaryResult),  // .data.summary가 아닌 .summary로 직접 접근
         });
         setCurrentMeetingId(meeting.confId);
       } else {

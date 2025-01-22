@@ -13,7 +13,8 @@ export async function GET() {
       'financial_ratio',
       'investment_company_announcement',
       'manpower_status',
-      'organization_structure'
+      'organization_structure',
+      'rankings'
     ];
 
     const allFiles = [];
@@ -27,8 +28,15 @@ export async function GET() {
           const filePath = join(dirPath, fileName);
           const stats = await stat(filePath);
           
-          // 파일명에서 년도와 분기 추출 (예: 2024Q1_financial_condition.xlsx)
-          const yearQuarter = fileName.match(/(\d{4})Q(\d)/);
+          // 파일명에서 년도와 분기 추출
+          let yearQuarter;
+          if (category === 'rankings') {
+            // Rankings_2022_Q2 형식 처리
+            yearQuarter = fileName.match(/Rankings_(\d{4})_Q(\d)/);
+          } else {
+            // 2024Q1_financial_condition.xlsx 형식 처리
+            yearQuarter = fileName.match(/(\d{4})Q(\d)/);
+          }
           
           return {
             id: `${category}_${fileName}`,
@@ -47,9 +55,17 @@ export async function GET() {
     
     // 분기 정렬을 위한 함수
     const sortByQuarter = (a: any, b: any) => {
-      // 파일명에서 년도와 분기 추출 (예: 2024Q1_financial_condition.xlsx)
+      // 파일명에서 년도와 분기 추출
       const getYearQuarter = (fileName: string) => {
-        const match = fileName.match(/(\d{4})Q(\d)/);
+        let match;
+        if (fileName.startsWith('Rankings_')) {
+          // Rankings_2022_Q2 형식 처리
+          match = fileName.match(/Rankings_(\d{4})_Q(\d)/);
+        } else {
+          // 2024Q1_financial_condition.xlsx 형식 처리
+          match = fileName.match(/(\d{4})Q(\d)/);
+        }
+        
         if (match) {
           return {
             year: parseInt(match[1]),
@@ -86,7 +102,8 @@ function getCategoryKorean(category: string): string {
     'financial_condition': '주요재무현황',
     'financial_ratio': '주요재무비율',
     'investment_company_announcement': '금융투자회사공시검색',
-    'organization_structure': '조직기구현황'
+    'organization_structure': '조직기구현황',
+    'rankings': '순위표'
   };
   return categoryMap[category] || category;
 } 
