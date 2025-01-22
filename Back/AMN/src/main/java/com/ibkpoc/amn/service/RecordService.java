@@ -216,7 +216,17 @@ public class RecordService implements DisposableBean {
                 // MeetingService를 통해 wavSrc 필드 업데이트
                 meetingService.updateWavSrc(meetingId, absolutePathString);
                 TimeUnit.SECONDS.sleep(1);
-                meetingService.processSttRequest(meetingId);
+                // STT 요청 비동기로 처리
+                CompletableFuture.runAsync(() -> {
+                    try {
+                        meetingService.processSttRequest(meetingId);
+                        log.info("STT 요청 비동기 처리 완료: meetingId={}", meetingId);
+                    } catch (Exception e) {
+                        log.error("STT 요청 비동기 처리 중 오류 발생: meetingId={}, error={}", meetingId, e.getMessage(), e);
+                    }
+                });
+                log.info("녹음 파일 처리 완료: meetingId={}, 파일={}, 총 바이트={}, 시간={}ms",
+                        meetingId, info.getFilePath().getFileName(), info.getTotalBytes(), info.getDuration());
             } catch (Exception e) {
                 log.error("녹음 파일 경로 업데이트 실패: meetingId={}, error={}", meetingId, e.getMessage(), e);
             }
