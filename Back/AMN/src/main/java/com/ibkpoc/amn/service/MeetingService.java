@@ -55,7 +55,12 @@ public class MeetingService {
         for (int i = 0; i < participants; i++) {
             MeetingUser meetingUser = new MeetingUser();
             meetingUser.setConfId(meeting.getConfId()); // 회의 ID 설정
-            meetingUser.setSpeakerId(String.format("SPEAKER_%02d", i)); // SPEAKER_00, SPEAKER_01, ...
+            if(i==participants-1) {
+                meetingUser.setSpeakerId("UNKNOWN"); // SPEAKER_00, SPEAKER_01, ...
+            }
+            else{
+                meetingUser.setSpeakerId(String.format("SPEAKER_%02d", i)); // SPEAKER_00, SPEAKER_01, ...
+            }
             meetingUser.setName(null); // name은 비워둠
             meetingUser.setCompany(null); // company는 비워둠
             // 각 참가자 정보 출력

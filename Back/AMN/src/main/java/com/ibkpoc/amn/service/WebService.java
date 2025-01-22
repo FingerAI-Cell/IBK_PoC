@@ -157,15 +157,12 @@ public class WebService {
         // 2. LogResponseDto 리스트 반환
         return logs.stream()
                 .sorted(Comparator.comparing(MeetingLog::getStartTime))
-                .map(log -> {
-                    MeetingUser user = log.getMeetingUser();
-                    return new LogResponseDto(
-                            log.getConvId(),
-                            log.getContent(),                             // content
-                            user != null ? user.getCuserId() : null,   // cuserId
-                            log.getStartTime()
-                    );
-                })
+                .map(log -> new LogResponseDto(
+                        log.getConvId(),
+                        log.getContent(),
+                        log.getMeetingUser().getCuserId(), // cuserId
+                        log.getStartTime()
+                ))
                 .collect(Collectors.toList());
     }
 
