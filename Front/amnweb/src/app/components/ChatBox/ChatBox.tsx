@@ -98,53 +98,74 @@ export default function ChatBox() {
       const extractedDocs = state.retrieved_documents;
       const uniqueDocs = extractedDocs.filter(
         (doc, index, self) =>
-          index ===
-          self.findIndex((d) => d.kwargs.metadata.file_name === doc.kwargs.metadata.file_name)
+          index === self.findIndex((d) => 
+            (d.metadata?.file_name || d.kwargs?.metadata?.file_name) === 
+            (doc.metadata?.file_name || doc.kwargs?.metadata?.file_name)
+          )
       );
       setDocuments(uniqueDocs);
 
-      // 문서가 업데이트되면 즉시 DOM에 추가
-      if (chatContainerRef.current) {
-        const messages = chatContainerRef.current.querySelectorAll('.copilotKitAssistantMessage');
-        const lastMessage = messages[messages.length - 1] as HTMLDivElement;
+      console.log("[문서 업데이트] nodeName, running, state", nodeName, running, state);
 
-        if (lastMessage && !lastMessage.dataset.inserted) {
-          const docContainer = document.createElement('div');
-          docContainer.className = "p-4 mt-2 border-l-4 border-blue-500";
-          docContainer.innerHTML = `<h3 class="text-sm font-semibold">📄 관련 문서</h3>`;
+     // 문서가 업데이트되면 즉시 DOM에 추가
+     if (chatContainerRef.current) {
+      const messages = chatContainerRef.current.querySelectorAll('.copilotKitAssistantMessage');
+      const lastMessage = messages[messages.length - 1] as HTMLDivElement;
+      
+      if (lastMessage && !lastMessage.dataset.inserted) {
+        let isInserted = false;
+        const docContainer = document.createElement('div');
+        docContainer.className = "p-4 mt-2 border-l-4 border-blue-500";
+        docContainer.innerHTML = `<h3 class="text-sm font-semibold">📄 관련 문서</h3>`;
+        
+        state.retrieved_documents[0].forEach((doc) => {
+          if (!doc.kwargs?.metadata) return; // 메타데이터가 없으면 건너뜀
+          
+          console.log("Document metadata", doc.kwargs.metadata);
 
-          uniqueDocs.forEach(doc => {
-            const docElement = document.createElement('div');
-            const keywordsHTML = doc.kwargs.metadata.keywords
-              .map((keyword) => `#${keyword}`).join(' ');
+          const docElement = document.createElement('div');
+          const getKeywords = (doc: any) => {
+            const keywords = doc.kwargs?.metadata?.keywords || doc.metadata?.keywords;
+            return Array.isArray(keywords) ? keywords : [];
+          };
+          
+          const keywordsHTML = getKeywords(doc)
+            .map((keyword) => `#${keyword}`)
+            .join(' ');
+          
+          docElement.innerHTML = `
+            <div class="p-2 border rounded shadow-sm mt-2">
+              <a href="${doc.kwargs.metadata.file_url}" target="_blank" class="text-blue-600 hover:underline">
+                ${doc.kwargs.metadata.file_name}
+              </a>
+              <p class="text-xs">주제: ${doc.kwargs.metadata.main_topic}</p>
+              <p class="text-xs">페이지 번호: ${doc.kwargs.metadata.page_number}</p>
+              <p class="text-xs text-gray-500">${keywordsHTML}</p>
+            </div>
+          `;
+          docContainer.appendChild(docElement);
+          
+          if (!isInserted) {
+            isInserted = true;
+          }
+        });
 
-            docElement.innerHTML = `
-              <div class="p-2 border rounded shadow-sm mt-2">
-                <a href="${doc.kwargs.metadata.file_url}" target="_blank" class="text-blue-600 hover:underline">
-                  ${doc.kwargs.metadata.file_name}
-                </a>
-                <p class="text-xs">주제: ${doc.kwargs.metadata.main_topic}</p>
-                <p class="text-xs">페이지 번호: ${doc.kwargs.metadata.page_number}</p>
-                <p class="text-xs text-gray-500">${keywordsHTML}</p>
-              </div>
-            `;
-            docContainer.appendChild(docElement);
-          });
-
+        if (isInserted) {
           lastMessage.appendChild(docContainer);
           lastMessage.dataset.inserted = "true";
         }
       }
-    } else {
-      setDocuments([]);
     }
-  }, [nodeName, running, state]);
+  } else {
+    setDocuments([]);
+  }
+}, [nodeName, running, state]);
 
   useEffect(() => {
     if (state?.alert && state.alert !== '') {
       const messages = document.querySelectorAll('.copilotKitAssistantMessage');
       const lastMessage = messages[messages.length - 1] as HTMLDivElement;
-
+      
       if (lastMessage && !lastMessage.dataset.alertInserted) {
         const alertContainer = document.createElement('div');
         alertContainer.className = "p-4 mt-2 bg-red-100 border-l-4 border-red-500 text-red-700 rounded";
