@@ -20,7 +20,6 @@ public class MeetingLog {
     private String content;
     private Float startTime;
     private Float endTime;
-    private Long confId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cuser_id")
