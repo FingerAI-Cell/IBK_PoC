@@ -168,27 +168,16 @@ public class WebService {
 
     @Transactional
     public void updateLogs(LogUpdateRequest request) {
-        // confId로 해당 회의가 존재하는지 확인
-
         for (LogUpdateRequest.LogUpdate logUpdate : request.getLogs()) {
-            MeetingLog log = meetingLogRepository.findById(logUpdate.getLogId())
-                    .orElseThrow(() -> new IllegalArgumentException(
-                            "로그를 찾을 수 없습니다: " + logUpdate.getLogId()));
-
-
-            // cuserId가 null이 아닌 경우에만 MeetingUser 업데이트
-            if (logUpdate.getCuserId() != null) {
-                MeetingUser newUser = meetingUserRepository.findById(logUpdate.getCuserId())
-                        .orElseThrow(() -> new IllegalArgumentException(
-                                "사용자를 찾을 수 없습니다: " + logUpdate.getCuserId()));
-                log.setMeetingUser(newUser);
-            } else {
-                log.setMeetingUser(null);  // cuserId가 null인 경우 MeetingUser 연결 해제
-            }
-
-            meetingLogRepository.save(log);
+            MeetingLog meetingLog = meetingLogRepository.findById(logUpdate.getLogId())
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid logId: " + logUpdate.getLogId()));
+            MeetingUser meetingUser = meetingUserRepository.findById(logUpdate.getCuserId())
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid cuserId: " + logUpdate.getCuserId()));
+            meetingLog.setMeetingUser(meetingUser);
+            meetingLogRepository.save(meetingLog);
         }
     }
+
 
     @Transactional
     public void generateSummary(Long confId) throws Exception {
@@ -197,28 +186,35 @@ public class WebService {
         Meeting meeting = meetingRepository.findById(confId)
                 .orElseThrow(() -> new FileNotFoundException("Meeting not found: " + confId));
         logger.info("meeting data prepared for summarization: {}", meeting);
+
         // 2. 관련 MeetingUser 가져오기
         List<MeetingUser> users = meetingUserRepository.findByConfId(confId);
         logger.info("user data prepared for summarization: {}", users);
 
-        // 2. users에서 cuserId 목록 생성
-        Set<Long> cuserIds = users.stream()
+        List<MeetingUser> validUsers = users.stream()
+                .filter(user -> !"UNKNOWN".equals(user.getSpeakerId()))
+                .collect(Collectors.toList());
+        logger.info("Filtered valid users (excluding 'UNKNOWN'): {}", validUsers);
+
+        // 4. validUsers에서 cuserId 목록 생성
+        Set<Long> validCuserIds = validUsers.stream()
                 .map(MeetingUser::getCuserId)
                 .collect(Collectors.toSet());
 
-        // 2. 이름 매핑 로직 추가
-        Map<Long, String> userNameMapping = users.stream()
+        // 5. 이름 매핑 로직 추가
+        Map<Long, String> userNameMapping = validUsers.stream()
                 .collect(Collectors.toMap(
                         MeetingUser::getCuserId,
                         user -> user.getName() != null ? user.getName() : user.getSpeakerId()
                 ));
         logger.info("User name mapping prepared: {}", userNameMapping);
 
-        // 3. 관련 MeetingLog 가져오기
+        // 6. 관련 MeetingLog 가져오기
         List<MeetingLog> logs = meetingLogRepository.findByMeetingUserCuserIdInOrderByStartTime(
-                cuserIds);
-        logger.info("log data prepared for summarization: {}", logs);
-        // 4. name과 content 조합
+                validCuserIds);
+        logger.info("Log data prepared for summarization: {}", logs);
+
+        // 7. name과 content 조합
         List<Map<String, Object>> jsonData = logs.stream()
                 .map(log -> Map.of(
                         "speaker", (Object) userNameMapping.get(log.getMeetingUser().getCuserId()),
@@ -255,28 +251,12 @@ public class WebService {
 
     @Transactional
     public void updateSpeakers(SpeakerUpdateRequest request) {
-        Long confId = request.getConfId();
-        List<SpeakerUpdateDto> speakers = request.getSpeakers();
-
-        logger.info("Updating speakers for confId: {}", confId);
-
-        // 요청받은 각 Speaker에 대해 처리
-        for (SpeakerUpdateDto speaker : speakers) {
-            Long cuserId = speaker.getCuserId();
-            String newName = speaker.getName();
-
-            // MeetingUser 가져오기
-            MeetingUser meetingUser = meetingUserRepository.findById(cuserId)
-                    .orElseThrow(() -> new IllegalArgumentException("cuserId " + cuserId + "에 해당하는 발화자를 찾을 수 없습니다."));
-
-            // 이름 업데이트
-            meetingUser.setName(newName);
-            logger.info("Updated cuserId {} with new name: {}", cuserId, newName);
-
-            // 저장
+        for (SpeakerUpdateDto speakerUpdate : request.getSpeakers()) {
+            MeetingUser meetingUser = meetingUserRepository.findById(speakerUpdate.getCuserId())
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid cuserId: " + speakerUpdate.getCuserId()));
+            meetingUser.setName(speakerUpdate.getName());
             meetingUserRepository.save(meetingUser);
         }
-
-        logger.info("Speaker updates completed for confId: {}", confId);
+        logger.info("Speaker updates completed for confId: {}", request.getConfId());
     }
 }
