@@ -33,6 +33,8 @@ public class RecordService implements DisposableBean {
     @Value("${app.record.base-path:#{systemProperties['user.dir']}/meeting_records}")
     private String baseRecordPath;
 
+    private final ExecutorService executorService = Executors.newFixedThreadPool(10);
+
     private final Map<Long, RecordingInfo> activeRecordings = new ConcurrentHashMap<>();
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(
             Runtime.getRuntime().availableProcessors(),
@@ -224,7 +226,7 @@ public class RecordService implements DisposableBean {
                     } catch (Exception e) {
                         log.error("STT 요청 비동기 처리 중 오류 발생: meetingId={}, error={}", meetingId, e.getMessage(), e);
                     }
-                });
+                }, executorService);
                 log.info("녹음 파일 처리 완료: meetingId={}, 파일={}, 총 바이트={}, 시간={}ms",
                         meetingId, info.getFilePath().getFileName(), info.getTotalBytes(), info.getDuration());
             } catch (Exception e) {
