@@ -152,6 +152,7 @@ public class WebService {
     public List<LogResponseDto> getLogs(Long confId) {
         // 1. MeetingLog 조회
         List<MeetingLog> logs = meetingLogRepository.findByConfId(confId);
+        logger.info("Fetched logs from DB: {}", logs);
 
         // 2. LogResponseDto 리스트 반환
         return logs.stream()
