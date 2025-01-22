@@ -416,20 +416,20 @@ class MainViewModel @Inject constructor(
             when (uploadResult) {
                 is NetworkResult.Success -> {
                     Logger.e("[파일업로드] WAV 파일 업로드 성공")
-                    repository.convertWavToStt(meetingId).collect { sttResult ->
-                        when (sttResult) {
-                            is NetworkResult.Success -> {
-                                Logger.e("[STT변환] STT 변환 완료")
-                            }
-                            is NetworkResult.Error -> {
-                                Logger.e("[STT변환] STT 변환 실패: ${sttResult.message}")
-                                _errorMessage.value = "STT 변환 실패: ${sttResult.message}"
-                            }
-                            is NetworkResult.Loading -> {
-                                Logger.e("[STT변환] STT 변환 중")
-                            }
-                        }
-                    }
+//                    repository.convertWavToStt(meetingId).collect { sttResult ->
+//                        when (sttResult) {
+//                            is NetworkResult.Success -> {
+//                                Logger.e("[STT변환] STT 변환 완료")
+//                            }
+//                            is NetworkResult.Error -> {
+//                                Logger.e("[STT변환] STT 변환 실패: ${sttResult.message}")
+//                                _errorMessage.value = "STT 변환 실패: ${sttResult.message}"
+//                            }
+//                            is NetworkResult.Loading -> {
+//                                Logger.e("[STT변환] STT 변환 중")
+//                            }
+//                        }
+//                    }
                 }
                 is NetworkResult.Error -> {
                     Logger.e("[파일업로드] WAV 파일 업로드 실패: ${uploadResult.message}")

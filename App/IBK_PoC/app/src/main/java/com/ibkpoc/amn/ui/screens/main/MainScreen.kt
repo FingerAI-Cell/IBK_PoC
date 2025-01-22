@@ -78,16 +78,16 @@ fun MainScreen(
 
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // 에러 메시지 처리
-    LaunchedEffect(errorMessage) {
-        if (errorMessage != null) {
-            snackbarHostState.showSnackbar(
-                message = errorMessage,
-                duration = SnackbarDuration.Short
-            )
-            onMessageShown()
-        }
-    }
+//    // 에러 메시지 처리
+//    LaunchedEffect(errorMessage) {
+//        if (errorMessage != null) {
+//            snackbarHostState.showSnackbar(
+//                message = errorMessage,
+//                duration = SnackbarDuration.Short
+//            )
+//            onMessageShown()
+//        }
+//    }
 
     // 녹음 상태에 따른 UI 표시
     when (recordingState) {
