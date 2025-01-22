@@ -238,6 +238,12 @@ export default function SttModal({
     }
   };
 
+  // 화자 표시 텍스트를 얻는 함수 수정
+  const getSpeakerDisplayName = (speaker: Speaker | undefined | null) => {
+    if (!speaker) return "";
+    return speakerNames[speaker.speakerId] || speaker.name || speaker.speakerId;
+  };
+
   if (!isOpen || !mounted) return null;
 
   const modalContent = (
@@ -311,64 +317,88 @@ export default function SttModal({
                 {/* 드롭다운: 발화자 선택 */}
                 <select
                   className={styles.speakerInput}
-                  value={
-                    speaker?.cuserId
-                      ? (speakerNames[speaker.speakerId] || speaker.name || speaker.speakerId)
-                      : ""
-                  }
+                  value={speaker ? getSpeakerDisplayName(speaker) : ""}
                   onChange={(e) => {
                     const selectedValue = e.target.value;
-
-                    // 선택된 발화자 찾기
-                    const selectedSpeaker = displaySpeakers.find(
-                      (s) => s.name === selectedValue || s.speakerId === selectedValue
-                    );
-
-                    // logContents 업데이트
-                    setLogContents((prevContents) =>
-                      prevContents.map((item) =>
-                        item.logId === content.logId
-                          ? {
-                              ...item,
-                              cuserId: selectedSpeaker?.cuserId || null,
-                              name: selectedSpeaker?.name || selectedSpeaker?.speakerId || "",
-                            }
-                          : item
-                      )
-                    );
-
-                    // changedLogs 업데이트
-                    setChangedLogs((prevChanges) => {
-                      const updatedChanges = [...prevChanges];
-                      const existingIndex = updatedChanges.findIndex(
-                        (log) => log.logId === content.logId
+                    if (!selectedValue) {
+                      // 선택 없음인 경우
+                      setLogContents((prevContents) =>
+                        prevContents.map((item) =>
+                          item.logId === content.logId
+                            ? {
+                                ...item,
+                                cuserId: null,
+                                name: "",
+                              }
+                            : item
+                        )
                       );
 
-                      if (existingIndex >= 0) {
-                        // 기존 변경 사항 업데이트
-                        updatedChanges[existingIndex].cuserId = selectedSpeaker?.cuserId || null;
-                      } else {
-                        // 새로운 변경 사항 추가
-                        updatedChanges.push({
-                          logId: content.logId,
-                          cuserId: selectedSpeaker?.cuserId || null,
-                        });
-                      }
+                      setChangedLogs((prevChanges) => {
+                        const updatedChanges = [...prevChanges];
+                        const existingIndex = updatedChanges.findIndex(
+                          (log) => log.logId === content.logId
+                        );
 
-                      return updatedChanges;
-                    });
+                        if (existingIndex >= 0) {
+                          updatedChanges[existingIndex].cuserId = null;
+                        } else {
+                          updatedChanges.push({
+                            logId: content.logId,
+                            cuserId: null,
+                          });
+                        }
+
+                        return updatedChanges;
+                      });
+                      return;
+                    }
+
+                    // 발화자 선택인 경우
+                    const selectedSpeaker = displaySpeakers.find(
+                      (s) => getSpeakerDisplayName(s) === selectedValue
+                    );
+
+                    if (selectedSpeaker) {
+                      setLogContents((prevContents) =>
+                        prevContents.map((item) =>
+                          item.logId === content.logId
+                            ? {
+                                ...item,
+                                cuserId: selectedSpeaker.cuserId,
+                                name: getSpeakerDisplayName(selectedSpeaker),
+                              }
+                            : item
+                        )
+                      );
+
+                      setChangedLogs((prevChanges) => {
+                        const updatedChanges = [...prevChanges];
+                        const existingIndex = updatedChanges.findIndex(
+                          (log) => log.logId === content.logId
+                        );
+
+                        if (existingIndex >= 0) {
+                          updatedChanges[existingIndex].cuserId = selectedSpeaker.cuserId;
+                        } else {
+                          updatedChanges.push({
+                            logId: content.logId,
+                            cuserId: selectedSpeaker.cuserId,
+                          });
+                        }
+
+                        return updatedChanges;
+                      });
+                    }
                   }}
                 >
-                  {/* 선택 없음 옵션 */}
                   <option value="">선택 없음</option>
-
-                  {/* 발화자 목록 옵션 생성 */}
                   {displaySpeakers.map((s) => (
                     <option
                       key={s.speakerId}
-                      value={s.name || s.speakerId}
+                      value={getSpeakerDisplayName(s)}
                     >
-                      {s.name || s.speakerId}
+                      {getSpeakerDisplayName(s)}
                     </option>
                   ))}
                 </select>

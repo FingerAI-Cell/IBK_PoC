@@ -14,7 +14,7 @@ import java.util.Set;
 @Repository
 public interface MeetingLogRepository extends JpaRepository<MeetingLog, Long> {
 
-    @Query("SELECT l FROM MeetingLog l LEFT JOIN l.meetingUser u WHERE (u.confId = :confId OR u IS NULL)")
+    @Query("SELECT l FROM MeetingLog l WHERE l.confId = :confId")
     List<MeetingLog> findByConfId(@Param("confId") Long confId);
 
 
