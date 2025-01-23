@@ -314,7 +314,7 @@ export default function MeetingList() {
                   className={`${styles.summaryButton}`}
                   disabled
                 >
-                  요약 불가
+                  요약 없음
                 </button>
               )}
             </div>

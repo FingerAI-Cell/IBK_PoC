@@ -38,17 +38,88 @@ export default function SummaryModal({
   
   const handleDownload = async () => {
     try {
-      const element = document.getElementById('summaryContent');
-      if (!element) return;
+      // 전체 모달 컨텐츠와 헤더를 포함할 임시 div 생성
+      const tempDiv = document.createElement('div');
+      tempDiv.style.background = 'white';
+      tempDiv.style.padding = '20px';
+      tempDiv.style.width = '800px';  // PDF 너비에 맞춤
 
-      const canvas = await html2canvas(element);
+      // 헤더 복제 (버튼 제외)
+      const headerDiv = document.createElement('div');
+      headerDiv.style.marginBottom = '20px';
+      const titleH2 = document.createElement('h2');
+      titleH2.style.fontSize = '24px';
+      titleH2.style.fontWeight = 'bold';
+      titleH2.style.margin = '0';
+      titleH2.textContent = title;
+      headerDiv.appendChild(titleH2);
+      tempDiv.appendChild(headerDiv);
+
+      // 컨텐츠 복제
+      const element = document.getElementById('modal-content');
+      if (!element) return;
+      const contentClone = element.cloneNode(true) as HTMLElement;
+      tempDiv.appendChild(contentClone);
+
+      // 임시 div를 document에 추가 (화면 밖)
+      tempDiv.style.position = 'absolute';
+      tempDiv.style.left = '-9999px';
+      document.body.appendChild(tempDiv);
+
+      // PDF 생성
+      const canvas = await html2canvas(tempDiv, {
+        logging: false,
+        useCORS: true,
+        scale: 2,
+        windowWidth: tempDiv.scrollWidth,
+        windowHeight: tempDiv.scrollHeight,
+        width: tempDiv.scrollWidth,
+        height: tempDiv.scrollHeight
+      });
+
+      // 임시 div 제거
+      document.body.removeChild(tempDiv);
+
       const imgData = canvas.toDataURL('image/png');
       
-      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdf = new jsPDF({
+        orientation: 'p',
+        unit: 'mm',
+        format: 'a4'
+      });
+
       const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      const pdfHeight = pdf.internal.pageSize.getHeight();
       
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      
+      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+      
+      const imgX = (pdfWidth - imgWidth * ratio) / 2;
+      let imgY = 0;
+      
+      let remainingHeight = imgHeight;
+      let currentPosition = 0;
+      
+      while (remainingHeight > 0) {
+        if (currentPosition > 0) {
+          pdf.addPage();
+        }
+        
+        pdf.addImage(
+          imgData,
+          'PNG',
+          imgX,
+          imgY - (currentPosition * pdfHeight),
+          imgWidth * ratio,
+          imgHeight * ratio
+        );
+        
+        remainingHeight -= pdfHeight / ratio;
+        currentPosition++;
+      }
+
       pdf.save(`${title}_회의록.pdf`);
     } catch (error) {
       console.error('PDF 생성 중 오류:', error);
@@ -57,16 +128,14 @@ export default function SummaryModal({
   
   const renderContent = () => {
     try {
-      // JSON 데이터를 파싱
       const parsedTopics = JSON.parse(content).topics;
   
-      // topics 배열을 순회하여 렌더링
       return parsedTopics.map((topicEntry: any, index: number) => (
         <div key={`topic-${index}`} className={styles.topicSection}>
           <h4 className={styles.topicTitle}>{topicEntry.topic || '제목 없음'}</h4>
           <div className={styles.speakerSection}>
             {topicEntry.speakers
-              .filter((speaker: any) => speaker.content && speaker.content.trim() !== '') // content가 비어있지 않은 경우만
+              .filter((speaker: any) => speaker.content && speaker.content.trim() !== '')
               .map((speaker: any, speakerIndex: number) => (
                 <div key={`speaker-${speakerIndex}`} className={styles.speakerDetails}>
                   <span className={styles.speakerName}>{speaker.name}</span>
@@ -103,7 +172,7 @@ export default function SummaryModal({
             </button>
           </div>
         </div>
-        <div id="summaryContent" className={styles.summaryContent}>
+        <div id="modal-content" className={styles.modalContent}>
           <div className={styles.contentWrapper}>
             <div className={styles.meetingInfo}>
               <div className={styles.infoItem}>
@@ -126,7 +195,6 @@ export default function SummaryModal({
     </div>
   );
 
-  // document가 있는지 확인 (SSR 대비)
   if (typeof document === 'undefined') return null;
 
   const modalRoot = document.getElementById('modal-root');

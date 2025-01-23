@@ -11,6 +11,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  console.log("aaa");
   return (
     <html lang="ko">
       <body className="flex min-h-screen bg-gray-100">

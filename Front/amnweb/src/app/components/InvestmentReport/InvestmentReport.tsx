@@ -46,13 +46,13 @@ const formatNumber = (num: number): string => {
 };
 
 const getValueColor = (value: number): string => {
-  return value > 0 ? 'text-red-500' : value < 0 ? 'text-blue-500' : 'text-gray-500';
+  if (value === 0) return 'text-gray-500';
+  return value > 0 ? 'text-red-500' : 'text-blue-500';
 };
 
 const formatPercentage = (value: number): string => {
-  // 소수점 아래 한자리로 반올림
   const roundedValue = Number(value.toFixed(1));
-  return `${roundedValue > 0 ? '+' : ''}${roundedValue}%`;
+  return `${roundedValue}%`;
 };
 
 const ValueWithDiff = ({ 
@@ -65,21 +65,25 @@ const ValueWithDiff = ({
   percentage?: number;
   dayOverDayDiff?: number;
   acquisitionAmount?: number;
-}) => (
-  <div>
-    <p className="text-xl font-bold">
-      {formatNumber(amount)}원
-    </p>
-    <div className="flex space-x-2 text-sm">
-      <span className={`${getValueColor(dayOverDayDiff)}`}>
-        {formatNumber(amount - acquisitionAmount)}원
-      </span>
-      <span className={`${getValueColor(percentage)}`}>
-        {formatPercentage(percentage)}
-      </span>
+}) => {
+  const diffAmount = amount - acquisitionAmount;
+  
+  return (
+    <div>
+      <p className="text-xl font-bold text-gray-900">
+        {formatNumber(amount)}원
+      </p>
+      <div className="flex space-x-2 text-sm">
+        <span className={`${getValueColor(diffAmount)}`}>
+          {diffAmount >= 0 ? '+' : ''}{formatNumber(diffAmount)}원
+        </span>
+        <span className={`${getValueColor(percentage)}`}>
+          {percentage >= 0 ? '+' : ''}{formatPercentage(percentage)}
+        </span>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const calculations = {
   // 수익률 계산 (소수점 한자리)
@@ -223,7 +227,7 @@ export default function InvestmentReport() {
     if (!selectedUser || !selectedDate) return;
     
     try {
-      setError(null); // 에러 상�� 초기화
+      setError(null); // 에러 상태 초기화
       const requestBody = {
         client_code: selectedUser,
         trd_dd: selectedDate
@@ -252,9 +256,9 @@ export default function InvestmentReport() {
         })
       ]);
 
-      // 각 응답의 상� 코드 확인
+      // 각 응답의 상태 코드 확인
       if (!stockResponse.ok || !portfolioResponse.ok || !marketResponse.ok || !newsResponse.ok) {
-        throw new Error('서버 응답 ��류');
+        throw new Error('서버 응답 에러');
       }
 
       const [stockData, portfolioData, marketData, newsData] = await Promise.all([
