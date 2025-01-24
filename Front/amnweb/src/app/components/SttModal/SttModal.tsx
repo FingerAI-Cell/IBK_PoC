@@ -91,7 +91,14 @@ export default function SttModal({
     : [];
 
   const uniqueSpeakers = useMemo(() => {
-    return displaySpeakers.sort((a, b) => a.speakerId.localeCompare(b.speakerId));
+    return displaySpeakers
+      .sort((a, b) => {
+        // UNKNOWN은 항상 마지막으로
+        if (a.speakerId === 'UNKNOWN') return 1;
+        if (b.speakerId === 'UNKNOWN') return -1;
+        // 나머지는 기존처럼 알파벳 순
+        return a.speakerId.localeCompare(b.speakerId);
+      });
   }, [displaySpeakers]);
 
   // 스피커 이름 변경 처리
@@ -277,11 +284,10 @@ export default function SttModal({
             </button>
           </div>
           <div className={styles.speakerList}>
-            {uniqueSpeakers
-              .filter(speaker => speaker.speakerId !== 'UNKNOWN') // UNKNOWN 필터링
-              .map(speaker => (
-                <div key={speaker.speakerId} className={styles.speakerItem}>
-                  <span className={styles.originalSpeaker}>{speaker.speakerId}</span>
+            {uniqueSpeakers.map(speaker => (
+              <div key={speaker.speakerId} className={`${styles.speakerItem} ${speaker.speakerId === 'UNKNOWN' ? styles.unknownItem : ''}`}>
+                <span className={styles.originalSpeaker}>{speaker.speakerId}</span>
+                {speaker.speakerId !== 'UNKNOWN' && (
                   <input
                     type="text"
                     className={styles.speakerChange}
@@ -289,16 +295,17 @@ export default function SttModal({
                     onChange={(e) => handleSpeakerNameChange(speaker.speakerId, e.target.value)}
                     placeholder="발화자 이름 입력"
                   />
-                  <button
-                    className={`${styles.filterButton} ${
-                      selectedSpeakers.has(speaker.speakerId) ? styles.selected : ''
-                    }`}
-                    onClick={() => toggleSpeaker(speaker.speakerId)}
-                  >
-                    필터
-                  </button>
-                </div>
-              ))}
+                )}
+                <button
+                  className={`${styles.filterButton} ${
+                    selectedSpeakers.has(speaker.speakerId) ? styles.selected : ''
+                  }`}
+                  onClick={() => toggleSpeaker(speaker.speakerId)}
+                >
+                  필터
+                </button>
+              </div>
+            ))}
           </div>
           <div className={styles.searchBox}>
             <input
@@ -320,7 +327,7 @@ export default function SttModal({
                 {/* 드롭다운: 발화자 선택 */}
                 <select
                   className={styles.speakerInput}
-                  value={currentLog?.cuserId || ""} // logContents에서 최신 값 참조
+                  value={currentLog?.cuserId || ""}
                   onChange={(e) => {
                     const selectedCuserId = parseInt(e.target.value, 10);
                     const selectedSpeaker = speakers.find((s) => s.cuserId === selectedCuserId);
@@ -355,10 +362,16 @@ export default function SttModal({
                   }}
                 >
                   {speakers
-                    .sort((a, b) => (a.speakerId === "UNKNOWN" ? -1 : b.speakerId === "UNKNOWN" ? 1 : 0))
+                    .sort((a, b) => {
+                      // UNKNOWN은 항상 마지막으로
+                      if (a.speakerId === 'UNKNOWN') return 1;
+                      if (b.speakerId === 'UNKNOWN') return -1;
+                      // 나머지는 기존처럼 알파벳 순
+                      return a.speakerId.localeCompare(b.speakerId);
+                    })
                     .map((s) => (
                       <option key={s.speakerId} value={s.cuserId || ""}>
-                        {speakerNames[s.speakerId] || s.speakerId} {/* speakerNames 상태를 우선 사용 */}
+                        {speakerNames[s.speakerId] || s.speakerId}
                       </option>
                     ))}
                 </select>

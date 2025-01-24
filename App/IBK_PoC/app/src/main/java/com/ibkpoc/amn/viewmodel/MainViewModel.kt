@@ -93,6 +93,9 @@ class MainViewModel @Inject constructor(
     private val _currentFileName = MutableStateFlow<String?>(null)
     val currentFileName: StateFlow<String?> = _currentFileName.asStateFlow()
 
+    private val _uploadState = MutableStateFlow<UploadState>(UploadState.None)
+    val uploadState = _uploadState.asStateFlow()
+
     init {
         viewModelScope.launch {
             EventBus.subscribe<RecordingStateEvent>().collect { event ->
@@ -362,6 +365,9 @@ class MainViewModel @Inject constructor(
                     is NetworkResult.Loading -> {
                         _isLoading.value = true
                     }
+                    is NetworkResult.FileUploadProgress -> {
+                        // 파일 업로드 진행률은 여기서는 처리하지 않음
+                    }
                 }
                 _isLoading.value = false
             }
@@ -391,9 +397,14 @@ class MainViewModel @Inject constructor(
                     }
                     is NetworkResult.Error -> {
                         _errorMessage.value = "회의 종료 실패: ${result.message}"
-                        _isLoading.value = false  // 에러 시 로딩 종료
+                        _isLoading.value = false
                     }
-                    is NetworkResult.Loading -> _isLoading.value = true
+                    is NetworkResult.Loading -> {
+                        _isLoading.value = true
+                    }
+                    is NetworkResult.FileUploadProgress -> {
+                        // 파일 업로드 진행률은 여기서는 처리하지 않음
+                    }
                 }
             }
         }
@@ -412,34 +423,34 @@ class MainViewModel @Inject constructor(
             chunkData = ByteArray(0)
         )
 
-        repository.uploadMeetingWavFile(wavUploadData).collect { uploadResult ->
-            when (uploadResult) {
-                is NetworkResult.Success -> {
-                    Logger.e("[파일업로드] WAV 파일 업로드 성공")
-//                    repository.convertWavToStt(meetingId).collect { sttResult ->
-//                        when (sttResult) {
-//                            is NetworkResult.Success -> {
-//                                Logger.e("[STT변환] STT 변환 완료")
-//                            }
-//                            is NetworkResult.Error -> {
-//                                Logger.e("[STT변환] STT 변환 실패: ${sttResult.message}")
-//                                _errorMessage.value = "STT 변환 실패: ${sttResult.message}"
-//                            }
-//                            is NetworkResult.Loading -> {
-//                                Logger.e("[STT변환] STT 변환 중")
-//                            }
-//                        }
-//                    }
-                }
-                is NetworkResult.Error -> {
-                    Logger.e("[파일업로드] WAV 파일 업로드 실패: ${uploadResult.message}")
-                    _errorMessage.value = "WAV 파일 업로드 실패: ${uploadResult.message}"
-                }
-                is NetworkResult.Loading -> {
-                    Logger.e("[파일업로드] WAV 파일 업로드 중")
+        try {
+            repository.uploadMeetingWavFile(wavUploadData).collect { result ->
+                when (result) {
+                    is NetworkResult.FileUploadProgress -> {
+                        _uploadState.value = UploadState.Uploading(result.progress)
+                    }
+                    is NetworkResult.Success -> {
+                        _uploadState.value = UploadState.None
+                        Logger.e("[파일업로드] WAV 파일 업로드 성공")
+                    }
+                    is NetworkResult.Error -> {
+                        _uploadState.value = UploadState.Error("파일 업로드 실패: ${result.message}")
+                        Logger.e("[파일업로드] WAV 파일 업로드 실패: ${result.message}")
+                    }
+                    is NetworkResult.Loading -> {
+                        Logger.e("[파일업로드] WAV 파일 업로드 중")
+                    }
                 }
             }
+        } catch (e: Exception) {
+            _uploadState.value = UploadState.Error("파일 업로드 중 오류 발생: ${e.message}")
+            Logger.e("[파일업로드] 예외 발생", e)
         }
+    }
+
+    // 업로드 에러 상태를 해제하는 함수 추가
+    fun dismissUploadError() {
+        _uploadState.value = UploadState.None
     }
 
     override fun onCleared() {
@@ -645,5 +656,12 @@ class MainViewModel @Inject constructor(
             playAudioFile(fileName)
             pendingAudioFile = null
         }
+    }
+
+    // 업로드 상태를 나타내는 sealed class 추가
+    sealed class UploadState {
+        data object None : UploadState()
+        data class Uploading(val progress: Float) : UploadState()
+        data class Error(val message: String) : UploadState()
     }
 }

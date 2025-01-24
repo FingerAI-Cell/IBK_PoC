@@ -25,7 +25,7 @@ class MeetingRepositoryImpl @Inject constructor(
     private val apiService: ApiService
 ) : MeetingRepository {
     private val uploadMutex = Mutex()
-    
+
     companion object {
         private const val CHUNK_SIZE = 1 * 1024 * 1024  // 4MB
     }
@@ -39,18 +39,20 @@ class MeetingRepositoryImpl @Inject constructor(
             )
             Logger.i("서버로 전달되는 참가자 수: ${request.participantCount}")
             val response = apiService.startMeeting(request)
-            if (response.isSuccessful) {
-                response.body()?.data?.let {
-                    emit(NetworkResult.Success(it))
-                } ?: emit(NetworkResult.Error(response.code(), "응답이 비어있습니다"))
-            } else {
-                Logger.e("회의 시작 실패: ${response.message()}", null)
-                emit(NetworkResult.Error(response.code(), response.message()))
-            }
+            emit(when {
+                response.isSuccessful -> {
+                    response.body()?.data?.let { data ->
+                        NetworkResult.Success(data)
+                    } ?: NetworkResult.Error(response.code(), "응답이 비어있습니다")
+                }
+                else -> NetworkResult.Error(response.code(), response.message())
+            })
         } catch (e: Exception) {
             Logger.e("회의 시작 중 오류 발생", e)
             emit(NetworkResult.Error(0, "회의 시작 중 오류 발생: ${e.message}"))
         }
+    }.catch { e ->
+        emit(NetworkResult.Error(0, e.message ?: "알 수 없는 오류가 발생했습니다"))
     }
 
     override suspend fun endMeeting(meetingId: Long): Flow<NetworkResult<Unit>> = flow {
@@ -58,18 +60,15 @@ class MeetingRepositoryImpl @Inject constructor(
         try {
             val request = MeetingEndRequest(meetingId = meetingId)
             val response = apiService.endMeeting(request)
-            if (response.isSuccessful) {
-                response.body()?.let {
-                    if (it.status == "SUCCESS") {
-                        emit(NetworkResult.Success(Unit))
-                    } else {
-                        emit(NetworkResult.Error(response.code(), it.message))
-                    }
-                } ?: emit(NetworkResult.Error(response.code(), "응답이 비어있습니다"))
-            } else {
-                Logger.e("회의 종료 실패: ${response.message()}", null)
-                emit(NetworkResult.Error(response.code(), "회의 종료 실패"))
-            }
+            emit(when {
+                response.isSuccessful -> {
+                    response.body()?.let {
+                        if (it.status == "SUCCESS") NetworkResult.Success(Unit)
+                        else NetworkResult.Error(response.code(), it.message)
+                    } ?: NetworkResult.Error(response.code(), "응답이 비어있습니다")
+                }
+                else -> NetworkResult.Error(response.code(), response.message())
+            })
         } catch (e: Exception) {
             Logger.e("회의 종료 중 오류 발생", e)
             emit(NetworkResult.Error(0, "회의 종료 중 오류 발생: ${e.message}"))
@@ -78,14 +77,14 @@ class MeetingRepositoryImpl @Inject constructor(
 
     override suspend fun uploadMeetingWavFile(wavUploadData: WavUploadData): Flow<NetworkResult<Unit>> = flow {
         emit(NetworkResult.Loading)
-        val failedChunks = mutableListOf<Int>() // 실패한 청크 번호 저장
+        val failedChunks = mutableListOf<Int>()
         try {
             coroutineScope {
                 val file = wavUploadData.wavFile
                 val totalChunks = (file.length() + CHUNK_SIZE - 1) / CHUNK_SIZE
-                
+
                 Logger.i("파일 업로드 시작: 총 ${totalChunks}개 청크")
-                
+
                 file.inputStream().use { input ->
                     val buffer = ByteArray(CHUNK_SIZE)
                     var chunkNumber = 0
@@ -94,10 +93,14 @@ class MeetingRepositoryImpl @Inject constructor(
                     while (true) {
                         val bytesRead = input.read(buffer)
                         if (bytesRead <= 0) break
-                        
+
                         val chunkData = if (bytesRead == buffer.size) buffer else buffer.copyOf(bytesRead)
                         totalBytesUploaded += bytesRead
-                        
+
+                        // 진행률 계산 및 방출
+                        val progress = totalBytesUploaded.toFloat() / file.length()
+                        emit(NetworkResult.FileUploadProgress(progress))
+
                         val chunkUploadData = wavUploadData.copy(
                             totalChunks = totalChunks.toInt(),
                             currentChunk = chunkNumber,
@@ -141,11 +144,14 @@ class MeetingRepositoryImpl @Inject constructor(
         try {
             val request = SttRequest(meetingId)
             val response = apiService.convertWavToStt(request)
-            if (response.isSuccessful) {
-                emit(NetworkResult.Success(Unit))
-            } else {
-                emit(NetworkResult.Error(response.code(), "STT 변환 실패: ${response.message()}"))
-            }
+            emit(when {
+                response.isSuccessful -> {
+                    response.body()?.let {
+                        NetworkResult.Success(Unit)
+                    } ?: NetworkResult.Error(response.code(), "응답이 비어있습니다")
+                }
+                else -> NetworkResult.Error(response.code(), response.message())
+            })
         } catch (e: Exception) {
             emit(NetworkResult.Error(0, "STT 변환 중 오류 발생: ${e.message}"))
         }
@@ -155,14 +161,14 @@ class MeetingRepositoryImpl @Inject constructor(
         emit(NetworkResult.Loading)
         try {
             val response = apiService.getMeetingList()
-            if (response.isSuccessful) {
-                response.body()?.data?.let {
-                    emit(NetworkResult.Success(it))
-                } ?: emit(NetworkResult.Error(response.code(), "응답이 비어있습니다"))
-            } else {
-                Logger.e("회의 목록 조회 실패: ${response.message()}", null)
-                emit(NetworkResult.Error(response.code(), response.message()))
-            }
+            emit(when {
+                response.isSuccessful -> {
+                    response.body()?.data?.let {
+                        NetworkResult.Success(it)
+                    } ?: NetworkResult.Error(response.code(), "응답이 비어있습니다")
+                }
+                else -> NetworkResult.Error(response.code(), response.message())
+            })
         } catch (e: Exception) {
             Logger.e("회의 목록 조회 중 오류 발생", e)
             emit(NetworkResult.Error(0, "회의 목록 조회 중 오류 발생: ${e.message}"))
@@ -209,10 +215,10 @@ class MeetingRepositoryImpl @Inject constructor(
             } catch (e: Exception) {
                 Logger.e("청크 업로드 중 오류", e)
             }
-                attempt++
-                delay(2000L) // 재시도 대기
+            attempt++
+            delay(2000L) // 재시도 대기
         }
-            return false
+        return false
     }
 
     private fun getCurrentTime(): String {

@@ -236,6 +236,42 @@ export default function AdminDashboard() {
                   onChange={(e) => setTempDate(e.target.value)}
                   onKeyDown={(e) => e.preventDefault()}
                 />
+                <div className={styles.infoIconWrapper}>
+                  <span className={styles.infoIcon}>i</span>
+                  <div className={styles.tooltip}>
+                    <p>10-K, 10-Q, 8-K는 미국 증권거래위원회(SEC)에 제출되는 주요 재무보고서로, 기업의 재무 상태와 운영 상황에 대한 중요한 정보를 제공합니다. 각각의 보고서는 다음과 같은 특징과 목적을 가지고 있습니다:</p>
+                    <table className={styles.tooltipTable}>
+                      <thead>
+                        <tr>
+                          <th>보고서</th>
+                          <th>주요 내용</th>
+                          <th>제출 시기</th>
+                          <th>목적</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>10-K</td>
+                          <td>연간 실적, 재무 상태</td>
+                          <td>연도 종료 후 60~90일</td>
+                          <td>장기적 정보 제공</td>
+                        </tr>
+                        <tr>
+                          <td>10-Q</td>
+                          <td>분기별 실적, 최신 정보</td>
+                          <td>분기 종료 후 40~45일</td>
+                          <td>단기적 정보 업데이트</td>
+                        </tr>
+                        <tr>
+                          <td>8-K</td>
+                          <td>주요 사건 및 변화</td>
+                          <td>사건 후 4 영업일 내</td>
+                          <td>즉각적 정보 공시</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
               </div>
 
               <div className={styles.contentLayout}>

@@ -56,6 +56,7 @@ import android.os.Build
 import android.Manifest
 import com.ibkpoc.amn.ui.screens.main.components.AudioPlayerDialog
 import androidx.compose.runtime.rememberCoroutineScope
+import com.ibkpoc.amn.viewmodel.MainViewModel.UploadState
 
 @Composable
 fun MainScreen(
@@ -494,6 +495,7 @@ fun MainScreen(
     val duration by viewModel.duration.collectAsState()
     val currentFileName by viewModel.currentFileName.collectAsState()
     val isPlaying by viewModel.isPlaying.collectAsState()
+    val uploadState by viewModel.uploadState.collectAsState()
 
     // 재생 버튼 클릭 핸들러
     val onPlayClick = { fileName: String ->
@@ -556,6 +558,77 @@ fun MainScreen(
             onForward = viewModel::forward10Seconds,
             onRewind = viewModel::rewind10Seconds
         )
+    }
+
+    // 업로드 상태 다이얼로그 수정
+    when (val state = uploadState) {
+        is UploadState.Uploading -> {
+            AlertDialog(
+                onDismissRequest = { },
+                properties = DialogProperties(
+                    dismissOnBackPress = false,
+                    dismissOnClickOutside = false
+                ),
+                title = {
+                    Text(
+                        text = "파일 업로드 중",
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center
+                    )
+                },
+                text = {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(48.dp),
+                            strokeWidth = 4.dp
+                        )
+                        Text(
+                            text = "${(state.progress * 100).toInt()}%",
+                            style = MaterialTheme.typography.titleLarge,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                },
+                confirmButton = { }
+            )
+        }
+        is UploadState.Error -> {
+            AlertDialog(
+                onDismissRequest = { },
+                properties = DialogProperties(
+                    dismissOnBackPress = false,
+                    dismissOnClickOutside = false
+                ),
+                title = {
+                    Text(
+                        text = "업로드 실패",
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center,
+                        color = Color.Red
+                    )
+                },
+                text = {
+                    Text(
+                        text = state.message,
+                        textAlign = TextAlign.Center
+                    )
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = { viewModel.dismissUploadError() }
+                    ) {
+                        Text("확인")
+                    }
+                }
+            )
+        }
+        UploadState.None -> { }
     }
 }
 

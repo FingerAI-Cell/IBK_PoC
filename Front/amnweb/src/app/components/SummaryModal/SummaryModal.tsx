@@ -181,7 +181,12 @@ export default function SummaryModal({
               </div>
               <div className={styles.infoItem}>
                 <span className={styles.label}>참석자:</span>
-                <span>{participants.map((p) => p.name || p.id).join(', ')}</span>
+                <span>
+                  {participants
+                    .filter(p => p.id !== 'UNKNOWN')
+                    .map((p) => p.name || p.id)
+                    .join(', ')}
+                </span>
               </div>
             </div>
             <div className={styles.divider} />
