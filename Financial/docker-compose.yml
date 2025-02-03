@@ -12,4 +12,4 @@ services:
 
 networks:
   ibk-network:
-    exteranl: true
+    external: true
