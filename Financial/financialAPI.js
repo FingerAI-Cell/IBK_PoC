@@ -20,14 +20,14 @@ const logger = winston.createLogger({
         winston.format.printf(info => `${info.timestamp} [${info.level.toUpperCase()}] ${info.message}`)
     ),
     transports: [
-        new winston.transports.Console(), // 콘솔에도 출력
-        new winston.transports.File({ filename: `${logDir}/server.log` }) // 파일 기록
+        new winston.transports.Console(),
+        new winston.transports.File({ filename: `${logDir}/server.log` })
     ]
 });
 
 // PostgreSQL 연결 설정
 const pool = new Pool({
-    host: "postgres_postgresql-master_1", //localhost
+    host: "localhost",
     database: "ibk_poc_financial_statements",
     user: "ibk-manager",
     password: "fingerai2024!",
@@ -49,27 +49,28 @@ app.get('/api/financials', async (req, res) => {
         let query = `SELECT report_period, financial_name, company_name, data, ranking, difer_data FROM financial_rank_table WHERE 1=1`;
         let values = [];
 
-        if (report_period) {
-            query += ` AND report_period = $${values.length + 1}`;
-            values.push(report_period);
-        }
-        if (financial_name) {
-            query += ` AND financial_name = $${values.length + 1}`;
-            values.push(financial_name);
-        }
-        if (company_name) {
-            query += ` AND company_name = $${values.length + 1}`;
-            values.push(company_name);
-        }
-        if (ranking) {
-            query += ` AND ranking = $${values.length + 1}`;
-            values.push(ranking);
-        }
+        // ✅ 다중 값 OR 처리 (쉼표 `,`로 구분된 값)
+        const addFilter = (column, param) => {
+            if (!param) return "";
+            const items = param.split(',');
+            if (items.length === 1) {
+                query += ` AND ${column} = $${values.length + 1}`;
+                values.push(items[0]);
+            } else {
+                const placeholders = items.map((_, i) => `$${values.length + i + 1}`).join(', ');
+                query += ` AND ${column} IN (${placeholders})`;
+                values.push(...items);
+            }
+        };
 
-        // 정렬 및 제한
-        if (order_by) {
-            query += ` ORDER BY ${order_by} DESC`;
-        }
+        // ✅ 각 필터 적용
+        addFilter("report_period", report_period);
+        addFilter("financial_name", financial_name);
+        addFilter("company_name", company_name);
+        addFilter("ranking", ranking ? ranking.split(',').map(r => parseInt(r, 10)).join(',') : null); // 숫자 변환
+
+        // ✅ 정렬 및 제한
+        if (order_by) query += ` ORDER BY ${order_by} DESC`;
         if (limit) {
             query += ` LIMIT $${values.length + 1}`;
             values.push(parseInt(limit));
@@ -85,7 +86,7 @@ app.get('/api/financials', async (req, res) => {
         logger.info(`DB Query Success: [${req.method}] ${req.originalUrl} - Rows Retrieved: ${result.rows.length}`);
 
         // JSON 응답 생성
-        const responseJson = {
+        res.json({
             "status": "success",
             "filters": {
                 "report_period": report_period || null,
@@ -96,11 +97,9 @@ app.get('/api/financials', async (req, res) => {
                 "limit": limit ? parseInt(limit) : null
             },
             "results": result.rows
-        };
+        });
 
-        res.json(responseJson);
     } catch (error) {
-        // ✅ 에러 발생 시 SQL 문과 에러 메시지를 함께 기록
         logger.error(`DB Query Error: ${error.message} - SQL: ${query} - Params: ${JSON.stringify(values)}`);
         res.status(500).json({ status: "error", message: "Internal Server Error" });
     }
