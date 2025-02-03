@@ -8,7 +8,6 @@ services:
       - ibk-network
     environment:
       - NODE_ENV=production
-    network_mode: "bridge"  # 명시적으로 브릿지 네트워크 사용
 
 networks:
   ibk-network:
