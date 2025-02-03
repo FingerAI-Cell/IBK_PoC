@@ -27,7 +27,7 @@ const logger = winston.createLogger({
 
 // PostgreSQL 연결 설정
 const pool = new Pool({
-    host: "localhost",
+    host: "p", //localhost
     database: "ibk_poc_financial_statements",
     user: "ibk-manager",
     password: "fingerai2024!",
