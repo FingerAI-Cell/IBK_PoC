@@ -12,4 +12,4 @@ services:
 
 networks:
   ibk-network:
-    driver: bridge
+    exteranl: true
