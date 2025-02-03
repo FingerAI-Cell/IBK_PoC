@@ -5,7 +5,7 @@ const fs = require('fs');
 const winston = require('winston');
 
 const app = express();
-const port = 3000;
+const port = 3005;
 
 // ✅ 로그 파일 설정
 const logDir = 'logs';
