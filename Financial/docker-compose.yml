@@ -5,10 +5,10 @@ services:
     ports:
       - "8083:3000"
     networks:
-      - financial-network
+      - ibk-network
     environment:
       - NODE_ENV=production
 
 networks:
-  financial-network:
+  ibk-network:
     driver: bridge
