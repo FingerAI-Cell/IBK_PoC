@@ -13,3 +13,13 @@
 2025-02-03 18:52:22 [INFO] 🚀 Server started on http://localhost:3005
 2025-02-03 18:52:37 [INFO] Incoming Request: [GET] /api/financials?report_period=2023-Q4&company_name=KB%EC%A6%9D%EA%B6%8C from ::1 - Params: {"report_period":"2023-Q4","company_name":"KB증권"}
 2025-02-03 18:52:37 [INFO] Executing SQL: SELECT report_period, financial_name, company_name, data, ranking, difer_data FROM financial_rank_table WHERE 1=1 AND report_period = $1 AND company_name = $2 - Params: ["2023-Q4","KB증권"]
+2025-02-03 18:53:00 [INFO] 🚀 Server started on http://localhost:3005
+2025-02-03 18:53:47 [INFO] Incoming Request: [GET] /api/financials?report_period=2023-Q4&company_name=KB%EC%A6%9D%EA%B6%8C from ::1 - Params: {"report_period":"2023-Q4","company_name":"KB증권"}
+2025-02-03 18:53:47 [INFO] Executing SQL: SELECT report_period, financial_name, company_name, data, ranking, difer_data FROM financial_rank_table WHERE 1=1 AND report_period = $1 AND company_name = $2 - Params: ["2023-Q4","KB증권"]
+2025-02-03 18:53:48 [INFO] DB Query Success: [GET] /api/financials?report_period=2023-Q4&company_name=KB%EC%A6%9D%EA%B6%8C - Rows Retrieved: 10
+2025-02-03 18:53:56 [INFO] Incoming Request: [GET] /api/financials?report_period=2023-Q4,2024-Q1&company_name=KB%EC%A6%9D%EA%B6%8C from ::1 - Params: {"report_period":"2023-Q4,2024-Q1","company_name":"KB증권"}
+2025-02-03 18:53:56 [INFO] Executing SQL: SELECT report_period, financial_name, company_name, data, ranking, difer_data FROM financial_rank_table WHERE 1=1 AND report_period IN ($1, $2) AND company_name = $3 - Params: ["2023-Q4","2024-Q1","KB증권"]
+2025-02-03 18:53:56 [INFO] DB Query Success: [GET] /api/financials?report_period=2023-Q4,2024-Q1&company_name=KB%EC%A6%9D%EA%B6%8C - Rows Retrieved: 20
+2025-02-03 18:54:14 [INFO] Incoming Request: [GET] /api/financials?report_period=2023-Q4,2024-Q1&company_name=KB%EC%A6%9D%EA%B6%8C,IBK%ED%88%AC%EC%9E%90%EC%A6%9D%EA%B6%8C from ::1 - Params: {"report_period":"2023-Q4,2024-Q1","company_name":"KB증권,IBK투자증권"}
+2025-02-03 18:54:14 [INFO] Executing SQL: SELECT report_period, financial_name, company_name, data, ranking, difer_data FROM financial_rank_table WHERE 1=1 AND report_period IN ($1, $2) AND company_name IN ($3, $4) - Params: ["2023-Q4","2024-Q1","KB증권","IBK투자증권"]
+2025-02-03 18:54:14 [INFO] DB Query Success: [GET] /api/financials?report_period=2023-Q4,2024-Q1&company_name=KB%EC%A6%9D%EA%B6%8C,IBK%ED%88%AC%EC%9E%90%EC%A6%9D%EA%B6%8C - Rows Retrieved: 40
