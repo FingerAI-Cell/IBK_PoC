@@ -10,13 +10,13 @@ const baseUrl =
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const encodedFileName = searchParams.get("file");
-
+  const fileName = searchParams.get("file");
+    
   console.log("Environment:", process.env.NODE_ENV); // 현재 환경 확인
   console.log("Base URL:", baseUrl); // URL 확인
-  console.log("Requested file (encoded):", encodedFileName); // 요청된 파일명 확인
+  console.log("Requested file:", fileName); // 요청된 파일명 확인
 
-  if (!encodedFileName) {
+  if (!fileName) {
     return NextResponse.json(
       { error: "파일명이 제공되지 않았습니다." },
       { status: 400 }
@@ -24,18 +24,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    // URL 디코딩된 파일명
-    const decodedFileName = decodeURIComponent(encodedFileName);
-    console.log("Decoded file name:", decodedFileName); // 디코딩된 파일명 확인
-
-    const filePath = path.join(
-      process.cwd(),
-      "public",
-      "static",
-      "documents",
-      "manual",
-      decodedFileName
-    );
+    const filePath = path.join(process.cwd(), "public", "static", "documents", "manual", fileName);
 
     if (!fs.existsSync(filePath)) {
       return NextResponse.json(
@@ -45,9 +34,11 @@ export async function GET(req: NextRequest) {
     }
 
     const file = fs.readFileSync(filePath);
+    const encodedFileName = encodeURIComponent(fileName);
+
     const response = new NextResponse(file);
     response.headers.set("Content-Type", "application/octet-stream");
-
+    
     // 한글 파일명 인코딩 처리
     response.headers.set(
       "Content-Disposition",
