@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
     let baseUrl: string;
     
     if (isDevelopment) {
-      baseUrl = process.env.NEXT_PUBLIC_EC2_URL!;
+      baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL!;
     } else if (isProduction) {
       baseUrl = process.env.NEXT_PUBLIC_LOCAL_API_URL!;
     } else {
