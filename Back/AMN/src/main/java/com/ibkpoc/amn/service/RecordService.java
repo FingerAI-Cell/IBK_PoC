@@ -10,10 +10,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -194,6 +191,8 @@ public class RecordService implements DisposableBean {
                             info.totalBytes += chunk.length;
                         }
                     }
+                    // 🔹 WAV 헤더 업데이트 (파일 크기 반영)
+                    updateWavHeader(info.getFilePath(), info.totalBytes);
 
                     log.info("WAV 파일 저장 완료: meetingId={}, 경로={}, totalBytes={}",
                             meetingId, info.getFilePath().toAbsolutePath(), info.getTotalBytes());
@@ -236,6 +235,18 @@ public class RecordService implements DisposableBean {
         } else {
             log.warn("존재하지 않는 녹음에 대한 종료 처리: meetingId={}", meetingId);
         }
+    }
+
+    private void updateWavHeader(Path filePath, long audioDataSize) throws IOException {
+        try (RandomAccessFile wavFile = new RandomAccessFile(filePath.toFile(), "rw")) {
+            long chunkSize = 36 + audioDataSize;  // 전체 파일 크기 - 8
+            wavFile.seek(4);
+            wavFile.writeInt(Integer.reverseBytes((int) chunkSize)); // "ChunkSize" 업데이트
+
+            wavFile.seek(40);
+            wavFile.writeInt(Integer.reverseBytes((int) audioDataSize)); // "Subchunk2Size" 업데이트
+        }
+        log.info("WAV 헤더 업데이트 완료: 파일={}, 총 오디오 데이터 크기={}", filePath.getFileName(), audioDataSize);
     }
 
     @Override
