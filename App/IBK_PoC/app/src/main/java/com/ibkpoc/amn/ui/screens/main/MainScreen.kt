@@ -349,29 +349,29 @@ fun MainScreen(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // 기록 버튼
-                        OutlinedButton(
-                            onClick = { showRecordDialog = true },
-                            modifier = Modifier.fillMaxWidth(),
-                            enabled = recordingState !is RecordServiceState.Recording,
-                            colors = ButtonDefaults.outlinedButtonColors(
-                                contentColor = if (recordingState !is RecordServiceState.Recording) Color.Black else Color.Gray, // 텍스트 색상
-                                disabledContentColor = Color.LightGray // 비활성화 상태 텍스트 색상
-                            ),border = BorderStroke(
-                                width = 1.dp,
-                                color = if (recordingState !is RecordServiceState.Recording) Color.Gray else Color.LightGray // 테두리 색상 조정
-                            ),
-                            shape = RoundedCornerShape(8.dp)
-
-                        ) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Rounded.List,
-                                contentDescription = null,
-                                modifier = Modifier.size(18.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("기록")
-                        }
+//                        // 기록 버튼
+//                        OutlinedButton(
+//                            onClick = { showRecordDialog = true },
+//                            modifier = Modifier.fillMaxWidth(),
+//                            enabled = recordingState !is RecordServiceState.Recording,
+//                            colors = ButtonDefaults.outlinedButtonColors(
+//                                contentColor = if (recordingState !is RecordServiceState.Recording) Color.Black else Color.Gray, // 텍스트 색상
+//                                disabledContentColor = Color.LightGray // 비활성화 상태 텍스트 색상
+//                            ),border = BorderStroke(
+//                                width = 1.dp,
+//                                color = if (recordingState !is RecordServiceState.Recording) Color.Gray else Color.LightGray // 테두리 색상 조정
+//                            ),
+//                            shape = RoundedCornerShape(8.dp)
+//
+//                        ) {
+//                            Icon(
+//                                imageVector = Icons.AutoMirrored.Rounded.List,
+//                                contentDescription = null,
+//                                modifier = Modifier.size(18.dp)
+//                            )
+//                            Spacer(modifier = Modifier.width(8.dp))
+//                            Text("기록")
+//                        }
                     }
                 }
             }

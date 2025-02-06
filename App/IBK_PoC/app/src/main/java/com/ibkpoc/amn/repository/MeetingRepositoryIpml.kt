@@ -106,32 +106,37 @@ class MeetingRepositoryImpl @Inject constructor(
                             currentChunk = chunkNumber,
                             chunkData = chunkData
                         )
-                        // 청크 업로드 시도
-                        val isSuccess = uploadChunk(chunkUploadData)
-                        if (!isSuccess) {
-                            Logger.e("청크 업로드 실패: 청크 번호 $chunkNumber")
-                            failedChunks.add(chunkNumber) // 실패한 청크 기록
-                        } else {
-                            Logger.i("청크 업로드 성공: $chunkNumber")
+
+
+                        var attempt = 0
+                        var success = false
+
+                        while (attempt < 2) { // 🔹 최대 2번만 시도
+                            try {
+                                success = uploadChunk(chunkUploadData)
+                                if (success) {
+                                    Logger.i("청크 업로드 성공: $chunkNumber")
+                                    break // 성공하면 다음 청크 전송
+                                }
+                            } catch (e: Exception) {
+                                Logger.e("청크 업로드 실패: $chunkNumber, 시도 횟수=${attempt + 1}")
+                            }
+
+                            attempt++
+                        }
+
+                        if (!success) {
+                            Logger.e("최대 시도 횟수 초과: 청크 $chunkNumber 업로드 실패 → 전체 업로드 중단")
+                            emit(NetworkResult.Error(0, "청크 업로드 실패: $chunkNumber → 전체 업로드 중단"))
+                            return@coroutineScope // 🚨 실패하면 즉시 전체 업로드 중단
                         }
 
                         chunkNumber++
                         Logger.i("업로드 진행률: ${(totalBytesUploaded * 100 / file.length())}%")
                     }
                 }
-
-                if (failedChunks.isEmpty()) {
-                    Logger.i("파일 업로드 완료: 모든 청크 성공적으로 업로드됨")
-                    emit(NetworkResult.Success(Unit))
-                } else {
-                    Logger.e("파일 업로드 완료: 일부 청크 실패 (${failedChunks.size}개 실패)")
-                    emit(
-                        NetworkResult.Error(
-                            0,
-                            "파일 업로드 중 일부 청크 실패: 실패한 청크 번호 -> $failedChunks"
-                        )
-                    )
-                }
+                Logger.i("파일 업로드 완료")
+                emit(NetworkResult.Success(Unit))
             }
         } catch (e: Exception) {
             Logger.e("파일 업로드 실패", e)
@@ -175,50 +180,46 @@ class MeetingRepositoryImpl @Inject constructor(
         }
     }
 
-    private suspend fun uploadChunk(chunkData: WavUploadData, maxRetries: Int = 3): Boolean {
-        var attempt = 0
-        while (attempt < maxRetries) {
-            try{
-                uploadMutex.withLock {
-                    val meetingIdBody = chunkData.meetingId.toString()
-                        .toRequestBody("text/plain".toMediaTypeOrNull())
-                    val startTimeBody = chunkData.startTime
-                        .toRequestBody("text/plain".toMediaTypeOrNull())
-                    val durationBody = chunkData.duration.toString()
-                        .toRequestBody("text/plain".toMediaTypeOrNull())
-                    val currentChunkBody = chunkData.currentChunk.toString()
-                        .toRequestBody("text/plain".toMediaTypeOrNull())
-                    val totalChunksBody = chunkData.totalChunks.toString()
-                        .toRequestBody("text/plain".toMediaTypeOrNull())
+    private suspend fun uploadChunk(chunkData: WavUploadData): Boolean {
+        return try {
+            uploadMutex.withLock {
+                val meetingIdBody = chunkData.meetingId.toString()
+                    .toRequestBody("text/plain".toMediaTypeOrNull())
+                val startTimeBody = chunkData.startTime
+                    .toRequestBody("text/plain".toMediaTypeOrNull())
+                val durationBody = chunkData.duration.toString()
+                    .toRequestBody("text/plain".toMediaTypeOrNull())
+                val currentChunkBody = chunkData.currentChunk.toString()
+                    .toRequestBody("text/plain".toMediaTypeOrNull())
+                val totalChunksBody = chunkData.totalChunks.toString()
+                    .toRequestBody("text/plain".toMediaTypeOrNull())
 
-                    val chunkPart = MultipartBody.Part.createFormData(
-                        "file",
-                        "chunk_${chunkData.currentChunk}.wav",
-                        chunkData.chunkData.toRequestBody("audio/wav".toMediaTypeOrNull())
-                    )
+                val chunkPart = MultipartBody.Part.createFormData(
+                    "file",
+                    "chunk_${chunkData.currentChunk}.wav",
+                    chunkData.chunkData.toRequestBody("audio/wav".toMediaTypeOrNull())
+                )
 
-                    val response = apiService.uploadWavChunk(
-                        meetingId = meetingIdBody,
-                        startTime = startTimeBody,
-                        duration = durationBody,
-                        currentChunk = currentChunkBody,
-                        totalChunks = totalChunksBody,
-                        file = chunkPart
-                    )
-                    if (!response.isSuccessful) {
-                        throw Exception("청크 업로드 실패: ${response.message()}")
-                    }
+                val response = apiService.uploadWavChunk(
+                    meetingId = meetingIdBody,
+                    startTime = startTimeBody,
+                    duration = durationBody,
+                    currentChunk = currentChunkBody,
+                    totalChunks = totalChunksBody,
+                    file = chunkPart
+                )
 
-                    Logger.i("청크 업로드 성공: ${chunkData.currentChunk}/${chunkData.totalChunks}")
-                    return true
+                if (!response.isSuccessful) {
+                    throw Exception("청크 업로드 실패: ${response.message()}")
                 }
-            } catch (e: Exception) {
-                Logger.e("청크 업로드 중 오류", e)
+
+                Logger.i("청크 업로드 성공: ${chunkData.currentChunk}/${chunkData.totalChunks}")
+                return true
             }
-            attempt++
-            delay(2000L) // 재시도 대기
+        } catch (e: Exception) {
+            Logger.e("청크 업로드 중 오류", e)
+            return false
         }
-        return false
     }
 
     private fun getCurrentTime(): String {

@@ -62,18 +62,25 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
 
+    implementation(platform("androidx.compose:compose-bom:2024.02.00")) // 최신 BOM 사용
+    implementation("androidx.compose.ui:ui")
+    implementation("androidx.compose.ui:ui-tooling-preview")
+    implementation("androidx.compose.material3:material3")
+    // Icons Extended
+    implementation("androidx.compose.material:material-icons-extended")
+    implementation("androidx.navigation:navigation-compose")
+
     // ViewModel for Compose
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
 
     // 추가할 의존성들
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
-    implementation("androidx.navigation:navigation-compose:2.7.7")
     implementation("androidx.compose.runtime:runtime")
     implementation("androidx.compose.runtime:runtime-livedata")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
 
-    // Icons Extended (기존)
-    implementation("androidx.compose.material:material-icons-extended:1.6.0")
+
+
 
     // Retrofit & OkHttp for networking
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
@@ -87,12 +94,12 @@ dependencies {
 
 // Hilt
     implementation("com.google.dagger:hilt-android:2.48")
+    implementation(libs.androidx.ui.android)
     kapt("com.google.dagger:hilt-android-compiler:2.48")
     implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
 
     // Compose Material3
-    implementation("androidx.compose.material3:material3:1.2.0")
-    implementation("androidx.compose.material3:material3-window-size-class:1.2.0")
+    implementation("androidx.compose.material3:material3-window-size-class")
 
     //음성처리
 

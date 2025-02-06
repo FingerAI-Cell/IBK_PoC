@@ -27,14 +27,13 @@ export default function GreetingSection({
   return (
     <div className={styles.container}>
       <div className={styles.greeting}>
-        <h1>{isFinancialService ? '재무제표 도우미입니다.' : config.greeting}</h1>
-        {isFinancialService ? (
+        <h1>{config.greeting}</h1>
+        {/* {isFinancialService ? (
           <p className={styles.updateMessage}>서비스 업데이트 예정입니다.</p>
-        ) : (
+        ) : ( */}
           <p>무엇이든 물어보세요.</p>
-        )}
+        {/* )} */}
       </div>
-      {!isFinancialService && (
         <>
           <div className={styles.chatBox}>
             <div className={styles.inputContainer}>
@@ -57,7 +56,6 @@ export default function GreetingSection({
           </div>
           <FAQSection faqs={faqs} onFAQClick={onFAQClick} />
         </>
-      )}
     </div>
   );
 }
