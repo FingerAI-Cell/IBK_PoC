@@ -25,7 +25,8 @@ export const DocumentCard: React.FC<DocumentItemProps> = ({ metadata }) => {
     // 환경 변수에 따라 URL 생성
 
     // 절대 경로로 요청 URL 생성
-    const downloadUrl = `/api/onelineai/download?file=${encodeURIComponent(metadata.file_name).replace(/&/g, "%26")}`;
+    const processedFileName = metadata.file_name.replace(/,/g, "%2C").replace(/&/g, "%26");
+    const downloadUrl = `/api/onelineai/download?file=${encodeURIComponent(processedFileName)}`;
     const link = document.createElement("a");
     link.href = downloadUrl;
     link.download = metadata.file_name; // 다운로드 파일명 설정

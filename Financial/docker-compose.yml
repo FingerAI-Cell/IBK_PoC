@@ -7,6 +7,12 @@ services:
     networks:
       - ibk-network
     environment:
+      - PORT=3005
+      - DB_HOST=postgres_postgresql-master_1
+      - DB_NAME=ibk_poc_financial_statements
+      - DB_USER=ibk-manager
+      - DB_PASSWORD=fingerai2024!
+      - DB_PORT=5432
       - NODE_ENV=production
 
 networks:

@@ -5,7 +5,7 @@ const fs = require('fs');
 const winston = require('winston');
 
 const app = express();
-const port = 3005;
+const port = process.env.PORT || 3005;
 
 // ✅ 로그 파일 설정
 const logDir = 'logs';
@@ -27,11 +27,11 @@ const logger = winston.createLogger({
 
 // PostgreSQL 연결 설정
 const pool = new Pool({
-    host: "postgres_postgresql-master_1", //localhost
-    database: "ibk_poc_financial_statements",
-    user: "ibk-manager",
-    password: "fingerai2024!",
-    port: 5432
+    host: process.env.DB_HOST || "postgres_postgresql-master_1",
+    database: process.env.DB_NAME || "ibk_poc_financial_statements",
+    user: process.env.DB_USER || "ibk-manager",
+    password: process.env.DB_PASSWORD || "fingerai2024!",
+    port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 5432
 });
 
 // ✅ 요청 로깅 (IP, 요청 시간, 쿼리 파라미터 포함)

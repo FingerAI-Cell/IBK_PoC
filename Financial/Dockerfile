@@ -12,7 +12,10 @@ RUN npm install
 COPY . .
 
 # 포트 설정 (Express가 사용하는 포트)
-EXPOSE 3000
+EXPOSE 3005
+
+# Next.js 프로젝트 빌드
+RUN npm run build
 
 # 실행 명령어
 CMD ["node", "financialAPI.js"]

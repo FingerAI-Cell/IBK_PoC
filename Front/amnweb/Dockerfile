@@ -35,9 +35,9 @@ COPY --from=base /app/package.json ./
 
 EXPOSE 3000
 
-
+# 아래가 중요 서버 도커파일임
 # # Node.js 22 이미지 사용
-# FROM node:22-alpine
+# FROM ibk-poc-front:latest
 
 # # 작업 디렉토리 설정
 # WORKDIR /app
@@ -57,13 +57,5 @@ EXPOSE 3000
 # # Next.js 프로젝트 빌드
 # RUN npm run build
 
-# # 호스트 설정
-# # 환경 변수 설정 (호스트와 포트)
-# ENV HOST=0.0.0.0
-# ENV PORT=3000
-
 # # 포트 설정
 # EXPOSE 3000
-
-# # 실행 명령
-# CMD ["npm", "start"]
