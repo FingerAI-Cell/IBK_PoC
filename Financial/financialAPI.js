@@ -45,9 +45,10 @@ app.use((req, res, next) => {
 app.get('/api/financials', async (req, res) => {
     const { report_period, financial_name, company_name, ranking, order_by, limit } = req.query;
     let query = `SELECT report_period, financial_name, company_name, data, ranking, difer_data FROM financial_rank_table WHERE 1=1`;
+    let values = [];
     try {
         
-        let values = [];
+        
 
         // ✅ 다중 값 OR 처리 (쉼표 `,`로 구분된 값)
         const addFilter = (column, param) => {

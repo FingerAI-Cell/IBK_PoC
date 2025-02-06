@@ -9,6 +9,9 @@ import styles from "../ChatBox/ChatBox.module.css";
 import { useService } from "@/app/context/ServiceContext";
 import { useChat } from "@/app/context/ChatContext";
 import { serviceConfig } from "@/app/config/serviceConfig";
+import DocumentList from "@/app/chatbot/documentList";
+import { DocumentCard } from "@/app/chatbot/DocumentCard";
+import { createRoot } from "react-dom/client";
 
 // 문서 메타데이터 타입
 interface DocumentMetadata {
@@ -47,6 +50,14 @@ interface CoAgentState {
   state: AgentState;
 }
 
+const DocumentSection = ({ documents }: { documents: RetrievedDocument[] }) => {
+  return (
+    <div className="p-4 mt-2 border-l-4 border-blue-500">
+      <h3 className="text-sm font-semibold">📄 관련 문서</h3>
+      <DocumentList data={documents} />
+    </div>
+  );
+};
 
 export default function Chat() {
   const currentService = useService().currentService;
@@ -118,30 +129,14 @@ export default function Chat() {
   
       if (lastMessage && !lastMessage.dataset.inserted) {
         const docContainer = document.createElement('div');
-        docContainer.className = "p-4 mt-2 border-l-4 border-blue-500";
-        docContainer.innerHTML = `<h3 class="text-sm font-semibold">📄 관련 문서</h3>`;
-  
-        documents.forEach((doc) => {
-          const metadata = doc.kwargs.metadata;
-          if (!metadata) return;
-  
-          const keywordsHTML = metadata.keywords.map((keyword) => `#${keyword}`).join(' ');
-  
-          const docElement = document.createElement('div');
-          docElement.innerHTML = `
-            <div class="p-2 border rounded shadow-sm mt-2">
-              <a href="${metadata.file_url}" target="_blank" class="text-blue-600 hover:underline">
-                ${metadata.file_name}
-              </a>
-              <p class="text-xs">주제: ${metadata.main_topic}</p>
-              <p class="text-xs">페이지 번호: ${metadata.page_number}</p>
-              <p class="text-xs text-gray-500">${keywordsHTML}</p>
-            </div>
-          `;
-          docContainer.appendChild(docElement);
-        });
-  
+        docContainer.id = 'document-section-container';
         lastMessage.appendChild(docContainer);
+        
+        // React 컴포넌트로 렌더링
+        createRoot(docContainer).render(
+          <DocumentSection documents={documents} />
+        );
+        
         lastMessage.dataset.inserted = "true";
       }
     }

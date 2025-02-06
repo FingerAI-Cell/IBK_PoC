@@ -15,6 +15,7 @@ export async function GET(req: NextRequest) {
   console.log("Environment:", process.env.NODE_ENV); // 현재 환경 확인
   console.log("Base URL:", baseUrl); // URL 확인
   console.log("Requested file:", fileName); // 요청된 파일명 확인
+  process.stdout.write(`\n🔍 [API 호출됨] 파일명: ${fileName}\n`); // 🚀 강제 출력
 
   if (!fileName) {
     return NextResponse.json(
@@ -25,7 +26,7 @@ export async function GET(req: NextRequest) {
 
   try {
     const filePath = path.join(process.cwd(), "public", "static", "documents", "manual", fileName);
-
+    console.log(`filePath:${filePath}`);
     if (!fs.existsSync(filePath)) {
       return NextResponse.json(
         { error: "파일을 찾을 수 없습니다." },
