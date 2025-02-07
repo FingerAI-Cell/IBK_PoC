@@ -18,24 +18,26 @@ import java.util.Map;
 @Service
 public class AISummarizer {
 
-    @Value("${ai.base-url}") // 환경별 URL 주입
-    private String apiUrl;
     private static final Logger logger = LoggerFactory.getLogger(WebService.class);
-    private final WebClient webClient;
+    private WebClient webClient;
     private final ObjectMapper objectMapper;
 
     public AISummarizer(WebClient.Builder webClientBuilder) {
         this.webClient = webClientBuilder
-                .baseUrl(apiUrl)
                 .build();
         this.objectMapper = new ObjectMapper();
     }
 
-    public String summarizeData(String rootJson) {
+    public String summarizeData(String rootJson, String apiUrl) {
+        this.webClient = WebClient.builder()
+                .baseUrl(apiUrl)
+                .build();
+
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("input", Map.of("root", rootJson));
         requestBody.put("config", new HashMap<>());
         requestBody.put("kwargs", new HashMap<>());
+
 
         try {
             // ObjectMapper로 JSON 요청 바디 로깅

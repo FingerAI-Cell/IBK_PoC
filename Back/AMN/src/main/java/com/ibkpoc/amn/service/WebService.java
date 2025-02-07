@@ -12,6 +12,7 @@ import com.ibkpoc.amn.repository.MeetingLogRepository;
 import com.ibkpoc.amn.repository.MeetingRepository;
 import com.ibkpoc.amn.repository.MeetingUserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +40,9 @@ public class WebService {
     private final MeetingLogRepository meetingLogRepository;
 
     private final AISummarizer summarizer;
+
+    @Value("${ai.base-url}") // 환경별 URL 주입
+    private String apiUrl_base;
 
     public List<MeetingResponseDto> getAllMeetings() {
         return meetingRepository.findAllByOrderByStartTimeDesc()
@@ -233,11 +237,16 @@ public class WebService {
             throw new RuntimeException("JSON 변환 실패");
         }
 
+// 여기에 가공 로직 하나더 추가
+
         // 5. AI 요약 호출
         String summaryResults;
         try {
-            summaryResults = summarizer.summarizeData(jsonString);
+            String apiUrl = apiUrl_base + "/summary/invoke";
+            summaryResults = summarizer.summarizeData(jsonString, apiUrl);
             logger.info("Summary results received: {}", summaryResults);
+            
+            // 여기에 호출 한번더 추가
 
             // 성공 시 DB에 요약 저장
             meeting.setSummary(summaryResults);
