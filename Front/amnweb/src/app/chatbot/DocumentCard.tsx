@@ -25,7 +25,7 @@ export const DocumentCard: React.FC<DocumentItemProps> = ({ metadata }) => {
     // 환경 변수에 따라 URL 생성
 
     // 절대 경로로 요청 URL 생성
-    const processedFileName = metadata.file_name.replace(/,/g, "%2C").replace(/&/g, "%26");
+    const processedFileName = metadata.file_name+".pdf";
     console.log(`processedFileName:${processedFileName}`);
     const downloadUrl = `/api/onelineai/download?file=${encodeURIComponent(processedFileName)}`;
     console.log(`downloadUrl:${downloadUrl}`);
@@ -56,14 +56,14 @@ export const DocumentCard: React.FC<DocumentItemProps> = ({ metadata }) => {
 
         {/* 문서 열기 및 다운로드 버튼 */}
         <div className="mt-4 flex gap-4">
-          <a
+          {/* <a
             href={metadata.file_url}
             target="_blank"
             rel="noopener noreferrer"
             className="text-blue-700 underline"
           >
             문서 열기
-          </a>
+          </a> */}
           <button
             onClick={handleDownload}
             className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-600"
