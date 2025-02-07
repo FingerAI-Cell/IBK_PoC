@@ -9,10 +9,6 @@ import styles from "../ChatBox/ChatBox.module.css";
 import { useService } from "@/app/context/ServiceContext";
 import { useChat } from "@/app/context/ChatContext";
 import { serviceConfig } from "@/app/config/serviceConfig";
-import DocumentList from "@/app/chatbot/documentList";
-import { DocumentCard } from "@/app/chatbot/DocumentCard";
-import { createPortal } from "react-dom"; // 🔥 React Portal 사용
-
 
 // 문서 메타데이터 타입
 interface DocumentMetadata {
@@ -51,14 +47,6 @@ interface CoAgentState {
   state: AgentState;
 }
 
-const DocumentSection = ({ documents }: { documents: RetrievedDocument[] }) => {
-  return (
-    <div className="p-4 mt-2 border-l-4 border-blue-500">
-      <h3 className="text-sm font-semibold">📄 관련 문서</h3>
-      <DocumentList data={documents} />
-    </div>
-  );
-};
 
 export default function Chat() {
   const currentService = useService().currentService;
@@ -68,7 +56,6 @@ export default function Chat() {
   const currentConfig = serviceConfig[currentService];
   const [documents, setDocuments] = useState<RetrievedDocument[]>([]);
   const [initialMessageSent, setInitialMessageSent] = useState(false);
-  const [docContainer, setDocContainer] = useState<HTMLElement | null>(null);
 
   const { nodeName, running, state } = useCoAgent<CoAgentState>({
     name: currentConfig.agent || "olaf_ibk_poc_agent",
@@ -126,20 +113,53 @@ export default function Chat() {
   
   useEffect(() => {
     if (chatContainerRef.current && documents.length > 0) {
-      setTimeout(() => { // 🔥 CopilotChat이 렌더링된 후 실행되도록 비동기 처리
+      setTimeout(() => {
         const messages = chatContainerRef.current.querySelectorAll('.copilotKitAssistantMessage');
         const lastMessage = messages[messages.length - 1] as HTMLDivElement;
   
         if (lastMessage && !lastMessage.dataset.inserted) {
           const docContainer = document.createElement('div');
-          docContainer.id = 'document-section-container';
+          docContainer.className = "p-4 mt-2 border-l-4 border-blue-500";
+          docContainer.innerHTML = `<h3 class="text-sm font-semibold">📄 관련 문서</h3>`;
+  
+          documents.forEach((doc) => {
+            const metadata = doc.kwargs.metadata;
+            if (!metadata) return;
+  
+            const docElement = document.createElement('div');
+            docElement.className = "p-2 border rounded shadow-sm mt-2";
+  
+            // 🔥 API 다운로드 URL을 href로 설정
+            const processedFileName = encodeURIComponent(metadata.file_name + ".pdf");
+            const downloadUrl = `/api/onelineai/download?file=${processedFileName}`;
+  
+            // 🔥 파일명을 클릭하면 바로 다운로드되도록 href 설정
+            const fileLink = document.createElement("a");
+            fileLink.href = downloadUrl;
+            fileLink.innerText = metadata.file_name;
+            fileLink.className = "text-blue-600 hover:underline cursor-pointer";
+            fileLink.setAttribute("download", metadata.file_name); // 다운로드 속성 추가
+  
+            // ✅ keywords가 undefined/null일 경우 빈 문자열 처리
+            const keywordsHTML = Array.isArray(metadata.keywords)
+              ? metadata.keywords.map((k) => `#${k}`).join(' ')
+              : "";
+  
+            // 문서 정보 추가
+            docElement.appendChild(fileLink);
+            docElement.innerHTML += `
+              <p class="text-xs">주제: ${metadata.main_topic}</p>
+              <p class="text-xs">페이지 번호: ${metadata.page_number}</p>
+              <p class="text-xs text-gray-500">${keywordsHTML}</p>
+            `;
+  
+            docContainer.appendChild(docElement);
+          });
+  
           lastMessage.appendChild(docContainer);
-  
-          setDocContainer(docContainer); // ✅ React 상태에 저장
-  
           lastMessage.dataset.inserted = "true";
         }
-      }, 0); // CopilotChat이 렌더링된 후 실행되도록 비동기 처리
+      }, 0);
     }
   }, [documents]);
   
@@ -226,8 +246,6 @@ export default function Chat() {
             }}
           />
         </div>
-        {/* 🔥 React Portal을 사용하여 문서를 AI 응답 아래에 추가 */}
-        {docContainer && createPortal(<DocumentSection documents={documents} />, docContainer)}
       </div>
   );
 }
