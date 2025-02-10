@@ -1,5 +1,5 @@
 # Node.js 최신 버전 (로컬과 맞추기)
-FROM node:22-alpine
+FROM financial-api
 
 # 컨테이너 내부 작업 디렉토리 설정
 WORKDIR /app
