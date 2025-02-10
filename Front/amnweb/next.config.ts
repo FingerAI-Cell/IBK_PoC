@@ -14,6 +14,15 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  transpilePackages: ['@react-pdf/renderer'],
+  webpack: (config) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      canvas: false,
+      encoding: false
+    }
+    return config
+  }
 };
 
 export default nextConfig;

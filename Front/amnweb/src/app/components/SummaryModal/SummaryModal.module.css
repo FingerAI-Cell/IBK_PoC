@@ -1,3 +1,4 @@
+/* 모달 기본 스타일 */
 .modalOverlay {
   position: fixed;
   inset: 0;
@@ -22,6 +23,7 @@
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
+/* 모달 헤더 */
 .modalHeader {
   padding: 20px;
   border-bottom: 1px solid #eee;
@@ -40,66 +42,200 @@
   flex: 1;
 }
 
-.headerButtons {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+/* 탭 스타일 */
+.tabHeader {
+  padding: 0 20px;
+  border-bottom: 1px solid #eee;
 }
 
+.tabList {
+  display: flex;
+  gap: 20px;
+}
+
+.tab {
+  padding: 16px 32px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #666;
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.tabSelected {
+  color: #2C3E50;
+  border-bottom: 2px solid #4CAF50;
+  font-weight: 600;
+}
+
+/* 모달 컨텐츠 */
 .modalContent {
   flex: 1;
-  overflow-y: auto;
-  padding: 20px;
+  overflow: hidden;
   background: white;
 }
 
 .contentWrapper {
-  max-width: 100%;
-  margin: 0 auto;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .meetingInfo {
-  background: #f8f9fa;
-  padding: 20px;
-  border-radius: 8px;
-  margin-bottom: 24px;
+  background: #F8F9FA;
+  padding: 24px;
+  border-radius: 12px;
+  margin: 20px 30px;
+  border: 1px solid #E9ECEF;
 }
 
 .infoItem {
-  margin-bottom: 12px;
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  align-items: center;
+  margin-bottom: 12px;
 }
 
-@media (max-width: 768px) {
-  .infoItem {
-    flex-direction: column;
-  }
-  
-  .label {
-    min-width: auto;
-    margin-right: 0;
-  }
-  
-  .modalHeader {
-    padding: 15px;
-    height: 60px;
-  }
-  
-  .modalTitle {
-    font-size: 1.2rem;
-  }
-  
-  .downloadButton {
-    padding: 6px 12px;
-    font-size: 0.9rem;
-  }
-  
-  .closeButton {
-    width: 32px;
-    height: 32px;
-  }
+.infoItem:last-child {
+  margin-bottom: 0;
+}
+
+.label {
+  font-weight: 600;
+  color: #495057;
+  min-width: 120px;
+  margin-right: 16px;
+}
+
+/* 탭 패널 */
+.tabPanels {
+  flex: 1;
+  overflow: hidden;
+}
+
+/* 전체 요약 탭 */
+.overallSummary {
+  height: calc(100vh - 300px);
+  padding: 20px 30px;
+  overflow-y: auto;
+}
+
+.summarySection {
+  margin-bottom: 40px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.summaryTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2C3E50;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #E8F5E9;
+}
+
+.summaryList {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.summaryList li {
+  position: relative;
+  padding: 12px 0 12px 24px;
+  margin: 8px 0;
+  color: #444;
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+.summaryList li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 20px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #4CAF50;
+}
+
+/* 에러 메시지 스타일 */
+.errorMessage {
+  padding: 20px;
+  text-align: center;
+  color: #666;
+  font-size: 1rem;
+}
+
+/* 화자별 요약 탭 */
+.mainContent {
+  padding: 30px;
+  overflow-y: auto;
+  height: calc(90vh - 220px);
+}
+
+.contentText {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.topicSection {
+  margin-bottom: 40px;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.topicTitle {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #E8F5E9;
+}
+
+.speakerSection {
+  margin-left: 0;
+  margin-bottom: 20px;
+}
+
+.speakerDetails {
+  margin-bottom: 16px;
+  display: block;
+}
+
+.speakerName {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2C3E50;
+  margin-bottom: 8px;
+}
+
+.speakerContent {
+  display: block;
+  font-size: 1rem;
+  color: #4A4A4A;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.headerButtons {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  z-index: 2;
 }
 
 .downloadButton {
@@ -138,13 +274,6 @@
   background: #e0e0e0;
 }
 
-.label {
-  font-weight: 600;
-  color: #666;
-  min-width: 120px;
-  margin-right: 16px;
-}
-
 .divider {
   height: 1px;
   background: #eee;
@@ -158,72 +287,52 @@
   margin-bottom: 16px;
 }
 
-.mainContent {
-  padding: 0 20px;
+@media (max-width: 768px) {
+  .infoItem {
+    flex-direction: column;
+  }
+  
+  .label {
+    min-width: auto;
+    margin-right: 0;
+  }
+  
+  .modalHeader {
+    padding: 15px;
+    height: 60px;
+  }
+  
+  .modalTitle {
+    font-size: 1.2rem;
+  }
+  
+  .downloadButton {
+    padding: 6px 12px;
+    font-size: 0.9rem;
+  }
+  
+  .closeButton {
+    width: 32px;
+    height: 32px;
+  }
 }
 
-.contentText {
-  line-height: 1.8;
-  color: #444;
-  white-space: pre-wrap;
-  font-size: 1rem;
-} 
-
-.topicSection {
-  margin-bottom: 20px;
-  padding: 15px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background-color: #f9f9f9;
+/* 스크롤바 스타일링 (선택사항) */
+.mainContent::-webkit-scrollbar {
+  width: 8px;
 }
 
-.topicTitle {
-  font-size: 1.2rem;
-  font-weight: bold;
-  margin-bottom: 10px;
-}
-.speakerName {
-  font-weight: bold;
-  color: #333;
-  margin-right: 8px;
+.mainContent::-webkit-scrollbar-track {
+  background: #f1f1f1;
 }
 
-.speakerContent {
-  font-size: 0.95rem;
-  color: #555;
-  line-height: 1.6;
+.mainContent::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
 }
 
-.speakerDetails {
-  margin: 5px 0;
-  font-size: 0.85rem;
-  color: #555;  
-}
-.speakerDetails {
-  margin-bottom: 10px;
-  display: flex;
-  align-items: flex-start;
-}
-
-.speakerSection {
-  margin-left: 15px;
-  margin-bottom: 10px;
-}
-
-.speakerText {
-  margin: 5px 0;
-  font-size: 0.95rem;
-}
-
-/* 헤더 버튼을 모달 상단 오른쪽에 고정 */
-.headerButtons {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  z-index: 2;
+.mainContent::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
 
 
