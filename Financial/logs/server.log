@@ -25,3 +25,24 @@
 2025-02-03 18:54:14 [INFO] DB Query Success: [GET] /api/financials?report_period=2023-Q4,2024-Q1&company_name=KB%EC%A6%9D%EA%B6%8C,IBK%ED%88%AC%EC%9E%90%EC%A6%9D%EA%B6%8C - Rows Retrieved: 40
 2025-02-04 14:54:43 [INFO] 🚀 Server started on http://localhost:3005
 2025-02-06 13:05:40 [INFO] 🚀 Server started on http://localhost:3005
+2025-02-10 13:56:57 [INFO] 🚀 Server started on http://localhost:3005
+2025-02-10 13:57:33 [INFO] Incoming Request: [GET] /api/financials?report_period=2023-Q4 from ::1 - Params: {"report_period":"2023-Q4"}
+2025-02-10 13:57:33 [INFO] Executing SQL: SELECT report_period, financial_name, company_name, data, ranking, difer_data FROM financial_rank_table WHERE 1=1 AND report_period = $1 ORDER BY financial_name ASC LIMIT $2 - Params: ["2023-Q4",10]
+2025-02-10 13:57:34 [ERROR] DB Query Error: getaddrinfo ENOTFOUND postgres_postgresql-master_1 - SQL: SELECT report_period, financial_name, company_name, data, ranking, difer_data FROM financial_rank_table WHERE 1=1 AND report_period = $1 ORDER BY financial_name ASC LIMIT $2 - Params: ["2023-Q4",10]
+2025-02-10 14:06:00 [INFO] Incoming Request: [GET] /api/financials?report_period=2023-Q4 from ::1 - Params: {"report_period":"2023-Q4"}
+2025-02-10 14:06:00 [INFO] Executing SQL: SELECT report_period, financial_name, company_name, data, ranking, difer_data FROM financial_rank_table WHERE 1=1 AND report_period = $1 ORDER BY financial_name ASC LIMIT $2 - Params: ["2023-Q4",10]
+2025-02-10 14:06:02 [ERROR] DB Query Error: getaddrinfo ENOTFOUND postgres_postgresql-master_1 - SQL: SELECT report_period, financial_name, company_name, data, ranking, difer_data FROM financial_rank_table WHERE 1=1 AND report_period = $1 ORDER BY financial_name ASC LIMIT $2 - Params: ["2023-Q4",10]
+2025-02-10 14:07:04 [INFO] Incoming Request: [GET] /api/financials?report_period=2023-Q4 from ::1 - Params: {"report_period":"2023-Q4"}
+2025-02-10 14:07:04 [INFO] Executing SQL: SELECT report_period, financial_name, company_name, data, ranking, difer_data FROM financial_rank_table WHERE 1=1 AND report_period = $1 ORDER BY financial_name ASC LIMIT $2 - Params: ["2023-Q4",10]
+2025-02-10 14:07:05 [ERROR] DB Query Error: getaddrinfo ENOTFOUND postgres_postgresql-master_1 - SQL: SELECT report_period, financial_name, company_name, data, ranking, difer_data FROM financial_rank_table WHERE 1=1 AND report_period = $1 ORDER BY financial_name ASC LIMIT $2 - Params: ["2023-Q4",10]
+2025-02-10 14:07:10 [INFO] 🚀 Server started on http://localhost:3005
+2025-02-10 14:07:11 [INFO] Incoming Request: [GET] /api/financials?report_period=2023-Q4 from ::1 - Params: {"report_period":"2023-Q4"}
+2025-02-10 14:07:11 [INFO] Executing SQL: SELECT report_period, financial_name, company_name, data, ranking, difer_data FROM financial_rank_table WHERE 1=1 AND report_period = $1 ORDER BY financial_name ASC LIMIT $2 - Params: ["2023-Q4",10]
+2025-02-10 14:07:11 [INFO] DB Query Success: [GET] /api/financials?report_period=2023-Q4 - Rows Retrieved: 10
+2025-02-10 14:09:45 [INFO] Incoming Request: [GET] /api/financials?financial_name=roe,roa from ::1 - Params: {"financial_name":"roe,roa"}
+2025-02-10 14:09:45 [INFO] Executing SQL: SELECT report_period, financial_name, company_name, data, ranking, difer_data FROM financial_rank_table WHERE 1=1 AND financial_name IN ($1, $2) ORDER BY financial_name ASC LIMIT $3 - Params: ["roe","roa",10]
+2025-02-10 14:09:45 [INFO] DB Query Success: [GET] /api/financials?financial_name=roe,roa - Rows Retrieved: 10
+2025-02-10 16:45:49 [INFO] 🚀 Server started on http://localhost:3005
+2025-02-10 16:45:58 [INFO] Incoming Request: [GET] /api/financials?financial_name=roe,roa from ::1 - Params: {"financial_name":"roe,roa"}
+2025-02-10 16:45:58 [INFO] Executing SQL: SELECT report_period, financial_name, company_name, data, ranking, difer_data FROM financial_rank_table WHERE 1=1 AND financial_name IN ($1, $2) ORDER BY ranking ASC - Params: ["roe","roa"]
+2025-02-10 16:45:58 [INFO] DB Query Success: [GET] /api/financials?financial_name=roe,roa - Rows Retrieved: 814

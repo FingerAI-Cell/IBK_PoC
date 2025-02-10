@@ -44,12 +44,10 @@ app.use((req, res, next) => {
 // GET 요청 처리
 app.get('/api/financials', async (req, res) => {
     const { report_period, financial_name, company_name, ranking, order_by, limit } = req.query;
+
     let query = `SELECT report_period, financial_name, company_name, data, ranking, difer_data FROM financial_rank_table WHERE 1=1`;
     let values = [];
     try {
-        
-        
-
         // ✅ 다중 값 OR 처리 (쉼표 `,`로 구분된 값)
         const addFilter = (column, param) => {
             if (!param) return "";
@@ -70,8 +68,13 @@ app.get('/api/financials', async (req, res) => {
         addFilter("company_name", company_name);
         addFilter("ranking", ranking ? ranking.split(',').map(r => parseInt(r, 10)).join(',') : null); // 숫자 변환
 
-        // ✅ 정렬 및 제한
-        if (order_by) query += ` ORDER BY ${order_by} DESC`;
+        // // ✅ 정렬 및 제한
+        // if (order_by) query += ` ORDER BY ${order_by} DESC`;
+        // ✅ ORDER BY 설정 (기본값: ranking ASC)
+        let sortOrder = (order_by && order_by.toUpperCase() === "DESC") ? "DESC" : "ASC";
+        query += ` ORDER BY ranking ${sortOrder}`;
+
+        // ✅ LIMIT 적용 (사용자가 명시적으로 지정한 경우만 추가)
         if (limit) {
             query += ` LIMIT $${values.length + 1}`;
             values.push(parseInt(limit));
@@ -94,7 +97,7 @@ app.get('/api/financials', async (req, res) => {
                 "financial_name": financial_name || null,
                 "company_name": company_name || null,
                 "ranking": ranking || null,
-                "order_by": order_by || null,
+                "order_by": `ranking ${sortOrder}`,
                 "limit": limit ? parseInt(limit) : null
             },
             "results": result.rows
