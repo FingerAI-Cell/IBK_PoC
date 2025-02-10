@@ -57,8 +57,13 @@ def create_excel_file(year, quarter, financial_data):
         for row, data in enumerate(field_data, start=5):  # 데이터는 5행부터 시작
             company_name = data[1]
             value = data[2]
-            differ_data = int(data[3])
-            direction = "▲" if differ_data > 0 else ("▼" if differ_data < 0 else "-")
+            # difer_data가 NULL이면 "X", 아니면 int 변환
+            if data[3] is None:
+                differ_data = "X"
+                direction = "X"
+            else:
+                differ_data = int(data[3])
+                direction = "▲" if differ_data > 0 else ("▼" if differ_data < 0 else "-")
             
             # 억 단위로 변환 및 반올림 (소수점 1자리)
             if field in ["total_equity", "net_income", "total_assets", "capital_stock"]:
@@ -69,7 +74,7 @@ def create_excel_file(year, quarter, financial_data):
             # 회사명, 값, 변동 삽입
             sheet[f"{col_company}{row}"] = company_name
             sheet[f"{col_value}{row}"] = value
-            if differ_data==0:
+            if differ_data in ["X", 0]:
                 sheet[f"{col_diff}{row}"] = f"{direction}"
             else:      
                 sheet[f"{col_diff}{row}"] = f"{direction}{abs(differ_data)}"

@@ -255,5 +255,4 @@ if __name__ == "__main__":
     year = int(sys.argv[1]) if len(sys.argv) > 1 else None
     quarter = int(sys.argv[2]) if len(sys.argv) > 2 else None
     main(year, quarter)
-    # 아래는 나중에 지워야 할 수 있음.
     

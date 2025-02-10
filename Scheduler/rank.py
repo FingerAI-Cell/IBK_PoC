@@ -43,10 +43,7 @@ def update_diff_data(db_conn, report_period):
 
             # 이전 분기 계산
             year, quarter = map(int, report_period.split('-Q'))
-            if quarter == 1:
-                prev_report_period = f"{year - 1}-Q4"  # 작년 4분기
-            else:
-                prev_report_period = f"{year}-Q{quarter - 1}"  # 같은 해 이전 분기
+            prev_report_period = f"{year - 1}-Q{quarter}"  # 전년도 같은 분기
 
             # 이전 분기의 순위와 현재 분기의 순위 비교
             diff_query = f"""
