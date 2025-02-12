@@ -53,35 +53,51 @@ public class WebService {
 
     @Transactional(readOnly = true)
     public MeetingSummaryResponseDto getMeetingSummaryById(Long meetingId) throws FileNotFoundException {
-        // 1. DB에서 summary 데이터 조회
-        String summary = meetingRepository.findById(meetingId)
-                .map(Meeting::getSummary)
+        Meeting meeting = meetingRepository.findById(meetingId)
                 .orElseThrow(() -> new FileNotFoundException("Meeting not found: " + meetingId));
-        if (summary == null || summary.isBlank()) {
-            throw new IllegalStateException("Summary data is missing");
+
+        // 🔹 전체 요약 (OverallSummary) 처리
+        List<MeetingSummaryResponseDto.OverallTopicDetail> overallTopics =
+                (List<MeetingSummaryResponseDto.OverallTopicDetail>) parseSummary(meeting.getOverallSummary(), true);
+
+        // 🔹 화자별 요약 (SpeakerSummary) 처리
+        List<MeetingSummaryResponseDto.SpeakerTopicDetail> speakerTopics =
+                (List<MeetingSummaryResponseDto.SpeakerTopicDetail>) parseSummary(meeting.getSummary(), false);
+
+        return MeetingSummaryResponseDto.builder()
+                .overall(MeetingSummaryResponseDto.OverallSummary.builder().topics(overallTopics).build())
+                .speaker(MeetingSummaryResponseDto.SpeakerSummary.builder().topics(speakerTopics).build())
+                .build();
+    }
+
+
+    private List<?> parseSummary(String json, boolean isOverall) {
+        if (json == null || json.isBlank()) {
+            return List.of(); // 빈 리스트 반환
         }
-        // 2. JSON 데이터 추출
+
+        // 1. JSON을 Map으로 변환
         Map<String, Object> summaryData;
         try {
-            summaryData = objectMapper.readValue(summary, Map.class); // JSON 문자열을 Map으로 변환
+            summaryData = objectMapper.readValue(json, Map.class);
         } catch (Exception e) {
             throw new RuntimeException("Failed to parse summary JSON", e);
         }
 
-        // 3. output 필드 확인 및 추출
+        // 2. output 필드 추출
         String rawOutput = (String) summaryData.get("output");
         if (rawOutput == null || rawOutput.isBlank()) {
             throw new IllegalStateException("Output field is missing or empty");
         }
 
-        // 4. output 필드 정리
+        // 3. output 필드 정리
         String cleanedOutput = rawOutput
                 .replaceAll("^```json", "") // 시작 부분의 ```json 제거
                 .replaceAll("```", "")     // 끝 부분의 ``` 제거
                 .replace("\n", "")         // 줄바꿈 제거
                 .trim();
 
-        // 5. JSON 데이터 파싱
+        // 4. JSON 데이터 파싱
         List<Map<String, Object>> parsedOutput;
         try {
             parsedOutput = objectMapper.readValue(cleanedOutput, List.class);
@@ -90,40 +106,36 @@ public class WebService {
             logger.error("Failed to parse output JSON", e);
             throw new RuntimeException("Failed to parse output JSON", e);
         }
-        logger.info("Raw summary data: {}", summary);
-        logger.info("Parsed summary data: {}", summaryData);
-        logger.info("Raw output: {}", rawOutput);
-        logger.info("Cleaned output: {}", cleanedOutput);
 
-        // 6. TopicDetail 리스트 생성
-        List<MeetingSummaryResponseDto.TopicDetail> topics = parsedOutput.stream()
-                .map(item -> {
-                    // topic 추출
-                    String topic = (String) item.get("topic");
-                    if (topic == null || topic.isBlank()) {
-                        throw new IllegalStateException("Topic field is missing or empty");
-                    }
+        // 🔹 5. 변환 로직 (Overall vs. Speaker 구분)
+        if (isOverall) {
+            return parsedOutput.stream()
+                    .map(item -> new MeetingSummaryResponseDto.OverallTopicDetail(
+                            (String) item.get("topic"),
+                            (String) item.get("content")
+                    ))
+                    .collect(Collectors.toList());
+        } else {
+            return parsedOutput.stream()
+                    .map(item -> {
+                        String topic = (String) item.get("topic");
+                        if (topic == null || topic.isBlank()) {
+                            throw new IllegalStateException("Topic field is missing or empty");
+                        }
 
-                    // speaker 변환: topic 이외의 모든 키를 스피커로 처리
-                    List<MeetingSummaryResponseDto.SpeakerDetail> speakers = item.entrySet().stream()
-                            .filter(entry -> !"topic".equals(entry.getKey())) // topic 키 제외
-                            .map(entry -> MeetingSummaryResponseDto.SpeakerDetail.builder()
-                                    .name(entry.getKey()) // 키를 스피커 이름으로 사용
-                                    .content(entry.getValue().toString()) // 값을 발언 내용으로 사용
-                                    .build())
-                            .toList();
+                        // 🔹 Speaker 변환
+                        List<MeetingSummaryResponseDto.SpeakerDetail> speakers = item.entrySet().stream()
+                                .filter(entry -> !"topic".equals(entry.getKey()))
+                                .map(entry -> new MeetingSummaryResponseDto.SpeakerDetail(
+                                        entry.getKey(), // 키를 스피커 이름으로 사용
+                                        entry.getValue().toString() // 값을 발언 내용으로 사용
+                                ))
+                                .collect(Collectors.toList());
 
-                    return MeetingSummaryResponseDto.TopicDetail.builder()
-                            .topic(topic)
-                            .speakers(speakers)
-                            .build();
-                })
-                .toList();
-
-        // 7. DTO 반환
-        return MeetingSummaryResponseDto.builder()
-                .topics(topics)
-                .build();
+                        return new MeetingSummaryResponseDto.SpeakerTopicDetail(topic, speakers);
+                    })
+                    .collect(Collectors.toList());
+        }
     }
 
 
@@ -134,7 +146,7 @@ public class WebService {
                 .title(meeting.getTitle())
                 .startTime(meeting.getStartTime())
                 .endTime(meeting.getEndTime())
-                .summarySign((meeting.getSummary()!=null))
+                .summarySign(meeting.getSummary() != null && meeting.getOverallSummary() != null) // 새로운 조건 추가
                 .sttSign(meeting.getSttSign())
                 .build();
     }
@@ -237,19 +249,19 @@ public class WebService {
             throw new RuntimeException("JSON 변환 실패");
         }
 
-// 여기에 가공 로직 하나더 추가
-
         // 5. AI 요약 호출
-        String summaryResults;
         try {
-            String apiUrl = apiUrl_base + "/summary/invoke";
-            summaryResults = summarizer.summarizeData(jsonString, apiUrl);
-            logger.info("Summary results received: {}", summaryResults);
-            
-            // 여기에 호출 한번더 추가
+            // 🔹 5. AI API 호출 (화자별 요약)
+            String speakerSummaryJson = summarizer.summarizeData(jsonString, apiUrl_base + "/summary/invoke");
+            logger.info("Speaker summary received: {}", speakerSummaryJson);
 
-            // 성공 시 DB에 요약 저장
-            meeting.setSummary(summaryResults);
+            // 🔹 6. AI API 호출 (전체 요약)
+            String overallSummaryJson = summarizer.summarizeData(jsonString, apiUrl_base + "/summary/another/invoke");
+            logger.info("Overall summary received: {}", overallSummaryJson);
+
+            // 🔹 7. DB 저장
+            meeting.setSummary(speakerSummaryJson);
+            meeting.setOverallSummary(overallSummaryJson);
             meetingRepository.save(meeting);
             logger.info("Summary saved to database for confId: {}", confId);
         } catch (Exception e) {

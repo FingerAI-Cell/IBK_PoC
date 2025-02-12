@@ -34,7 +34,7 @@ public class AISummarizer {
                 .build();
 
         Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("input", Map.of("root", rootJson));
+        requestBody.put("input", rootJson);
         requestBody.put("config", new HashMap<>());
         requestBody.put("kwargs", new HashMap<>());
 

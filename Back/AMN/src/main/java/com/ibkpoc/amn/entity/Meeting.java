@@ -22,6 +22,9 @@ public class Meeting {
     private LocalDateTime endTime;
     private Boolean isActive;
     private String summary;
+    @Column(name = "overall_sumaary")
+    private String overallSummary; // 전체 요약 추가
+
     private String topic;
     @Column(name = "participant_count") // 컬럼명 명시
     private Integer participants; // 참가자 수
