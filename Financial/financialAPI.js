@@ -41,9 +41,49 @@ app.use((req, res, next) => {
     next();
 });
 
+// 재무지표 한글-영문 매핑
+const financialNameMapping = {
+    "자산 대비 이익률": "roa",
+    "총 자본": "total_equity",
+    "자기자본": "total_equity",
+    "순이익": "net_income",
+    "자본금": "capital_stock",
+    "주식자본": "capital_stock",
+    "국내 지점 수": "domestic_locations",
+    "레버리지 비율": "leverage_ratio",
+    "순자본비율": "net_capital_ratio",
+    "순자본비율(ncr)": "net_capital_ratio",
+    "ncr": "net_capital_ratio",
+    "자기자본이익률": "roe",
+    "총자산": "total_assets",
+    "총 직원 수": "total_employees"
+};
+
 // GET 요청 처리
 app.get('/api/financials', async (req, res) => {
-    const { report_period, financial_name, company_name, ranking, order_by, limit } = req.query;
+    let { report_period, financial_name, company_name, ranking, order_by, limit } = req.query;
+
+    // financial_name 변환 처리
+    if (financial_name) {
+        const originalNames = financial_name.split(',');
+        const mappedNames = originalNames.map(name => {
+            // 모든 공백 제거 및 소문자 변환으로 정규화
+            const normalizedName = name.trim().replace(/\s+/g, '');
+            
+            // 정규화된 키로 매핑 찾기
+            const mappedValue = Object.entries(financialNameMapping).find(([key, value]) => {
+                const normalizedKey = key.replace(/\s+/g, '');
+                return normalizedKey === normalizedName;
+            });
+
+            if (mappedValue) {
+                logger.info(`Financial name mapping: "${name}" -> "${mappedValue[1]}"`);
+                return mappedValue[1];
+            }
+            return name;
+        });
+        financial_name = mappedNames.join(',');
+    }
 
     let query = `SELECT report_period, financial_name, company_name, data, ranking, difer_data FROM financial_rank_table WHERE 1=1`;
     let values = [];
@@ -94,9 +134,9 @@ app.get('/api/financials', async (req, res) => {
             "status": "success",
             "filters": {
                 "report_period": report_period || null,
-                "financial_name": financial_name || null,
+                "financial_name": financial_name || null,  // 매핑된 영문 값만 문자열로 반환
                 "company_name": company_name || null,
-                "ranking": ranking || null,
+                "ranking": ranking ? ranking.split(',').map(r => parseInt(r, 10)) : null,
                 "order_by": `ranking ${sortOrder}`,
                 "limit": limit ? parseInt(limit) : null
             },

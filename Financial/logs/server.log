@@ -46,3 +46,32 @@
 2025-02-10 16:45:58 [INFO] Incoming Request: [GET] /api/financials?financial_name=roe,roa from ::1 - Params: {"financial_name":"roe,roa"}
 2025-02-10 16:45:58 [INFO] Executing SQL: SELECT report_period, financial_name, company_name, data, ranking, difer_data FROM financial_rank_table WHERE 1=1 AND financial_name IN ($1, $2) ORDER BY ranking ASC - Params: ["roe","roa"]
 2025-02-10 16:45:58 [INFO] DB Query Success: [GET] /api/financials?financial_name=roe,roa - Rows Retrieved: 814
+2025-02-12 17:41:48 [INFO] 🚀 Server started on http://localhost:3005
+2025-02-12 17:42:15 [INFO] Incoming Request: [GET] /api/financials?financial_name= from ::1 - Params: {"financial_name":""}
+2025-02-12 17:42:15 [INFO] Executing SQL: SELECT report_period, financial_name, company_name, data, ranking, difer_data FROM financial_rank_table WHERE 1=1 ORDER BY ranking ASC - Params: []
+2025-02-12 17:42:15 [INFO] DB Query Success: [GET] /api/financials?financial_name= - Rows Retrieved: 4070
+2025-02-12 17:43:16 [INFO] 🚀 Server started on http://localhost:3005
+2025-02-12 17:43:18 [INFO] Incoming Request: [GET] /api/financials?financial_name=%EC%B4%9D%EC%9E%90%EB%B3%B8 from ::1 - Params: {"financial_name":"총자본"}
+2025-02-12 17:43:18 [INFO] Executing SQL: SELECT report_period, financial_name, company_name, data, ranking, difer_data FROM financial_rank_table WHERE 1=1 AND financial_name = $1 ORDER BY ranking ASC - Params: ["총자본"]
+2025-02-12 17:43:18 [INFO] DB Query Success: [GET] /api/financials?financial_name=%EC%B4%9D%EC%9E%90%EB%B3%B8 - Rows Retrieved: 0
+2025-02-12 17:43:47 [INFO] 🚀 Server started on http://localhost:3005
+2025-02-12 17:43:49 [INFO] Incoming Request: [GET] /api/financials?financial_name=%EC%B4%9D%EC%9E%90%EB%B3%B8 from ::1 - Params: {"financial_name":"총자본"}
+2025-02-12 17:43:49 [INFO] Executing SQL: SELECT report_period, financial_name, company_name, data, ranking, difer_data FROM financial_rank_table WHERE 1=1 AND financial_name = $1 ORDER BY ranking ASC - Params: ["총자본"]
+2025-02-12 17:43:49 [INFO] DB Query Success: [GET] /api/financials?financial_name=%EC%B4%9D%EC%9E%90%EB%B3%B8 - Rows Retrieved: 0
+2025-02-12 17:44:22 [INFO] Incoming Request: [GET] /api/financials?financial_name=%EC%B4%9D%EC%9E%90%EB%B3%B8 from ::1 - Params: {"financial_name":"총자본"}
+2025-02-12 17:44:22 [INFO] Executing SQL: SELECT report_period, financial_name, company_name, data, ranking, difer_data FROM financial_rank_table WHERE 1=1 AND financial_name = $1 ORDER BY ranking ASC - Params: ["총자본"]
+2025-02-12 17:44:22 [INFO] DB Query Success: [GET] /api/financials?financial_name=%EC%B4%9D%EC%9E%90%EB%B3%B8 - Rows Retrieved: 0
+2025-02-12 17:44:26 [INFO] 🚀 Server started on http://localhost:3005
+2025-02-12 17:44:27 [INFO] Incoming Request: [GET] /api/financials?financial_name=%EC%B4%9D%EC%9E%90%EB%B3%B8 from ::1 - Params: {"financial_name":"총자본"}
+2025-02-12 17:44:27 [INFO] Financial name mapping: "총자본" -> "total_equity"
+2025-02-12 17:44:27 [INFO] Executing SQL: SELECT report_period, financial_name, company_name, data, ranking, difer_data FROM financial_rank_table WHERE 1=1 AND financial_name = $1 ORDER BY ranking ASC - Params: ["total_equity"]
+2025-02-12 17:44:28 [INFO] DB Query Success: [GET] /api/financials?financial_name=%EC%B4%9D%EC%9E%90%EB%B3%B8 - Rows Retrieved: 407
+2025-02-12 17:44:58 [INFO] Incoming Request: [GET] /api/financials?financial_name=%EC%B4%9D%EC%9E%90%EB%B3%B8,roe from ::1 - Params: {"financial_name":"총자본,roe"}
+2025-02-12 17:44:58 [INFO] Financial name mapping: "총자본" -> "total_equity"
+2025-02-12 17:44:58 [INFO] Executing SQL: SELECT report_period, financial_name, company_name, data, ranking, difer_data FROM financial_rank_table WHERE 1=1 AND financial_name IN ($1, $2) ORDER BY ranking ASC - Params: ["total_equity","roe"]
+2025-02-12 17:44:58 [INFO] DB Query Success: [GET] /api/financials?financial_name=%EC%B4%9D%EC%9E%90%EB%B3%B8,roe - Rows Retrieved: 814
+2025-02-12 17:51:43 [INFO] 🚀 Server started on http://localhost:3005
+2025-02-12 17:51:46 [INFO] Incoming Request: [GET] /api/financials?financial_name=%EC%B4%9D%EC%9E%90%EB%B3%B8,roe from ::1 - Params: {"financial_name":"총자본,roe"}
+2025-02-12 17:51:46 [INFO] Financial name mapping: "총자본" -> "total_equity"
+2025-02-12 17:51:46 [INFO] Executing SQL: SELECT report_period, financial_name, company_name, data, ranking, difer_data FROM financial_rank_table WHERE 1=1 AND financial_name IN ($1, $2) ORDER BY ranking ASC - Params: ["total_equity","roe"]
+2025-02-12 17:51:46 [INFO] DB Query Success: [GET] /api/financials?financial_name=%EC%B4%9D%EC%9E%90%EB%B3%B8,roe - Rows Retrieved: 814
