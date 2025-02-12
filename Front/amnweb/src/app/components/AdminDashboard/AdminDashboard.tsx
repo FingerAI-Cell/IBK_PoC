@@ -303,11 +303,17 @@ export default function AdminDashboard() {
                 </div>
 
                 <div className={styles.summarySection}>
-                  {getSummaryTexts().map((text, index) => (
-                    <p key={index} className={styles.summaryText}>
-                      {text}
-                    </p>
-                  ))}
+                  {getSummaryTexts().length > 0 ? (
+                    getSummaryTexts().map((text, index) => (
+                      <p key={index} className={styles.summaryText}>
+                        {text}
+                      </p>
+                    ))
+                  ) : (
+                    <div className={styles.emptyMessage}>
+                    조회된 종목 설명이 없습니다.
+                  </div>
+                  )}
                 </div>
               </div>
             </div>

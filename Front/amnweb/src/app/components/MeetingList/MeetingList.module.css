@@ -2,7 +2,7 @@
   position: fixed;
   top: var(--header-height);
   bottom: 0;
-  background-color: #f7fafc;
+  background-color: #f4f7fE;
   overflow-y: auto;
   /* 기본 (모바일) 스타일 - 가운데 정렬 */
   left: 50%;
@@ -26,6 +26,7 @@
   font-size: 1.5rem;
   font-weight: bold;
   margin-bottom: 2rem;
+  color:#2457a5;
 }
 
 .meetingList {
@@ -86,8 +87,8 @@
 }
 
 .originalButton {
-  background-color: #e8f5e9;
-  color: #2e7d32;
+  background-color: #3987CF;
+  color: #fff;
 }
 
 .summaryButton:hover:not(:disabled) {
@@ -95,7 +96,7 @@
 }
 
 .originalButton:hover:not(:disabled) {
-  background-color: #c8e6c9;
+  background-color: #235c91;
 }
 
 .summaryButton:disabled,

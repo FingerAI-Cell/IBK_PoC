@@ -2,7 +2,7 @@
   position: fixed;
   top: var(--header-height);
   bottom: 0;
-  background-color: #f7fafc;
+  background-color: #f4f7fE;
   overflow-y: auto;
   left: 50%;
   transform: translateX(-50%);
@@ -28,10 +28,15 @@
   font-size: 1.5rem;
   font-weight: bold;
   margin-bottom: 0.5rem;
+  color:#2457a5;
+}
+
+.greeting p{
+  color:#666;
 }
 
 .chatBox {
-  background-color: #f8fafc;
+  background-color: #d7deef;
   border-radius: 8px;
   padding: 1.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);

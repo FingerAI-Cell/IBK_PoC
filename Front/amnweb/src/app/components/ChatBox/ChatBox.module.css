@@ -8,7 +8,7 @@
     position: fixed;
     top: var(--header-height);
     bottom: 0;
-    background-color: #f7fafc;
+    background-color: #f4f7fE;
     border: 1px solid #e2e8f0;
     display: flex;
     flex-direction: column;

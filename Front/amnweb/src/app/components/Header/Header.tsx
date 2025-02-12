@@ -4,6 +4,7 @@ import styles from "./Header.module.css";
 import { useService } from "../../context/ServiceContext";
 import { HiMenuAlt2 } from "react-icons/hi";
 import { useChat } from "../../context/ChatContext";
+import Image from 'next/image';
 
 export default function Header() {
   const { handleMyServices, setPageState, toggleSidebar, isSidebarOpen } = useService();
@@ -43,7 +44,10 @@ export default function Header() {
           onClick={handleHeaderButtonClick}
           className={styles.titleButton}
         >
-          My Services
+          {/* <div style={{ width: "100px", height: "38px", position: "relative" }}>
+      <Image src="/img/ibk_logo.png" alt="IBK 로고" layout="fill" objectFit="contain" />
+    </div> */}
+          <Image src="/img/ibk_logo.png" alt="" width={138} height={34} />
         </button>
       </div>
       
@@ -51,7 +55,7 @@ export default function Header() {
         className={styles.myPageButton}
         onClick={handleAdminButtonClick}
       >
-        관리자
+        Admin
       </button>
     </header>
   );

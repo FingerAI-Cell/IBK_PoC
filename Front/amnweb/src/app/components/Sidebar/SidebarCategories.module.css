@@ -1,5 +1,5 @@
 .categories {
-    margin-top: -0.5rem;
+    margin-top: 1.5rem;
   }
   
   .categoryTitle {
@@ -12,20 +12,21 @@
   .categoryItem {
     display: flex;
     align-items: center;
-    padding: 0.5rem 0;
     cursor: pointer;
     transition: background-color 0.3s ease;
     gap: 0.75rem;
-    margin: 0 1rem;
-    padding-left: 1.5rem;
+    margin: 1rem 1rem;
+    padding: 1rem 0rem 1rem 1.5rem;
+    border-radius: 10px;
   }
   
   .categoryItem:hover {
-    background-color: #f0f0f0;
+    background-color: #a3bcd3;
   }
   
   .categoryItem.active {
-    background-color: #e2e8f0;
+    color:#fff;
+    background-color: #0099da;
   }
   
   .icon {
@@ -34,4 +35,11 @@
     font-size: 1.25rem;
     color: #4a5568;
   }
+  
+  .categoryItem.active .icon {
+    color: #fff;
+  }
+
+  /* .categoryItem:hover .icon {
+  } */
   

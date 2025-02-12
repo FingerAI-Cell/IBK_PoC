@@ -1,6 +1,6 @@
 .container {
   padding: 24px 32px;
-  background: #f8f9fa;
+  background: #f4f7fe;
   min-height: calc(100vh - 60px);
   width: calc(100% - 320px);
   position: fixed;
@@ -23,7 +23,7 @@
   font-size: 24px;
   font-weight: 600;
   margin-bottom: 24px;
-  color: #1a1a1a;
+  color: #2457a5;
 }
 
 .tabContainer {
@@ -38,13 +38,14 @@
 .tabs {
   display: flex;
   gap: 1px;
-  background: #f1f5f9;
-  padding: 4px;
+  background: #d7deef;
+  padding: 8px;
   border-radius: 8px 8px 0 0;
 }
 
 .tab {
   padding: 12px 24px;
+  margin-right: 8px;
   border: none;
   background: transparent;
   cursor: pointer;
@@ -482,6 +483,18 @@
   border: 1px solid #e2e8f0;
   overflow-y: auto;
   max-height: 600px;
+}
+.emptyMessage {
+  display: flex;
+  width:100%;
+  height: 100%;
+  color: #64748b;
+  justify-content: center;  /* 가로 중앙 정렬 */
+  align-items: center;      /* 세로 중앙 정렬 */
+  text-align: center;
+  background: #f8fafc;
+  border-radius: 6px;
+  border: 1px dashed #e2e8f0;
 }
 
 .monitoringTable {

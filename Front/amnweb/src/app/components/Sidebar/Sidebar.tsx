@@ -23,7 +23,7 @@ export default function Sidebar({
       ${!isSidebarOpen ? styles.hidden : ''}
     `}>
       <div className={styles.categories}>
-        <h2 className={styles.categoryTitle}>카테고리</h2>
+        <h2 className="hidden">카테고리</h2>
         <SidebarCategories
           currentService={currentService}
           selectService={selectService}
