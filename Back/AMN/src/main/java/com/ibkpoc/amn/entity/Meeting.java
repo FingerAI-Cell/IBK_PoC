@@ -22,7 +22,7 @@ public class Meeting {
     private LocalDateTime endTime;
     private Boolean isActive;
     private String summary;
-    @Column(name = "overall_sumaary")
+    @Column(name = "overall_summary")
     private String overallSummary; // 전체 요약 추가
 
     private String topic;
