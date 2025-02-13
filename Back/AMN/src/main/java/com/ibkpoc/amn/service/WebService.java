@@ -242,19 +242,29 @@ public class WebService {
         logger.info("Log data prepared for summarization: {}", logs);
 
         // 7. name과 content 조합
-        List<Map<String, Object>> jsonData = logs.stream()
+        List<Map<String, Object>> speakerjsonData = logs.stream()
                 .map(log -> Map.of(
                         "speaker", (Object) userNameMapping.get(log.getMeetingUser().getCuserId()),
                         "text", (Object) log.getContent()
                 ))
                 .collect(Collectors.toList());
-        logger.info("JSON data prepared for summarization: {}", jsonData);
+        logger.info("JSON data prepared for summarization: {}", speakerjsonData);
+
+        List<Map<String,Object>> overalljsonData = logs.stream()
+                .map(log->Map.of(
+                        "text", (Object) log.getContent()
+                ))
+                .collect(Collectors.toList());
+        logger.info("Overall data prepared for summarization: {}", overalljsonData);
 
         // JSON 데이터를 문자열로 변환
-        String jsonString;
+        String speakerjsonString;
+        String overalljsonString;
         try {
-            jsonString = new ObjectMapper().writeValueAsString(jsonData);
-            logger.info("JSON string for summarization: {}", jsonString);
+            speakerjsonString = new ObjectMapper().writeValueAsString(speakerjsonData);
+            overalljsonString = new ObjectMapper().writeValueAsString(overalljsonData);
+            logger.info("JSON string for summarization: {}", speakerjsonString);
+            logger.info("JSON string for summarization: {}", overalljsonString);
         } catch (Exception e) {
             logger.error("Failed to convert JSON data to string", e);
             throw new RuntimeException("JSON 변환 실패");
@@ -263,11 +273,11 @@ public class WebService {
         // 5. AI 요약 호출
         try {
             // 🔹 5. AI API 호출 (화자별 요약)
-            String speakerSummaryJson = summarizer.summarizeData(jsonString, apiUrl_base + "/summary/invoke");
+            String speakerSummaryJson = summarizer.summarizeData(speakerjsonString, apiUrl_base + "/summary/invoke");
             logger.info("Speaker summary received: {}", speakerSummaryJson);
 
             // 🔹 6. AI API 호출 (전체 요약)
-            String overallSummaryJson = summarizer.summarizeData(jsonString, apiUrl_base + "/summary/another/invoke");
+            String overallSummaryJson = summarizer.summarizeData(overalljsonString, apiUrl_base + "/summary/another/invoke");
             logger.info("Overall summary received: {}", overallSummaryJson);
 
             // 🔹 7. DB 저장
