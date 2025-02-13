@@ -59,10 +59,12 @@ public class WebService {
         // 🔹 전체 요약 (OverallSummary) 처리
         List<MeetingSummaryResponseDto.OverallTopicDetail> overallTopics =
                 (List<MeetingSummaryResponseDto.OverallTopicDetail>) parseSummary(meeting.getOverallSummary(), true);
+        logger.info("Parsed overall summary for meetingId: {} -> JSON: {}", meetingId, overallTopics);
 
         // 🔹 화자별 요약 (SpeakerSummary) 처리
         List<MeetingSummaryResponseDto.SpeakerTopicDetail> speakerTopics =
                 (List<MeetingSummaryResponseDto.SpeakerTopicDetail>) parseSummary(meeting.getSummary(), false);
+        logger.info("Parsed speaker summary for meetingId: {} -> JSON: {}", meetingId, speakerTopics);
 
         return MeetingSummaryResponseDto.builder()
                 .overall(MeetingSummaryResponseDto.OverallSummary.builder().topics(overallTopics).build())
@@ -109,29 +111,38 @@ public class WebService {
 
         // 🔹 5. 변환 로직 (Overall vs. Speaker 구분)
         if (isOverall) {
+            logger.info("Processing Overall Summary with {} items.", parsedOutput.size());
             return parsedOutput.stream()
-                    .map(item -> new MeetingSummaryResponseDto.OverallTopicDetail(
-                            (String) item.get("topic"),
-                            (String) item.get("content")
-                    ))
+                    .map(item -> {
+                        String topic = (String) item.get("topic");
+                        String content = (String) item.get("content");
+                        logger.info("Overall Topic: {}, Content: {}", topic, content);
+                        return new MeetingSummaryResponseDto.OverallTopicDetail(topic, content);
+                    })
                     .collect(Collectors.toList());
         } else {
+            logger.info("Processing Speaker Summary with {} items.", parsedOutput.size());
             return parsedOutput.stream()
                     .map(item -> {
                         String topic = (String) item.get("topic");
                         if (topic == null || topic.isBlank()) {
+                            logger.error("Topic field is missing or empty");
                             throw new IllegalStateException("Topic field is missing or empty");
                         }
 
                         // 🔹 Speaker 변환
                         List<MeetingSummaryResponseDto.SpeakerDetail> speakers = item.entrySet().stream()
                                 .filter(entry -> !"topic".equals(entry.getKey()))
-                                .map(entry -> new MeetingSummaryResponseDto.SpeakerDetail(
-                                        entry.getKey(), // 키를 스피커 이름으로 사용
-                                        entry.getValue().toString() // 값을 발언 내용으로 사용
-                                ))
+                                .map(entry -> {
+                                    logger.info("Speaker: {}, Content: {}", entry.getKey(), entry.getValue());
+                                    return new MeetingSummaryResponseDto.SpeakerDetail(
+                                            entry.getKey(),
+                                            entry.getValue().toString()
+                                    );
+                                })
                                 .collect(Collectors.toList());
 
+                        logger.info("Processed Speaker Topic: {} with {} speakers", topic, speakers.size());
                         return new MeetingSummaryResponseDto.SpeakerTopicDetail(topic, speakers);
                     })
                     .collect(Collectors.toList());
