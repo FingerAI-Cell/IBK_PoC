@@ -3,6 +3,7 @@
   height: 100vh;  /* 전체 높이 설정 */
   overflow: hidden;  /* 내부 스크롤 방지 */
   padding: 2rem;
+  padding-top: var(--header-height);  /* 상단 패딩만 유지 */
   max-width: 1200px;
   margin: 0 auto;
 }
@@ -24,5 +25,17 @@
 /* 입력 영역 스타일 */
 .inputArea {
   margin-top: 1rem;
+}
+
+/* 상단 흰색 영역 수정 */
+.topArea {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 20rem;  /* 사이드바 너비만큼 */
+  height: var(--header-height);
+  background-color: white;
+  z-index: 90;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);  /* 그림자 추가 */
 }
   

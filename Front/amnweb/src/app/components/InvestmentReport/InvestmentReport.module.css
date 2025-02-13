@@ -1,6 +1,6 @@
 .container {
   position: fixed;
-  top: var(--header-height);
+  top: 0;
   bottom: 0;
   background: #f8f9fa;
   overflow-y: auto;
@@ -8,6 +8,7 @@
   left: 2rem;
   right: 2rem;
   padding: 16px;
+  padding-top: var(--header-height);
 }
 
 /* xl 브레이크포인트에서의 스타일 */
@@ -285,4 +286,11 @@
   font-size: 0.875rem;
   color: #666;
   margin-bottom: 0.5rem;
+}
+
+/* 상단 흰색 영역 추가 */
+.topArea {
+  height: var(--header-height);
+  background-color: white;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
 } 

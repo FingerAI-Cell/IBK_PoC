@@ -8,7 +8,7 @@
     box-shadow: 1px 0 3px rgba(0, 0, 0, 0.08);
     overflow-y: auto;
     z-index: 999;
-    margin-top: var(--header-height);
+    margin-top: 0;
     transition: transform 0.3s ease;
 }
 
@@ -38,4 +38,30 @@
 
 .toggleButton {
     display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+}
+
+@media (max-width: 1400px) {
+    .toggleButton {
+        display: flex;
+    }
+}
+
+.logoContainer {
+    padding: 1rem;
+    background-color: #f4f7fe;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: var(--header-height);
+}
+
+.logoContainer button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem 1rem;
 }

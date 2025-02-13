@@ -161,169 +161,178 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className={styles.container}>
-      <h1 className={styles.title}>관리자 대시보드</h1>
-      
-      <div className={styles.tabContainer}>
-        <div className={styles.tabs}>
-          <button 
-            className={`${styles.tab} ${activeTab === 'financial' ? styles.active : ''}`}
-            onClick={() => setActiveTab('financial')}
-          >
-            증권사 재무제표
-          </button>
-          <button 
-            className={`${styles.tab} ${activeTab === 'monitoring' ? styles.active : ''}`}
-            onClick={() => setActiveTab('monitoring')}
-          >
-            해외주식 담보대출 모니터링
-          </button>
-          <button 
-            className={`${styles.tab} ${activeTab === 'chat-history' ? styles.active : ''}`}
-            onClick={() => setActiveTab('chat-history')}
-          >
-            채팅 이력 관리
-          </button>
-        </div>
+    <>
+      <div className={styles.topArea} />
+      <div className={styles.container}>
+        <h1 className={styles.title}>관리자 대시보드</h1>
+        
+        <div className={styles.tabContainer}>
+          <div className={styles.tabs}>
+            <button 
+              className={`${styles.tab} ${activeTab === 'financial' ? styles.active : ''}`}
+              onClick={() => setActiveTab('financial')}
+            >
+              증권사 재무제표
+            </button>
+            <button 
+              className={`${styles.tab} ${activeTab === 'monitoring' ? styles.active : ''}`}
+              onClick={() => setActiveTab('monitoring')}
+            >
+              해외주식 담보대출 모니터링
+            </button>
+            <button 
+              className={`${styles.tab} ${activeTab === 'chat-history' ? styles.active : ''}`}
+              onClick={() => setActiveTab('chat-history')}
+            >
+              채팅 이력 관리
+            </button>
+          </div>
 
-        <div className={styles.content}>
-          {activeTab === 'financial' && (
-            <div className={styles.tableContainer}>
-              {isLoading ? (
-                <div>로딩 중...</div>
-              ) : (
-                <table className={styles.table}>
-                  <thead>
-                    <tr>
-                      <th>분기</th>
-                      <th>파일명</th>
-                      <th>종류</th>
-                      <th>업데이트 시간</th>
-                      <th>다운로드</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {financialDocuments.map((doc) => (
-                      <tr key={doc.id}>
-                        <td>{doc.yearQuarter}</td>
-                        <td>{doc.fileName}</td>
-                        <td>{doc.category}</td>
-                        <td>{doc.updateTime}</td>
-                        <td>
-                          <button 
-                            className={styles.downloadButton}
-                            onClick={() => window.location.href = doc.filePath}
-                          >
-                            다운로드
-                          </button>
-                        </td>
+          <div className={styles.content}>
+            {activeTab === 'financial' && (
+              <div className={styles.tableContainer}>
+                {isLoading ? (
+                  <div>로딩 중...</div>
+                ) : (
+                  <table className={styles.table}>
+                    <thead>
+                      <tr>
+                        <th>분기</th>
+                        <th>파일명</th>
+                        <th>종류</th>
+                        <th>업데이트 시간</th>
+                        <th>다운로드</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </div>
-          )}
-
-          {activeTab === 'monitoring' && (
-            <div className={styles.monitoringContainer}>
-              <div className={styles.dateFilterSection}>
-                <input 
-                  type="date" 
-                  className={styles.dateInput}
-                  value={tempDate}
-                  onClick={handleDateSelect}
-                  onChange={(e) => setTempDate(e.target.value)}
-                  onKeyDown={(e) => e.preventDefault()}
-                />
-                <div className={styles.infoIconWrapper}>
-                  <span className={styles.infoIcon}>i</span>
-                  <div className={styles.tooltip}>
-                    <p>10-K, 10-Q, 8-K는 미국 증권거래위원회(SEC)에 제출되는 주요 재무보고서로, 기업의 재무 상태와 운영 상황에 대한 중요한 정보를 제공합니다. 각각의 보고서는 다음과 같은 특징과 목적을 가지고 있습니다:</p>
-                    <table className={styles.tooltipTable}>
-                      <thead>
-                        <tr>
-                          <th>보고서</th>
-                          <th>주요 내용</th>
-                          <th>제출 시기</th>
-                          <th>목적</th>
+                    </thead>
+                    <tbody>
+                      {financialDocuments.map((doc) => (
+                        <tr key={doc.id}>
+                          <td>{doc.yearQuarter}</td>
+                          <td>{doc.fileName}</td>
+                          <td>{doc.category}</td>
+                          <td>{doc.updateTime}</td>
+                          <td>
+                            <button 
+                              className={styles.downloadButton}
+                              onClick={() => window.location.href = doc.filePath}
+                            >
+                              다운로드
+                            </button>
+                          </td>
                         </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td>10-K</td>
-                          <td>연간 실적, 재무 상태</td>
-                          <td>연도 종료 후 60~90일</td>
-                          <td>장기적 정보 제공</td>
-                        </tr>
-                        <tr>
-                          <td>10-Q</td>
-                          <td>분기별 실적, 최신 정보</td>
-                          <td>분기 종료 후 40~45일</td>
-                          <td>단기적 정보 업데이트</td>
-                        </tr>
-                        <tr>
-                          <td>8-K</td>
-                          <td>주요 사건 및 변화</td>
-                          <td>사건 후 4 영업일 내</td>
-                          <td>즉각적 정보 공시</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
               </div>
+            )}
 
-              <div className={styles.contentLayout}>
-                <div className={styles.tableWrapper}>
-                  <div className={styles.tableContainer}>
-                    <table className={styles.monitoringTable}>
-                      <thead>
-                        <tr>
-                          <th>종목명</th>
-                          <th>10-K</th>
-                          <th>10-Q</th>
-                          <th>8-K</th>
-                          <th>뉴스</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {filingData?.overview?.[0] && Object.entries(filingData.overview[0]).map(([symbol, data]) => (
-                          <tr key={symbol}>
-                            <td>{formatText(symbol)}</td>
-                            <td>{data['10-K']}</td>
-                            <td>{data['10-Q']}</td>
-                            <td>{data['8-K']}</td>
-                            <td>{data.news}</td>
+            {activeTab === 'monitoring' && (
+              <div className={styles.monitoringContainer}>
+                <div className={styles.dateFilterSection}>
+                  <input 
+                    type="date" 
+                    className={styles.dateInput}
+                    value={tempDate}
+                    onClick={handleDateSelect}
+                    onChange={(e) => setTempDate(e.target.value)}
+                    onKeyDown={(e) => e.preventDefault()}
+                  />
+                  <div className={styles.infoIconWrapper}>
+                    <span className={styles.infoIcon}>i</span>
+                    <div className={styles.tooltip}>
+                      <p>10-K, 10-Q, 8-K는 미국 증권거래위원회(SEC)에 제출되는 주요 재무보고서로, 기업의 재무 상태와 운영 상황에 대한 중요한 정보를 제공합니다. 각각의 보고서는 다음과 같은 특징과 목적을 가지고 있습니다:</p>
+                      <table className={styles.tooltipTable}>
+                        <thead>
+                          <tr>
+                            <th>보고서</th>
+                            <th>주요 내용</th>
+                            <th>제출 시기</th>
+                            <th>목적</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td>10-K</td>
+                            <td>연간 실적, 재무 상태</td>
+                            <td>연도 종료 후 60~90일</td>
+                            <td>장기적 정보 제공</td>
+                          </tr>
+                          <tr>
+                            <td>10-Q</td>
+                            <td>분기별 실적, 최신 정보</td>
+                            <td>분기 종료 후 40~45일</td>
+                            <td>단기적 정보 업데이트</td>
+                          </tr>
+                          <tr>
+                            <td>8-K</td>
+                            <td>주요 사건 및 변화</td>
+                            <td>사건 후 4 영업일 내</td>
+                            <td>즉각적 정보 공시</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 </div>
 
-                <div className={styles.summarySection}>
-                  {getSummaryTexts().length > 0 ? (
-                    getSummaryTexts().map((text, index) => (
-                      <p key={index} className={styles.summaryText}>
-                        {text}
-                      </p>
-                    ))
-                  ) : (
-                    <div className={styles.emptyMessage}>
-                    조회된 종목 설명이 없습니다.
+                <div className={styles.contentLayout}>
+                  <div className={styles.tableWrapper}>
+                    <div className={styles.tableContainer}>
+                      <table className={styles.monitoringTable}>
+                        <thead>
+                          <tr>
+                            <th>종목명</th>
+                            <th>10-K</th>
+                            <th>10-Q</th>
+                            <th>8-K</th>
+                            <th>뉴스</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {filingData?.overview?.[0] && Object.entries(filingData.overview[0]).map(([symbol, data]) => {
+                            const hasAlert = Object.values(data).some(value => value === 'O');
+                            return (
+                              <tr 
+                                key={symbol}
+                                className={hasAlert ? styles.alertRow : ''}
+                              >
+                                <td>{formatText(symbol)}</td>
+                                <td>{data['10-K']}</td>
+                                <td>{data['10-Q']}</td>
+                                <td>{data['8-K']}</td>
+                                <td>{data.news}</td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
-                  )}
+
+                  <div className={styles.summarySection}>
+                    {getSummaryTexts().length > 0 ? (
+                      getSummaryTexts().map((text, index) => (
+                        <p key={index} className={styles.summaryText}>
+                          {text}
+                        </p>
+                      ))
+                    ) : (
+                      <div className={styles.emptyMessage}>
+                      조회된 종목 설명이 없습니다.
+                    </div>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {activeTab === 'chat-history' && (
-            <ChatHistory />
-          )}
+            {activeTab === 'chat-history' && (
+              <ChatHistory />
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 } 

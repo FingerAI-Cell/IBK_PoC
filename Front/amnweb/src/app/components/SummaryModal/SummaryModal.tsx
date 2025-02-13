@@ -81,11 +81,39 @@ export default function SummaryModal({
       try {
         const parsedData: SummaryApiResponse = JSON.parse(content);
         
+        // 데이터 구조 유효성 검사 추가
+        if (!parsedData || !parsedData.overall || !parsedData.speaker) {
+          console.error('Invalid summary data structure');
+          setOverallSummary(null);
+          setSpeakerSummary(null);
+          return;
+        }
+
+        // topics 배열 유효성 검사
+        if (!Array.isArray(parsedData.overall.topics) || !Array.isArray(parsedData.speaker.topics)) {
+          console.error('Invalid topics data structure');
+          setOverallSummary(null);
+          setSpeakerSummary(null);
+          return;
+        }
+        
         // 전체 요약 데이터 설정
-        setOverallSummary(parsedData.overall);
+        setOverallSummary({
+          topics: parsedData.overall.topics.filter(topic => 
+            topic && typeof topic.topic === 'string' && typeof topic.content === 'string'
+          )
+        });
         
         // 화자별 요약 데이터 설정
-        setSpeakerSummary(parsedData.speaker);
+        setSpeakerSummary({
+          topics: parsedData.speaker.topics.filter(topic => 
+            topic && Array.isArray(topic.speakers) && 
+            topic.speakers.every(speaker => 
+              speaker && typeof speaker.name === 'string' && typeof speaker.content === 'string'
+            )
+          )
+        });
+
       } catch (error) {
         console.error('Summary parsing error:', error);
         setOverallSummary(null);
@@ -98,7 +126,7 @@ export default function SummaryModal({
   if (!isOpen || !mounted) return null;
 
   const renderSpeakerSummary = () => {
-    if (!speakerSummary) return <p>데이터가 없습니다.</p>;
+    if (!speakerSummary?.topics?.length) return <p>데이터가 없습니다.</p>;
     
     return (
       <div>
@@ -107,10 +135,10 @@ export default function SummaryModal({
             <h4 className={styles.topicTitle}>{topicEntry.topic || '제목 없음'}</h4>
             <div className={styles.speakerSection}>
               {topicEntry.speakers
-                .filter(speaker => speaker.content && speaker.content.trim() !== '')
+                ?.filter(speaker => speaker?.content && speaker.content.trim() !== '')
                 .map((speaker, speakerIndex) => (
                   <div key={`speaker-${speakerIndex}`} className={styles.speakerDetails}>
-                    <span className={styles.speakerName}>{speaker.name}</span>
+                    <span className={styles.speakerName}>{speaker.name || '이름 없음'}</span>
                     <span className={styles.speakerContent}>{speaker.content}</span>
                   </div>
                 ))}
@@ -122,15 +150,15 @@ export default function SummaryModal({
   };
 
   const renderOverallSummary = () => {
-    if (!overallSummary) return <p>데이터가 없습니다.</p>;
+    if (!overallSummary?.topics?.length) return <p>데이터가 없습니다.</p>;
 
     return (
       <div className={styles.overallSummary}>
         {overallSummary.topics.map((topic, index) => (
           <div key={`topic-${index}`} className={styles.summarySection}>
-            <h4 className={styles.summaryTitle}>{topic.topic}</h4>
+            <h4 className={styles.summaryTitle}>{topic.topic || '제목 없음'}</h4>
             <ul className={styles.summaryList}>
-              {topic.content.split('\n').map((item, itemIndex) => (
+              {(topic.content || '').split('\n').map((item, itemIndex) => (
                 <li key={itemIndex}>{item}</li>
               ))}
             </ul>

@@ -20,7 +20,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
   return (
     <div className="relative min-h-screen">
       <button 
-        className="fixed top-4 left-4 z-40 block xl:hidden"
+        className="fixed top-2 left-4 z-40 block xl:hidden"
         onClick={toggleSidebar}
       >
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -40,8 +40,8 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
       </div>
 
       <div className="flex-grow flex flex-col">
-        <Header />
-        <main className="p-6 mt-16">
+        {/* <Header /> */}
+        <main className="p-6">
           {!isChatActive && (
             <>
               <MainContent />
@@ -49,7 +49,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
             </>
           )}
           {isChatActive && (
-            <div className="fixed inset-0 pt-16 xl:pl-80">
+            <div className="fixed inset-0 xl:pl-80">
               <ChatBox />
             </div>
           )}

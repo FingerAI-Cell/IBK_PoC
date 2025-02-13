@@ -50,3 +50,18 @@
   /* .categoryItem:hover .icon {
   } */
   
+  /* Admin 버튼 스타일 */
+  .adminItem {
+    margin-top: auto;  /* 맨 아래로 밀기 */
+    background-color: #4285f4;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    transition: all 0.2s ease;
+  }
+
+  .adminItem:hover {
+    background-color: #3367d6;
+  }
+  

@@ -10,7 +10,7 @@ import ChatContainer from "../Chat/ChatContainer";
 import { useEffect } from "react";
 
 export default function MainContent() {
-  const { currentService, pageState } = useService();
+  const { currentService, pageState, setPageState } = useService();
   const { deactivateChat } = useChat();
 
   // 채팅이 아닌 다른 페이지로 이동할 때 채팅 상태 초기화
@@ -19,6 +19,11 @@ export default function MainContent() {
       deactivateChat();
     }
   }, [pageState, currentService]);
+
+  const handleAdminButtonClick = () => {
+    setPageState('admin');
+    deactivateChat();
+  };
 
   return (
     <div className={styles.container}>

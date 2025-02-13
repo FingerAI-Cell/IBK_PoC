@@ -209,18 +209,29 @@ export default function MeetingList() {
       
       const summaryResult = await summaryResponse.json();
       
+      // 데이터 유효성 검사 추가
+      if (!summaryResult || !summaryResult.overall || !summaryResult.speaker) {
+        setAlertMessage('요약 데이터가 없습니다.');
+        setIsAlertOpen(true);
+        return;
+      }
+      
+      // 유효한 데이터가 있는 경우에만 모달 열기
       if (summaryResult.overall?.topics?.length > 0 || 
           summaryResult.speaker?.topics?.length > 0) {
         setSummaryData({
           title: meeting.title,
-          date: formatDate(meeting.startTime), // formatDate 함수 사용
-          participants: speakersResult.data.map((speaker: Speaker) => ({
+          date: formatDate(meeting.startTime),
+          participants: speakersResult.data?.map((speaker: Speaker) => ({
             id: speaker.speakerId,
             name: speaker.name?.trim() || null
           })) || [],
           content: JSON.stringify(summaryResult)
         });
         setIsSummaryModalOpen(true);
+      } else {
+        setAlertMessage('요약할 내용이 없습니다.');
+        setIsAlertOpen(true);
       }
     } catch (error) {
       console.error('요약 데이터 로딩 실패:', error);
@@ -254,94 +265,97 @@ export default function MeetingList() {
   };
 
   return (
-    <div className={styles.container}>
-      <h2 className={styles.title}>회의 목록</h2>
-      <div className={styles.meetingList}>
-        {meetings?.map((meeting) => (
-          <div key={meeting.confId} className={styles.meetingItem}>
-            <div className={styles.meetingInfo}>
-              <h3 className={styles.meetingTitle}>{meeting.title}</h3>
-              <div className={styles.meetingDetails}>
-                {formatDate(meeting.startTime)}
-                {meeting.endTime && ' · ' + calculateDuration(meeting.startTime, meeting.endTime)}
+    <>
+      <div className={styles.topArea} />
+      <div className={styles.container}>
+        <h2 className={styles.title}>회의 목록</h2>
+        <div className={styles.meetingList}>
+          {meetings?.map((meeting) => (
+            <div key={meeting.confId} className={styles.meetingItem}>
+              <div className={styles.meetingInfo}>
+                <h3 className={styles.meetingTitle}>{meeting.title}</h3>
+                <div className={styles.meetingDetails}>
+                  {formatDate(meeting.startTime)}
+                  {meeting.endTime && ' · ' + calculateDuration(meeting.startTime, meeting.endTime)}
+                </div>
+              </div>
+              <div className={styles.buttonGroup}>
+                <button 
+                  className={`${styles.originalButton}`}
+                  disabled={!meeting.sttSign}
+                  onClick={() => fetchSttContent(meeting.confId)}
+                >
+                  원문보기
+                </button>
+                {/* 조건부로 버튼 상태 렌더링 */}
+                {meeting.summarySign ? (
+                  // Case 1: 요약 가능 상태 버튼
+                  <button
+                    className={`${styles.summaryButton}`}
+                    onClick={() => handleSummaryClick(meeting)}
+                    disabled={false}
+                  >
+                    요약보기
+                  </button>
+                ) : loadingStates[meeting.confId] ? (
+                  // Case 2: 로딩 중 상태 버튼
+                  <button
+                    className={`${styles.loadingButton}`}
+                    disabled
+                  >
+                    로딩 중...
+                  </button>
+                ) : finishedLoadingStates[meeting.confId] ? (
+                  // Case 3: 로딩이 끝난 후 활성화된 요약 버튼
+                  <button
+                    className={`${styles.summaryButton}`}
+                    onClick={() => handleSummaryClick(meeting)}
+                    disabled={false}
+                  >
+                    요약보기
+                  </button>
+                ) : (
+                  // Case 4: 비활성화된 상태 버튼
+                  <button
+                    className={`${styles.summaryButton}`}
+                    disabled
+                  >
+                    요약 없음
+                  </button>
+                )}
               </div>
             </div>
-            <div className={styles.buttonGroup}>
-              <button 
-                className={`${styles.originalButton}`}
-                disabled={!meeting.sttSign}
-                onClick={() => fetchSttContent(meeting.confId)}
-              >
-                원문보기
-              </button>
-              {/* 조건부로 버튼 상태 렌더링 */}
-              {meeting.summarySign ? (
-                // Case 1: 요약 가능 상태 버튼
-                <button
-                  className={`${styles.summaryButton}`}
-                  onClick={() => handleSummaryClick(meeting)}
-                  disabled={false}
-                >
-                  요약보기
-                </button>
-              ) : loadingStates[meeting.confId] ? (
-                // Case 2: 로딩 중 상태 버튼
-                <button
-                  className={`${styles.loadingButton}`}
-                  disabled
-                >
-                  로딩 중...
-                </button>
-              ) : finishedLoadingStates[meeting.confId] ? (
-                // Case 3: 로딩이 끝난 후 활성화된 요약 버튼
-                <button
-                  className={`${styles.summaryButton}`}
-                  onClick={() => handleSummaryClick(meeting)}
-                  disabled={false}
-                >
-                  요약보기
-                </button>
-              ) : (
-                // Case 4: 비활성화된 상태 버튼
-                <button
-                  className={`${styles.summaryButton}`}
-                  disabled
-                >
-                  요약 없음
-                </button>
-              )}
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
+        
+        <SttModal 
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          speakers={speakers}
+          contents={logContents}
+          title={meetings?.find(m => m.confId === currentMeetingId)?.title || "회의 원문"}
+          confId={currentMeetingId!}
+          loadingStates={loadingStates} // 전달
+          setLoadingStates={setLoadingStates} // 전달
+          onSummarize={() => {
+            // 요약 완료 후 처리
+          }}
+        />
+        <SummaryModal 
+          isOpen={isSummaryModalOpen}
+          onClose={() => setIsSummaryModalOpen(false)}
+          title={summaryData.title}
+          date={summaryData.date}
+          participants={summaryData.participants}
+          content={summaryData.content}
+          confId={currentMeetingId!}
+        />
+        <AlertModal
+          isOpen={isAlertOpen}
+          onClose={() => setIsAlertOpen(false)}
+          message={alertMessage}
+        />
       </div>
-      
-      <SttModal 
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        speakers={speakers}
-        contents={logContents}
-        title={meetings?.find(m => m.confId === currentMeetingId)?.title || "회의 원문"}
-        confId={currentMeetingId!}
-        loadingStates={loadingStates} // 전달
-        setLoadingStates={setLoadingStates} // 전달
-        onSummarize={() => {
-          // 요약 완료 후 처리
-        }}
-      />
-      <SummaryModal 
-        isOpen={isSummaryModalOpen}
-        onClose={() => setIsSummaryModalOpen(false)}
-        title={summaryData.title}
-        date={summaryData.date}
-        participants={summaryData.participants}
-        content={summaryData.content}
-        confId={currentMeetingId!}
-      />
-      <AlertModal
-        isOpen={isAlertOpen}
-        onClose={() => setIsAlertOpen(false)}
-        message={alertMessage}
-      />
-    </div>
+    </>
   );
 } 
