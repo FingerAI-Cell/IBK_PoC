@@ -1,6 +1,7 @@
 .container {
   padding: 24px 32px;
-  background: #f4f7fe;
+  /* background: #f4f7fe; */
+  background-color: #fff;
   min-height: calc(100vh - 60px);
   width: calc(100% - 320px);
   position: fixed;
@@ -29,7 +30,8 @@
 .tabContainer {
   background: white;
   border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  border: 1px solid #dadada;
   max-width: 1200px;
   margin: 0 auto;
   width: 100%;
@@ -69,6 +71,9 @@
 
 .content {
   padding: 24px;
+  background: white;
+  /* 테두리와 그림자는 제거하고 탭과의 연결성만 유지 */
+  border-radius: 0 0 8px 8px;
 }
 
 .tableContainer {

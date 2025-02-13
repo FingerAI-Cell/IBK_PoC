@@ -184,10 +184,20 @@ export default function MeetingList() {
   
 
   const handleSummaryClick = async (meeting: Meeting) => {
-    // 특정 회의에 대한 로딩 상태 활성화
-
     try {
-      // 요약 데이터 가져오기
+      // 1. speakers 데이터 먼저 가져오기
+      const speakersResponse = await fetch('/api/meetings/speakers', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ meetingId: meeting.confId }),
+      });
+      
+      const speakersResult = await speakersResponse.json();
+
+      // 2. summary 데이터 가져오기
       const summaryResponse = await fetch('/api/meetings/summary', {
         method: 'POST',
         headers: {
@@ -199,35 +209,18 @@ export default function MeetingList() {
       
       const summaryResult = await summaryResponse.json();
       
-      // speakers 데이터 가져오기
-      const speakersResponse = await fetch('/api/meetings/speakers', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({ meetingId: meeting.confId }),
-      });
-      
-      const speakersResult = await speakersResponse.json();
-      const formattedDate = formatMeetingTime(meeting.startTime, meeting.endTime);
-
-      // success 체크 대신 실제 데이터 존재 여부 확인
-      if (summaryResult.topics?.length > 0) {
-        setIsSummaryModalOpen(true);
+      if (summaryResult.overall?.topics?.length > 0 || 
+          summaryResult.speaker?.topics?.length > 0) {
         setSummaryData({
           title: meeting.title,
-          date: formattedDate,
+          date: formatDate(meeting.startTime), // formatDate 함수 사용
           participants: speakersResult.data.map((speaker: Speaker) => ({
-            id: speaker.speakerId,              // speakerId는 항상 포함
-            name: speaker.name?.trim() || null          // name이 없으면 null로 처리
+            id: speaker.speakerId,
+            name: speaker.name?.trim() || null
           })) || [],
-          content: JSON.stringify(summaryResult),  // .data.summary가 아닌 .summary로 직접 접근
+          content: JSON.stringify(summaryResult)
         });
-        setCurrentMeetingId(meeting.confId);
-      } else {
-        setAlertMessage('요약 데이터를 불러오는데 실패했습니다.');
-        setIsAlertOpen(true);
+        setIsSummaryModalOpen(true);
       }
     } catch (error) {
       console.error('요약 데이터 로딩 실패:', error);

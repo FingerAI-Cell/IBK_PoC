@@ -26,15 +26,20 @@ export default function GreetingSection({
 
   return (
     <div className={styles.container}>
-      <div className={styles.greeting}>
-        <h1>{config.greeting}</h1>
-        {/* {isFinancialService ? (
-          <p className={styles.updateMessage}>서비스 업데이트 예정입니다.</p>
-        ) : ( */}
-          <p>무엇이든 물어보세요.</p>
-        {/* )} */}
-      </div>
-        <>
+      <div className={styles.contentWrapper}>
+        <div className={styles.topSection}>
+          <div className={styles.greeting}>
+            <h1>{config.greeting}</h1>
+            {/* {isFinancialService ? (
+              <p className={styles.updateMessage}>서비스 업데이트 예정입니다.</p>
+            ) : ( */}
+              {/* <p>무엇이든 물어보세요.</p> */}
+            {/* )} */}
+          </div>
+        </div>
+        
+        <div className={styles.bottomSection}>
+          <FAQSection faqs={faqs} onFAQClick={onFAQClick} />
           <div className={styles.chatBox}>
             <div className={styles.inputContainer}>
               <textarea
@@ -54,8 +59,8 @@ export default function GreetingSection({
               </button>
             </div>
           </div>
-          <FAQSection faqs={faqs} onFAQClick={onFAQClick} />
-        </>
+        </div>
+      </div>
     </div>
   );
 }

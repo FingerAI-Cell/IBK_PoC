@@ -2,12 +2,130 @@
   position: fixed;
   top: var(--header-height);
   bottom: 0;
-  background-color: #f4f7fE;
+  background-color: #fff;
   overflow-y: auto;
   left: 50%;
   transform: translateX(-50%);
   width: 80%;
   padding: 2rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.contentWrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.topSection {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.bottomSection {
+  margin-top: auto;
+  padding-bottom: 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.faqSection {
+  margin-bottom: 0.5rem;
+}
+
+.chatBox {
+  width: 100%;
+  max-width: 850px !important;
+}
+
+.greeting {
+  text-align: center;
+  margin-bottom: 3rem;
+  max-width: 500px;
+}
+
+.greeting h1 {
+  font-size: 2rem;
+  margin-bottom: 0.75rem;
+  background: linear-gradient(90deg, #4285f4, #ea4335);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 600;
+}
+
+.greeting p {
+  color: #666;
+  font-size: 1rem;
+}
+
+.inputContainer {
+  width: 100%;
+  background-color: #f8f9fa;
+  border-radius: 28px;
+  padding: 0.4rem 1.5rem;
+  height: 42px;
+  position: relative;
+  border: 1px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+}
+
+.inputContainer:focus-within {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-color: #4285f4;
+}
+
+.input {
+  width: calc(100% - 40px);
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 0.95rem;
+  resize: none;
+  height: 24px;
+  line-height: 24px;
+  padding: 0;
+  overflow: hidden;
+}
+
+.sendButton {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #4285f4;
+  font-size: 1.5rem;
+}
+
+.updateMessage {
+  font-size: 1.2rem;
+  color: #666;
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.faqItem {
+  background-color: #f8f9fa;
+  border: none;
+  border-radius: 24px;
+  padding: 0.35rem 0.8rem;
+  font-size: 0.8rem;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.faqItem:hover {
+  background-color: #e8eaed;
+  transform: translateY(-1px);
 }
 
 @media (min-width: 1400px) {
@@ -17,85 +135,5 @@
     transform: none;
     width: auto;
   }
-}
-
-.greeting {
-  text-align: center;
-  margin-bottom: 2rem;
-}
-
-.greeting h1 {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin-bottom: 0.5rem;
-  color:#2457a5;
-}
-
-.greeting p{
-  color:#666;
-}
-
-.chatBox {
-  background-color: #d7deef;
-  border-radius: 8px;
-  padding: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.inputContainer {
-  display: flex;
-  flex-direction: column;
-  background-color: white;
-  border-radius: 6px;
-  padding: 0.75rem;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-  min-height: 120px;
-  position: relative;
-}
-
-.input {
-  position: absolute;
-  top: 0.75rem;
-  left: 0.75rem;
-  width: calc(100% - 1.5rem);
-  height: calc(100% - 1.5rem);
-  border: none;
-  outline: none;
-  resize: none;
-  font-size: 0.875rem;
-  line-height: 1.2;
-  padding: 0;
-  margin: 0;
-  display: block;
-}
-
-.input::placeholder {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: auto;
-}
-
-.sendButton {
-  position: absolute;
-  bottom: 0.75rem;
-  right: 0.75rem;
-  background-color: transparent;
-  border: none;
-  color: #3b82f6;
-  font-size: 1.25rem;
-  cursor: pointer;
-  padding: 0.5rem;
-}
-
-.sendButton:hover {
-  color: #2563eb;
-}
-
-.updateMessage {
-  font-size: 1.2rem;
-  color: #666;
-  text-align: center;
-  margin-top: 2rem;
 }
   

@@ -98,30 +98,27 @@ export default function SummaryModal({
   if (!isOpen || !mounted) return null;
 
   const renderSpeakerSummary = () => {
-    if (!content) return <p>데이터가 없습니다.</p>;
+    if (!speakerSummary) return <p>데이터가 없습니다.</p>;
     
-    try {
-      const parsedTopics = JSON.parse(content).topics;
-  
-      return parsedTopics.map((topicEntry: any, index: number) => (
-        <div key={`topic-${index}`} className={styles.topicSection}>
-          <h4 className={styles.topicTitle}>{topicEntry.topic || '제목 없음'}</h4>
-          <div className={styles.speakerSection}>
-            {topicEntry.speakers
-              .filter((speaker: any) => speaker.content && speaker.content.trim() !== '')
-              .map((speaker: any, speakerIndex: number) => (
-                <div key={`speaker-${speakerIndex}`} className={styles.speakerDetails}>
-                  <span className={styles.speakerName}>{speaker.name}</span>
-                  <span className={styles.speakerContent}>{speaker.content}</span>
-                </div>
-              ))}
+    return (
+      <div>
+        {speakerSummary.topics.map((topicEntry, index) => (
+          <div key={`topic-${index}`} className={styles.topicSection}>
+            <h4 className={styles.topicTitle}>{topicEntry.topic || '제목 없음'}</h4>
+            <div className={styles.speakerSection}>
+              {topicEntry.speakers
+                .filter(speaker => speaker.content && speaker.content.trim() !== '')
+                .map((speaker, speakerIndex) => (
+                  <div key={`speaker-${speakerIndex}`} className={styles.speakerDetails}>
+                    <span className={styles.speakerName}>{speaker.name}</span>
+                    <span className={styles.speakerContent}>{speaker.content}</span>
+                  </div>
+                ))}
+            </div>
           </div>
-        </div>
-      ));
-    } catch (error) {
-      console.error('Summary 데이터 처리 오류:', error);
-      return <p>회의 데이터를 처리할 수 없습니다.</p>;
-    }
+        ))}
+      </div>
+    );
   };
 
   const renderOverallSummary = () => {

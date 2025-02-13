@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState, useRef} from "react";
-import { useCoAgent } from "@copilotkit/react-core";
-import { CopilotChat } from "@copilotkit/react-ui";
+import { useCoAgent, useCopilotChat } from "@copilotkit/react-core";
+import { CopilotChat, ResponseButtonProps } from "@copilotkit/react-ui";
 import "@copilotkit/react-ui/styles.css";
 import styles from "../ChatBox/ChatBox.module.css";
 // import { InputProps } from "@copilotkit/react-ui";
@@ -70,6 +70,8 @@ export default function Chat() {
       },
     },
   });
+
+  const { stopGeneration } = useCopilotChat();
 
   // 커스텀 이벤트 핸들러를 컴포넌트 레벨로 이동
   const handleCustomSend = (onSend: (message: string) => void) => (e: CustomEvent<{ message: string }>) => {
@@ -205,7 +207,7 @@ export default function Chat() {
         <input
           autoFocus
           ref={chatInputRef}
-          type="textarea"
+          type="text"
           placeholder="메시지를 입력하세요"
           className={styles.input}
           disabled={props.inProgress}
@@ -227,24 +229,40 @@ export default function Chat() {
             props.onSend(inputValue);
             inputElement.value = "";
           }}
-        >
-          전송
-        </button>
+        />
       </div>
     );
   };
 
+  // 생성 중단 버튼
+  const CustomResponseButton = ({ onClick, inProgress }: ResponseButtonProps) => (
+    <button
+      onClick={inProgress ? stopGeneration : onClick}
+      disabled={false}
+      className={styles.responseButton}
+    >
+      <span className={`${styles.responseButtonIcon} ${inProgress ? styles.stopIcon : styles.regenerateIcon}`}>
+        {inProgress ? '■' : '↻'}
+      </span>
+      {inProgress ? '생성 중단' : '다시 생성'}
+    </button>
+  );
+
   return (
       <div ref={chatContainerRef} className={styles.chatWrapper}>
         <div className={styles.container}>
-          <CopilotChat
-            className={styles.copilotChat}
-            Input={CustomInput}
-            labels={{
-              title: currentConfig.title,
-              initial: currentConfig.greeting,
-            }}
-          />
+          <div className={styles.chatContainer}>
+            <CopilotChat
+              className={styles.copilotChat}
+              Input={CustomInput}
+              ResponseButton={CustomResponseButton}
+              labels={{
+                title: currentConfig.title,
+                initial: currentConfig.greeting,
+              }}
+            />
+            <div className={styles.spacer}></div>
+          </div>
         </div>
       </div>
   );

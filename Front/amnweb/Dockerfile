@@ -37,7 +37,7 @@
 
 # 아래가 중요 서버 도커파일임
 # Node.js 22 이미지 사용
-FROM ibk-poc-front:latest
+FROM ibk-poc-front:v2
 
 # 작업 디렉토리 설정
 WORKDIR /app
