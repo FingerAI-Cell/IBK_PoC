@@ -22,7 +22,7 @@ export default function SidebarCategories({
     { id: "general-chat", name: "일반 채팅", icon: <BsChatDots /> },
     { id: "overseas-loan", name: "해외주식", icon: <BiWorld /> },
     { id: "financial-statements", name: "재무제표", icon: <BiFile /> },
-    { id: "branch-manual", name: "영업점 매뉴얼", icon: <BiStore /> },
+    { id: "branch-manual", name: "업무 매뉴얼", icon: <BiStore /> },
     { id: "meeting-minutes", name: "회의록", icon: <BiNotepad /> },
     { id: "investment-report", name: "개인투자정보", icon: <BiUser /> },
     { 

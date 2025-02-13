@@ -27,38 +27,41 @@ export default function GreetingSection({
   return (
     <div className={styles.container}>
       <div className={styles.contentWrapper}>
-        <div className={styles.topSection}>
-          <div className={styles.greeting}>
-            <h1>{config.greeting}</h1>
-            {/* {isFinancialService ? (
-              <p className={styles.updateMessage}>서비스 업데이트 예정입니다.</p>
-            ) : ( */}
-              {/* <p>무엇이든 물어보세요.</p> */}
-            {/* )} */}
-          </div>
-        </div>
-        
-        <div className={styles.bottomSection}>
-          <FAQSection faqs={faqs} onFAQClick={onFAQClick} />
-          <div className={styles.chatBox}>
-            <div className={styles.inputContainer}>
-              <textarea
-                placeholder={config.defaultMessage}
-                value={chatInput}
-                onChange={(e) => onInputChange(e.target.value)}
-                className={styles.input}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    onSubmit();
-                  }
-                }}
-              />
-              <button onClick={onSubmit} className={styles.sendButton}>
-                →
-              </button>
+        <div className={styles.chatContainer}>
+          <div className={styles.topSection}>
+            <div className={styles.greeting}>
+              <h1>{config.greeting}</h1>
+              {/* {isFinancialService ? (
+                <p className={styles.updateMessage}>서비스 업데이트 예정입니다.</p>
+              ) : ( */}
+                {/* <p>무엇이든 물어보세요.</p> */}
+              {/* )} */}
             </div>
           </div>
+          
+          <div className={styles.bottomSection}>
+            <FAQSection faqs={faqs} onFAQClick={onFAQClick} />
+            <div className={styles.chatBox}>
+              <div className={styles.inputContainer}>
+                <textarea
+                  placeholder={config.defaultMessage}
+                  value={chatInput}
+                  onChange={(e) => onInputChange(e.target.value)}
+                  className={styles.input}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      onSubmit();
+                    }
+                  }}
+                />
+                <button onClick={onSubmit} className={styles.sendButton}>
+                  →
+                </button>
+              </div>
+            </div>
+          </div>
+          <div className={styles.spacer}></div>
         </div>
       </div>
     </div>

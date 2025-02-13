@@ -6,14 +6,14 @@
 @layer base {
   :root {
     --header-height: 4rem; /* 헤더 높이 */
-    --background: #ffffff;
+    --background: #ffffff; /* 배경색을 흰색으로 변경 */
     --foreground: #171717;
   }
 
   @media (prefers-color-scheme: dark) {
     :root {
-      --background: #0a0a0a;
-      --foreground: #ededed;
+      --background: #ffffff; /* 다크모드에서도 흰색으로 유지 */
+      --foreground: #171717;
     }
   }
 

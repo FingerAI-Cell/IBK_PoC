@@ -14,7 +14,7 @@ export default function RootLayout({
   console.log("aaa");
   return (
     <html lang="ko">
-      <body className="flex min-h-screen bg-gray-100">
+      <body className="flex min-h-screen bg-white-100">
         <div id="modal-root" />
         <ServiceProvider>
           <ChatProvider>

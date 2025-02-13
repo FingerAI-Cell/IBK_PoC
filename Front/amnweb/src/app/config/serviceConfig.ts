@@ -44,10 +44,10 @@ export const serviceConfig: { [key: string]: ServiceConfig } = {
   },
   'branch-manual': {
     apiEndpoint: '/api/onelineai/olaf',
-    title: '영업점 매뉴얼',
-    defaultMessage: '영업점 매뉴얼에 대해 질문해주세요.',
+    title: '업무 매뉴얼',
+    defaultMessage: '업무 매뉴얼에 대해 질문해주세요.',
     historyKey: 'chat-history-branch',
-    greeting: '영업점 매뉴얼 도우미입니다.',
+    greeting: '업무 매뉴얼 도우미입니다.',
     agent: 'olaf_ibk_poc_agent',
     useCopilot: true
   },

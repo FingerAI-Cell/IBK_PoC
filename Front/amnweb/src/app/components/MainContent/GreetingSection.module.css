@@ -1,24 +1,22 @@
 .container {
   position: fixed;
-  top: 0;
+  top: var(--header-height);
   bottom: 0;
   background-color: #fff;
-  overflow-y: auto;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80%;
-  padding: 2rem;
-  padding-top: var(--header-height);
+  left: 10%;
+  right: 10%;
+  padding: 0;
   display: flex;
   flex-direction: column;
+  z-index: 5;
 }
 
 .contentWrapper {
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   height: 100%;
+  position: relative;
 }
 
 .topSection {
@@ -27,24 +25,43 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  padding-bottom: 2rem;
 }
 
 .bottomSection {
-  margin-top: auto;
-  padding-bottom: 3rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.75rem;
+  position: sticky;
+  bottom: 2rem;
+  width: 100%;
+  background: white;
+  padding: 0.25rem 1rem;
+  flex: 0 0 auto;
+  z-index: 10;
+}
+
+.spacer {
+  height: 100px;
+  width: 100%;
+  flex: 0 0 100px;
 }
 
 .faqSection {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.3rem;
+}
+
+.chatContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
 }
 
 .chatBox {
   width: 100%;
   max-width: 850px !important;
+  margin: 0 auto;
+  margin-top: 20px;
 }
 
 .greeting {
@@ -117,8 +134,8 @@
   background-color: #f8f9fa;
   border: none;
   border-radius: 24px;
-  padding: 0.35rem 0.8rem;
-  font-size: 0.8rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
   color: #666;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -135,6 +152,26 @@
     right: 10%;
     transform: none;
     width: auto;
+  }
+}
+
+@media (max-height: 800px) {
+  .bottomSection {
+    bottom: 1.5rem;
+  }
+  .spacer {
+    height: 80px;
+    flex: 0 0 80px;
+  }
+}
+
+@media (max-height: 600px) {
+  .bottomSection {
+    bottom: 1rem;
+  }
+  .spacer {
+    height: 60px;
+    flex: 0 0 60px;
   }
 }
   

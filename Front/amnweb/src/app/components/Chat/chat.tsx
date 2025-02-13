@@ -220,49 +220,49 @@ export default function Chat() {
             }
           }}
         />
-        <button
-          className={styles.sendButton}
-          disabled={props.inProgress}
-          onClick={(e) => {
-            const inputElement = e.currentTarget.previousElementSibling as HTMLInputElement;
-            const inputValue = inputElement.value;
-            props.onSend(inputValue);
-            inputElement.value = "";
-          }}
-        />
+        {props.inProgress ? (
+          <button
+            onClick={stopGeneration}
+            className={styles.stopButton}
+          >
+            <span className={styles.stopIcon}>■</span>
+          </button>
+        ) : (
+          <button
+            className={styles.sendButton}
+            disabled={props.inProgress}
+            onClick={(e) => {
+              const inputElement = e.currentTarget.previousElementSibling as HTMLInputElement;
+              const inputValue = inputElement.value;
+              props.onSend(inputValue);
+              inputElement.value = "";
+            }}
+          />
+        )}
       </div>
     );
   };
 
   // 생성 중단 버튼
-  const CustomResponseButton = ({ onClick, inProgress }: ResponseButtonProps) => (
-    <button
-      onClick={inProgress ? stopGeneration : onClick}
-      disabled={false}
-      className={styles.responseButton}
-    >
-      <span className={`${styles.responseButtonIcon} ${inProgress ? styles.stopIcon : styles.regenerateIcon}`}>
-        {inProgress ? '■' : '↻'}
-      </span>
-      {inProgress ? '생성 중단' : '다시 생성'}
-    </button>
-  );
+  const CustomResponseButton = ({ onClick, inProgress }: ResponseButtonProps) => {
+    return null; // 상단 버튼을 완전히 제거
+  };
 
   return (
       <div ref={chatContainerRef} className={styles.chatWrapper}>
         <div className={styles.container}>
-          <div className={styles.chatContainer}>
-            <CopilotChat
-              className={styles.copilotChat}
-              Input={CustomInput}
-              ResponseButton={CustomResponseButton}
-              labels={{
-                title: currentConfig.title,
-                initial: currentConfig.greeting,
-              }}
-            />
-            <div className={styles.spacer}></div>
-          </div>
+            <div className={styles.chatContainer}>
+                <CopilotChat
+                    className={styles.copilotChat}
+                    Input={CustomInput}
+                    ResponseButton={CustomResponseButton}
+                    labels={{
+                        title: currentConfig.title,
+                        initial: currentConfig.greeting,
+                    }}
+                />
+                <div className={styles.spacer}></div>
+            </div>
         </div>
       </div>
   );
